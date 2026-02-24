@@ -3,65 +3,59 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Worldpanel Vietnam - Assessment Center</title>
+    <title>Worldpanel Vietnam - Online Assessment</title>
     <style>
         :root { --primary: #673ab7; --bg: #f0ebf8; --text: #202124; --warning: #d93025; }
         body { font-family: 'Segoe UI', Tahoma, sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 10px; user-select: none; }
-        .container { max-width: 900px; margin: 0 auto; padding-bottom: 100px; }
+        .container { max-width: 850px; margin: 0 auto; padding-bottom: 50px; }
         
-        /* Sticky Header */
-        .timer-box { position: fixed; top: 10px; right: 10px; background: white; padding: 15px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); border-left: 5px solid var(--primary); z-index: 1000; text-align: center; min-width: 120px; }
+        /* Sticky UI */
+        .timer-box { position: fixed; top: 10px; right: 10px; background: white; padding: 15px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); border-left: 5px solid var(--primary); z-index: 1000; text-align: center; }
         #timer { font-size: 28px; font-weight: bold; color: var(--primary); }
 
         .header-card { background: white; border-top: 10px solid var(--primary); border-radius: 8px; padding: 25px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.12); }
-        .section-header { background: #4a148c; color: white; padding: 15px; border-radius: 4px; font-weight: bold; margin: 40px 0 20px 0; text-transform: uppercase; letter-spacing: 1px; }
+        .section-header { background: #4a148c; color: white; padding: 15px; border-radius: 4px; font-weight: bold; margin: 40px 0 20px 0; text-transform: uppercase; }
         
         .question-card { background: white; padding: 20px; border-radius: 8px; margin-bottom: 15px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
-        .question-num { color: var(--primary); font-weight: bold; margin-right: 10px; }
-        .question-text { font-size: 16px; font-weight: 600; margin-bottom: 15px; display: inline-block; line-height: 1.5; }
+        .question-text { font-size: 15px; font-weight: 600; margin-bottom: 15px; display: block; line-height: 1.6; white-space: pre-wrap; }
         
-        .options-list { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        @media (max-width: 600px) { .options-list { grid-template-columns: 1fr; } }
-        
-        label { cursor: pointer; padding: 12px; border-radius: 5px; border: 1px solid #eee; display: flex; align-items: center; transition: 0.2s; }
-        label:hover { background: #f3e5f5; border-color: var(--primary); }
-        input[type="radio"] { margin-right: 12px; transform: scale(1.3); cursor: pointer; }
+        .options-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+        label { cursor: pointer; padding: 10px; border: 1px solid #eee; border-radius: 4px; display: flex; align-items: center; }
+        label:hover { background: #f3e5f5; }
+        input[type="radio"] { margin-right: 10px; }
 
-        table { width: 100%; border-collapse: collapse; margin: 15px 0; background: #fff; font-size: 13px; }
+        table { width: 100%; border-collapse: collapse; margin: 15px 0; font-size: 13px; background: white; }
         th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
         th { background: #f2f2f2; }
 
-        .btn-submit { background: var(--primary); color: white; border: none; padding: 20px; border-radius: 8px; cursor: pointer; font-size: 20px; font-weight: bold; width: 100%; margin-top: 40px; box-shadow: 0 4px 6px rgba(0,0,0,0.2); }
-        #alert-popup { display: none; position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: var(--warning); color: white; padding: 15px 30px; border-radius: 8px; z-index: 2000; font-weight: bold; box-shadow: 0 10px 20px rgba(0,0,0,0.3); }
+        .math-block { text-align: center; font-family: "Courier New", Courier, monospace; font-weight: bold; margin: 10px 0; }
+        #alert-popup { display: none; position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: var(--warning); color: white; padding: 15px; border-radius: 8px; z-index: 2000; font-weight: bold; }
+        .btn-submit { background: var(--primary); color: white; border: none; padding: 20px; border-radius: 4px; cursor: pointer; font-size: 18px; width: 100%; font-weight: bold; }
     </style>
 </head>
 <body oncontextmenu="return false;">
 
-<div id="alert-popup">⚠️ SECURITY VIOLATION: ACTION BLOCKED</div>
+<div id="alert-popup">SECURITY ALERT: ACTION PROHIBITED</div>
 
 <div class="timer-box">
-    <div style="font-size: 11px; font-weight: bold;">TIME REMAINING</div>
+    <div style="font-size: 11px;">TIME REMAINING</div>
     <div id="timer">45:00</div>
 </div>
 
 <div class="container">
     <div class="header-card">
-        <h1 style="margin:0 0 10px 0;">Worldpanel Assessment</h1>
-        <p><strong>Part 1:</strong> Numerical Aptitude (30 min) | <strong>Part 2:</strong> Data Interpretation (15 min)</p>
-        <p style="font-size: 13px; color: #d93025;"><strong>Strict Rules:</strong> Do not exit full-screen. Do not switch tabs. Do not use calculator unless permitted.</p>
+        <h1>Assessment Center</h1>
+        <p><strong>Test 1:</strong> Numerical Aptitude (30 mins) | <strong>Test 2:</strong> Data Interpretation (15 mins)</p>
+        <hr>
+        <input type="text" name="candidate_name" id="c_name" required placeholder="Full Name *" style="width:100%; border:none; border-bottom:2px solid #ddd; padding:10px 0; outline:none; font-size:16px;">
     </div>
 
     <form id="assessmentForm">
-        <div class="question-card">
-            <label class="question-text">Candidate Full Name *</label>
-            <input type="text" name="candidate_name" required style="width:100%; border:none; border-bottom:2px solid #ddd; padding:10px 0; outline:none; font-size:18px;">
-        </div>
-
         <div class="section-header">Test 1: Numerical Aptitude</div>
-
+        
         <div class="question-card">
-            <span class="question-num">1.</span> <span class="question-text">Which of the following fractions is less than one-third?</span>
-            <div class="options-list">
+            <span class="question-text">1. Which of the following fractions is less than one-third?</span>
+            <div class="options-grid">
                 <label><input type="radio" name="q1_1" value="A"> A. 22/63</label>
                 <label><input type="radio" name="q1_1" value="B"> B. 4/11</label>
                 <label><input type="radio" name="q1_1" value="C"> C. 15/46</label>
@@ -71,8 +65,8 @@
         </div>
 
         <div class="question-card">
-            <span class="question-num">2.</span> <span class="question-text">When it is noon at prime meridian on the equator, what time is it at 75 degree north latitude on this meridian?</span>
-            <div class="options-list">
+            <span class="question-text">2. When it is noon at prime meridian on the equator, what time is it at 75 degree north latitude on this meridian?</span>
+            <div class="options-grid">
                 <label><input type="radio" name="q1_2" value="A"> A. 12 noon</label>
                 <label><input type="radio" name="q1_2" value="B"> B. 3 pm</label>
                 <label><input type="radio" name="q1_2" value="C"> C. 5 pm</label>
@@ -82,8 +76,8 @@
         </div>
 
         <div class="question-card">
-            <span class="question-num">3.</span> <span class="question-text">A carpenter needs four boards, each 2 metres 70 cm long. If wood is sold only by the metre, how many metres must he buy?</span>
-            <div class="options-list">
+            <span class="question-text">3. A carpenter needs four boards, each 2 metres 70 cm long. If wood is sold only by the metre, how many metres must he buy?</span>
+            <div class="options-grid">
                 <label><input type="radio" name="q1_3" value="A"> A. 9</label>
                 <label><input type="radio" name="q1_3" value="B"> B. 10</label>
                 <label><input type="radio" name="q1_3" value="C"> C. 11</label>
@@ -93,129 +87,24 @@
         </div>
 
         <div class="question-card">
-            <span class="question-num">4.</span> <span class="question-text">A motorist travels 120 KM at 60 KM/h and returns at 40 KM/h. Average speed for the entire trip is:</span>
-            <div class="options-list">
-                <label><input type="radio" name="q1_4" value="A"> A. 53 Km</label>
-                <label><input type="radio" name="q1_4" value="B"> B. 50 Km</label>
-                <label><input type="radio" name="q1_4" value="C"> C. 48 Km</label>
-                <label><input type="radio" name="q1_4" value="D"> D. 45 Km</label>
-                <label><input type="radio" name="q1_4" value="E"> E. 52 Km</label>
+            <span class="question-text">24. Solve the following:</span>
+            <div class="math-block">
+                36<br>
+                --------------  =<br>
+                29 - 4/0.2
+            </div>
+            <div class="options-grid">
+                <label><input type="radio" name="q1_24" value="A"> A. 4/3</label>
+                <label><input type="radio" name="q1_24" value="B"> B. 2</label>
+                <label><input type="radio" name="q1_24" value="C"> C. 4</label>
+                <label><input type="radio" name="q1_24" value="D"> D. 9</label>
+                <label><input type="radio" name="q1_24" value="E"> E. 18</label>
             </div>
         </div>
 
         <div class="question-card">
-            <span class="question-num">5.</span> <span class="question-text">A room 19 feet 2 inches by 13 feet 2 inches. What is the floor area in sq. yards? (approx)</span>
-            <div class="options-list">
-                <label><input type="radio" name="q1_5" value="A"> A. 22</label>
-                <label><input type="radio" name="q1_5" value="B"> B. 28</label>
-                <label><input type="radio" name="q1_5" value="C"> C. 35</label>
-                <label><input type="radio" name="q1_5" value="D"> D. 26</label>
-                <label><input type="radio" name="q1_5" value="E"> E. 31</label>
-            </div>
-        </div>
-
-        <div class="question-card">
-            <span class="question-num">6.</span> <span class="question-text">If 5 pipes can drain a tank in 2 hours, how many pipes are needed to drain it in 20 minutes?</span>
-            <div class="options-list">
-                <label><input type="radio" name="q1_6" value="A"> A. 15</label>
-                <label><input type="radio" name="q1_6" value="B"> B. 20</label>
-                <label><input type="radio" name="q1_6" value="C"> C. 25</label>
-                <label><input type="radio" name="q1_6" value="D"> D. 30</label>
-                <label><input type="radio" name="q1_6" value="E"> E. 35</label>
-            </div>
-        </div>
-
-        <div class="question-card">
-            <span class="question-num">7.</span> <span class="question-text">If 4-1/2 yards of cloth cost Vnd.90,000, what is the cost of 2-1/2 yards?</span>
-            <div class="options-list">
-                <label><input type="radio" name="q1_7" value="A"> A. 40,000</label>
-                <label><input type="radio" name="q1_7" value="B"> B. 45,000</label>
-                <label><input type="radio" name="q1_7" value="C"> C. 50,000</label>
-                <label><input type="radio" name="q1_7" value="D"> D. 55,000</label>
-                <label><input type="radio" name="q1_7" value="E"> E. 60,000</label>
-            </div>
-        </div>
-
-        <div class="question-card">
-            <span class="question-num">8.</span> <span class="question-text">What is the next number in the series: 3, 5, 9, 17, __?</span>
-            <div class="options-list">
-                <label><input type="radio" name="q1_8" value="A"> A. 25</label>
-                <label><input type="radio" name="q1_8" value="B"> B. 26</label>
-                <label><input type="radio" name="q1_8" value="C"> C. 33</label>
-                <label><input type="radio" name="q1_8" value="D"> D. 34</label>
-                <label><input type="radio" name="q1_8" value="E"> E. 35</label>
-            </div>
-        </div>
-
-        <div class="question-card">
-            <span class="question-num">9.</span> <span class="question-text">A person spends 1/4 of salary on rent, 1/3 on food. If Vnd.1,200,000 remains, total salary is:</span>
-            <div class="options-list">
-                <label><input type="radio" name="q1_9" value="A"> A. 2,400,000</label>
-                <label><input type="radio" name="q1_9" value="B"> B. 2,880,000</label>
-                <label><input type="radio" name="q1_9" value="C"> C. 3,200,000</label>
-                <label><input type="radio" name="q1_9" value="D"> D. 3,600,000</label>
-                <label><input type="radio" name="q1_9" value="E"> E. 4,000,000</label>
-            </div>
-        </div>
-
-        <div class="question-card">
-            <span class="question-num">10.</span> <span class="question-text">If x + y = 6 and x - y = 2, then x is:</span>
-            <div class="options-list">
-                <label><input type="radio" name="q1_10" value="A"> A. 2</label>
-                <label><input type="radio" name="q1_10" value="B"> B. 3</label>
-                <label><input type="radio" name="q1_10" value="C"> C. 4</label>
-                <label><input type="radio" name="q1_10" value="D"> D. 5</label>
-                <label><input type="radio" name="q1_10" value="E"> E. 6</label>
-            </div>
-        </div>
-
-        <div class="question-card">
-            <span class="question-num">11.</span> <span class="question-text">What is 0.5% of 2000?</span>
-            <div class="options-list">
-                <label><input type="radio" name="q1_11" value="A"> A. 1</label>
-                <label><input type="radio" name="q1_11" value="B"> B. 10</label>
-                <label><input type="radio" name="q1_11" value="C"> C. 100</label>
-                <label><input type="radio" name="q1_11" value="D"> D. 0.1</label>
-                <label><input type="radio" name="q1_11" value="E"> E. 5</label>
-            </div>
-        </div>
-
-        <div class="question-card">
-            <span class="question-num">12.</span> <span class="question-text">A man buys a cycle for 1400 and sells it at a loss of 15%. What is the selling price?</span>
-            <div class="options-list">
-                <label><input type="radio" name="q1_12" value="A"> A. 1090</label>
-                <label><input type="radio" name="q1_12" value="B"> B. 1160</label>
-                <label><input type="radio" name="q1_12" value="C"> C. 1190</label>
-                <label><input type="radio" name="q1_12" value="D"> D. 1202</label>
-                <label><input type="radio" name="q1_12" value="E"> E. 1250</label>
-            </div>
-        </div>
-
-        <div class="question-card">
-            <span class="question-num">23.</span> <span class="question-text">How many ways can 6 be expressed as sum of two different positive integers?</span>
-            <div class="options-list">
-                <label><input type="radio" name="q1_23" value="A"> A. 4</label>
-                <label><input type="radio" name="q1_23" value="B"> B. 3</label>
-                <label><input type="radio" name="q1_23" value="C"> C. 5</label>
-                <label><input type="radio" name="q1_23" value="D"> D. 2</label>
-                <label><input type="radio" name="q1_23" value="E"> E. 1</label>
-            </div>
-        </div>
-
-        <div class="question-card">
-            <span class="question-num">26.</span> <span class="question-text">If a 20% discount saves Vnd.15,000, how much did he pay for the book?</span>
-            <div class="options-list">
-                <label><input type="radio" name="q1_26" value="A"> A. 35,000</label>
-                <label><input type="radio" name="q1_26" value="B"> B. 75,000</label>
-                <label><input type="radio" name="q1_26" value="C"> C. 60,000</label>
-                <label><input type="radio" name="q1_26" value="D"> D. 150,000</label>
-                <label><input type="radio" name="q1_26" value="E"> E. 300,000</label>
-            </div>
-        </div>
-
-        <div class="question-card">
-            <span class="question-num">27.</span> <span class="question-text">If T kg of snow falls in 1 sec, how many Kgs fall in M minutes?</span>
-            <div class="options-list">
+            <span class="question-text">27. If T kg of snow falls in one second, how many Kgs fall in M minutes?</span>
+            <div class="options-grid">
                 <label><input type="radio" name="q1_27" value="A"> A. 60 MT</label>
                 <label><input type="radio" name="q1_27" value="B"> B. MT + 60</label>
                 <label><input type="radio" name="q1_27" value="C"> C. MT</label>
@@ -225,9 +114,9 @@
         </div>
 
         <div class="section-header">Test 2: Data Interpretation</div>
-
+        
         <div class="question-card">
-            <p><strong>REFERENCE DATA:</strong> Number of Employees in Civil Service (1902-1937)</p>
+            <span class="question-text">1. Refer to the table: NUMBER OF EMPLOYEES IN CIVIL SERVICE (1902-1937)</span>
             <table>
                 <tr><th>Year</th><th>Total</th><th>Competitive (k)</th><th>Labour (k)</th><th>Non-Comp (k)</th></tr>
                 <tr><td>1902</td><td>34</td><td>20</td><td>12</td><td>2</td></tr>
@@ -241,117 +130,72 @@
                 <tr><td>1933</td><td>90</td><td>50</td><td>25</td><td>15</td></tr>
                 <tr><td>1937</td><td>112</td><td>63</td><td>30</td><td>19</td></tr>
             </table>
-
-            <span class="question-num">1.1.</span> <span class="question-text">The percentage of employees in the non-competitive class has been constantly increasing since 1902.</span>
-            <div class="options-list">
-                <label><input type="radio" name="q2_1_1" value="Correct"> A. Correct</label>
-                <label><input type="radio" name="q2_1_1" value="Incorrect"> B. Incorrect</label>
-            </div>
-            <br>
-            <span class="question-num">1.2.</span> <span class="question-text">In 1922, the number of competitive class employees was exactly double the number of labour class.</span>
-            <div class="options-list">
-                <label><input type="radio" name="q2_1_2" value="Correct"> A. Correct</label>
-                <label><input type="radio" name="q2_1_2" value="Incorrect"> B. Incorrect</label>
+            <span class="question-text">1.1. The percentage of employees in the non-competitive class has been constantly increasing since 1902.</span>
+            <div class="options-grid">
+                <label><input type="radio" name="q2_1_1" value="A"> A. Correct</label>
+                <label><input type="radio" name="q2_1_1" value="B"> B. Incorrect</label>
             </div>
         </div>
 
-        <div class="question-card">
-            <p><strong>FEDERAL GOVERNMENT INCOME:</strong> Individual Income Taxes (43%), Corporation Taxes (31%), Social Insurance (19%), Others (7%).</p>
-            
-            <span class="question-num">2.1.</span> <span class="question-text">What is the ratio of individual income taxes to corporation income taxes?</span>
-            <div class="options-list">
-                <label><input type="radio" name="q2_2_1" value="A"> A. 1/3</label>
-                <label><input type="radio" name="q2_2_1" value="B"> B. 1/4</label>
-                <label><input type="radio" name="q2_2_1" value="C"> C. 2/5</label>
-                <label><input type="radio" name="q2_2_1" value="D"> D. 1/2</label>
-                <label><input type="radio" name="q2_2_1" value="E"> E. 3/4</label>
-            </div>
-            <br>
-            <span class="question-num">2.2.</span> <span class="question-text">What percent of federal income is derived from individual income taxes?</span>
-            <div class="options-list">
-                <label><input type="radio" name="q2_2_2" value="A"> A. 0.043%</label>
-                <label><input type="radio" name="q2_2_2" value="B"> B. 4.3%</label>
-                <label><input type="radio" name="q2_2_2" value="C"> C. 43%</label>
-                <label><input type="radio" name="q2_2_2" value="D"> D. 0.43%</label>
-            </div>
-        </div>
-
-        <button type="submit" class="btn-submit" id="submitBtn">FINISH & SUBMIT ASSESSMENT</button>
+        <button type="submit" class="btn-submit" id="subBtn">SUBMIT FINAL ASSESSMENT</button>
     </form>
 </div>
 
 <script>
-    // --- TIMER CONFIGURATION (45 MINUTES) ---
+    // Security & Timer Logic
     let timeLeft = 45 * 60;
-    let tabSwitches = 0;
-    const alertPopup = document.getElementById('alert-popup');
+    let tabViolations = 0;
 
-    const timerInterval = setInterval(() => {
+    setInterval(() => {
         let mins = Math.floor(timeLeft / 60);
         let secs = timeLeft % 60;
         document.getElementById('timer').textContent = `${mins}:${secs < 10 ? '0' : ''}${secs}`;
-        if (timeLeft <= 0) {
-            clearInterval(timerInterval);
-            autoSubmit();
-        }
+        if (timeLeft <= 0) autoSubmit();
         timeLeft--;
     }, 1000);
 
-    // --- ANTI-CHEAT ENGINE ---
-    const triggerViolation = () => {
-        alertPopup.style.display = 'block';
-        setTimeout(() => alertPopup.style.display = 'none', 3000);
-    };
-
-    // 1. Block Copy/Paste/Cut/Context Menu/Selection
-    ['copy', 'paste', 'cut', 'contextmenu', 'selectstart'].forEach(event => {
-        document.addEventListener(event, (e) => {
-            e.preventDefault();
-            triggerViolation();
+    // Chặn copy paste
+    ['copy', 'paste', 'cut', 'contextmenu', 'selectstart'].forEach(e => {
+        document.addEventListener(e, (err) => {
+            err.preventDefault();
+            document.getElementById('alert-popup').style.display = 'block';
+            setTimeout(() => { document.getElementById('alert-popup').style.display = 'none'; }, 2500);
         });
     });
 
-    // 2. Detect Tab Switching
+    // Phát hiện chuyển Tab
     document.addEventListener("visibilitychange", () => {
         if (document.hidden) {
-            tabSwitches++;
-            alert(`⚠️ WARNING: You left the assessment screen! Violation logged: ${tabSwitches}`);
+            tabViolations++;
+            alert("⚠️ WARNING: Tab switching is monitored. Violations recorded: " + tabViolations);
         }
     });
 
-    // 3. Fullscreen Force (User must click to start)
-    document.addEventListener('click', () => {
-        if (!document.fullscreenElement) {
-            document.documentElement.requestFullscreen().catch(() => {});
-        }
-    }, { once: true });
-
-    // --- DATA SUBMISSION ---
     document.getElementById('assessmentForm').onsubmit = async (e) => {
         e.preventDefault();
-        const btn = document.getElementById('submitBtn');
-        btn.disabled = true;
-        btn.innerText = "Processing Submission...";
-
-        const scriptURL = 'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE'; 
-        const formData = new FormData(e.target);
-        formData.append('tab_switches', tabSwitches);
+        const name = document.getElementById('c_name').value;
+        if(!name) return alert("Please enter your name!");
         
+        const btn = document.getElementById('subBtn');
+        btn.disabled = true;
+        btn.innerText = "Submitting...";
+
+        const scriptURL = 'YOUR_GOOGLE_SCRIPT_URL';
+        const formData = new FormData(e.target);
+        formData.append('candidate_name', name);
+        formData.append('tab_violations', tabViolations);
+
         try {
-            // Attempt to send to Google Sheets
             await fetch(scriptURL, { method: 'POST', body: formData });
-            alert("✅ Assessment submitted successfully!");
-            window.location.href = "https://github.com/Worldpanel"; 
-        } catch (error) {
-            alert("⚠️ Connection issue. Your answers are logged in console, but please check your script URL.");
-            console.log("Form Data:", Object.fromEntries(formData));
+            alert("Assessment submitted successfully!");
+        } catch (err) {
+            alert("Submission error. Please ensure your script URL is correct.");
             btn.disabled = false;
-            btn.innerText = "RETRY SUBMISSION";
         }
     };
 
     function autoSubmit() {
-        alert("⏰ Time is up! Submitting your work automatically.");
+        alert("Time is up! Auto-submitting.");
         document.getElementById('assessmentForm').requestSubmit();
     }
 </script>
