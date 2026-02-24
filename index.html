@@ -1,475 +1,359 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Proctored Test — Custom Page</title>
-  <style>
-    :root {
-      --brand: #4a148c;      /* Deep purple (matches your timer style) */
-      --brand-2: #6a1b9a;
-      --bg: #F0EBF8;
-      --danger: #d32f2f;
-      --ok: #2e7d32;
-      --ink: #222;
-    }
-    html, body {
-      margin: 0; padding: 0; background: var(--bg);
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      color: var(--ink);
-    }
-    header {
-      position: sticky; top: 0; z-index: 10;
-      background: white; border-bottom: 2px solid var(--brand); padding: 10px 16px;
-      display: grid; grid-template-columns: 1fr auto auto; gap: 12px; align-items: center;
-    }
-    #timer {
-      font-weight: 700; color: var(--brand); font-size: 1.25rem;
-      border: 2px solid var(--brand); padding: 6px 10px; border-radius: 6px;
-      background: #fff; width: max-content;
-    }
-    #tabSwitchCounter {
-      font-size: .9rem; color: #555; background: #fff; padding: 4px 8px; border-radius: 6px;
-      border: 1px dashed var(--brand-2);
-    }
-    #warning {
-      color: var(--danger);
-      display: none;
-      background: #fff; border: 2px solid var(--danger); border-radius: 6px; padding: 6px 10px;
-    }
-    main { max-width: 900px; margin: 20px auto; padding: 0 16px 64px; }
-    .card {
-      background: #fff; border: 1px solid #ddd; border-radius: 10px; padding: 18px 18px 8px; margin-bottom: 16px;
-      box-shadow: 0 2px 0 rgba(0,0,0,.03);
-    }
-    .card h2, .card h3 { margin: 0 0 10px; color: var(--brand); }
-    fieldset { border: none; margin: 0 0 10px; padding: 0; }
-    legend { font-weight: 600; margin-bottom: 8px; color: var(--brand-2); }
-    .question { margin: 12px 0 16px; }
-    .question p { margin: 0 0 10px; font-weight: 600; }
-    label.option {
-      display: block; margin: 6px 0; padding: 6px 8px; border-radius: 6px; cursor: pointer;
-      border: 1px solid #e3d7f5; background: #faf6ff;
-    }
-    label.option:hover { background: #f3ebff; }
-    .matrix {
-      overflow-x: auto;
-    }
-    table.matrix-table {
-      border-collapse: collapse; width: 100%; background: #fff; border: 1px solid #e6e0f0;
-    }
-    table.matrix-table th, table.matrix-table td {
-      border: 1px solid #e6e0f0; padding: 8px; text-align: center;
-    }
-    table.matrix-table th { background: #f7f2ff; color: #4a148c; }
-    .actions {
-      display: flex; gap: 10px; justify-content: flex-end; padding: 16px 0;
-    }
-    button.primary {
-      background: var(--brand); color: #fff; border: none; padding: 10px 16px;
-      border-radius: 8px; cursor: pointer; font-weight: 600;
-    }
-    button.primary:hover { background: var(--brand-2); }
-    button.secondary {
-      background: #eee; border: 1px solid #ddd; padding: 10px 16px; border-radius: 8px; cursor: pointer;
-    }
-    .banner {
-      position: fixed; left: 50%; transform: translateX(-50%);
-      bottom: 10px; background: #fffbe6; border: 1px solid #ffe58f; color: #ad6800;
-      padding: 6px 10px; border-radius: 6px; display: none; z-index: 20;
-    }
-    /* Start overlay (requires user gesture for fullscreen) */
-    #startOverlay {
-      position: fixed; inset: 0; background: rgba(0,0,0,.6); display: grid; place-items: center; z-index: 100;
-    }
-    #startBox {
-      background: white; padding: 24px; border-radius: 10px; width: min(560px, 92%);
-      border: 3px solid var(--brand);
-    }
-    #startBox h1 { margin-top: 0; color: var(--brand); }
-    #timeUp {
-      display: none; font-size: 1.25rem; color: var(--danger); margin-top: 8px; font-weight: 700;
-    }
-    .note { font-size: .9rem; color: #666; }
-    input[type="text"], input[type="email"], textarea {
-      width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 1rem;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Worldpanel Vietnam - Assessment Center</title>
+    <style>
+        :root { --primary: #673ab7; --bg: #f0ebf8; --text: #202124; --warning: #d93025; }
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 10px; user-select: none; }
+        .container { max-width: 900px; margin: 0 auto; padding-bottom: 100px; }
+        
+        /* Sticky Header */
+        .timer-box { position: fixed; top: 10px; right: 10px; background: white; padding: 15px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); border-left: 5px solid var(--primary); z-index: 1000; text-align: center; min-width: 120px; }
+        #timer { font-size: 28px; font-weight: bold; color: var(--primary); }
+
+        .header-card { background: white; border-top: 10px solid var(--primary); border-radius: 8px; padding: 25px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.12); }
+        .section-header { background: #4a148c; color: white; padding: 15px; border-radius: 4px; font-weight: bold; margin: 40px 0 20px 0; text-transform: uppercase; letter-spacing: 1px; }
+        
+        .question-card { background: white; padding: 20px; border-radius: 8px; margin-bottom: 15px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+        .question-num { color: var(--primary); font-weight: bold; margin-right: 10px; }
+        .question-text { font-size: 16px; font-weight: 600; margin-bottom: 15px; display: inline-block; line-height: 1.5; }
+        
+        .options-list { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        @media (max-width: 600px) { .options-list { grid-template-columns: 1fr; } }
+        
+        label { cursor: pointer; padding: 12px; border-radius: 5px; border: 1px solid #eee; display: flex; align-items: center; transition: 0.2s; }
+        label:hover { background: #f3e5f5; border-color: var(--primary); }
+        input[type="radio"] { margin-right: 12px; transform: scale(1.3); cursor: pointer; }
+
+        table { width: 100%; border-collapse: collapse; margin: 15px 0; background: #fff; font-size: 13px; }
+        th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
+        th { background: #f2f2f2; }
+
+        .btn-submit { background: var(--primary); color: white; border: none; padding: 20px; border-radius: 8px; cursor: pointer; font-size: 20px; font-weight: bold; width: 100%; margin-top: 40px; box-shadow: 0 4px 6px rgba(0,0,0,0.2); }
+        #alert-popup { display: none; position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: var(--warning); color: white; padding: 15px 30px; border-radius: 8px; z-index: 2000; font-weight: bold; box-shadow: 0 10px 20px rgba(0,0,0,0.3); }
+    </style>
 </head>
-<body>
+<body oncontextmenu="return false;">
 
-  <!-- Start overlay -->
-  <div id="startOverlay" aria-modal="true" role="dialog">
-    <div id="startBox">
-      <h1>Proctored Test</h1>
-      <p class="note">The test runs in <strong>full‑screen</strong>. Copy/paste and switching tabs are monitored and restricted. Time limit: <strong>48:00</strong>.</p>
-      <div style="display:grid; gap:10px; grid-template-columns: 1fr 1fr">
-        <div>
-          <label for="candName">Your Name</label>
-          <input id="candName" name="candName" type="text" placeholder="Enter your full name" required>
-        </div>
-        <div>
-          <label for="candEmail">Email</label>
-          <input id="candEmail" name="candEmail" type="email" placeholder="name@example.com" required>
-        </div>
-      </div>
-      <div class="actions" style="margin-top: 12px;">
-        <button class="secondary" id="tryFullscreen">Test Full‑Screen</button>
-        <button class="primary" id="startTest">Start Test</button>
-      </div>
-      <p class="note">If full‑screen fails, click <em>Test Full‑Screen</em> first, then Start.</p>
-    </div>
-  </div>
+<div id="alert-popup">⚠️ SECURITY VIOLATION: ACTION BLOCKED</div>
 
-  <!-- Header / proctoring HUD -->
-  <header>
-    <div id="timer">48:00</div>
-    <div id="warning">⚠️ 1 minute remaining — please submit now.</div>
-    <div id="tabSwitchCounter">Tab switches: <span id="tabCount">0</span></div>
-  </header>
+<div class="timer-box">
+    <div style="font-size: 11px; font-weight: bold;">TIME REMAINING</div>
+    <div id="timer">45:00</div>
+</div>
 
-  <main>
-    <!-- SECTION: MCQ -->
-    <section class="card" id="sec-mcq">
-      <h2>Section 1 — Multiple Choice</h2>
-      <fieldset class="question">
-        <p>Q1. <!-- TODO: Replace with your question from Form --> What is the main purpose of employer branding?</p>
-        <label class="option"><input type="radio" name="mcq_q1" value="A" required> A) <!-- TODO --> Attract talent</label>
-        <label class="option"><input type="radio" name="mcq_q1" value="B"> B) <!-- TODO --> Reduce cost</label>
-        <label class="option"><input type="radio" name="mcq_q1" value="C"> C) <!-- TODO --> Increase product sales</label>
-        <label class="option"><input type="radio" name="mcq_q1" value="D"> D) <!-- TODO --> None of the above</label>
-      </fieldset>
-
-      <fieldset class="question">
-        <p>Q2. <!-- TODO --> Example MCQ #2 text here</p>
-        <label class="option"><input type="radio" name="mcq_q2" value="A" required> A) <!-- TODO --> Option A</label>
-        <label class="option"><input type="radio" name="mcq_q2" value="B"> B) <!-- TODO --> Option B</label>
-        <label class="option"><input type="radio" name="mcq_q2" value="C"> C) <!-- TODO --> Option C</label>
-        <label class="option"><input type="radio" name="mcq_q2" value="D"> D) <!-- TODO --> Option D</label>
-      </fieldset>
-
-      <!-- TODO: Add more MCQs as needed -->
-    </section>
-
-    <!-- SECTION: Matrix MCQ -->
-    <section class="card" id="sec-matrix">
-      <h2>Section 2 — Matrix (One choice per row)</h2>
-      <div class="matrix question">
-        <p><!-- TODO: Replace with your matrix question prompt --> Rate each skill from 1–5</p>
-        <table class="matrix-table" role="table" aria-label="Matrix question">
-          <thead>
-            <tr>
-              <th scope="col">Item</th>
-              <th scope="col"><!-- TODO --> 1</th>
-              <th scope="col"><!-- TODO --> 2</th>
-              <th scope="col"><!-- TODO --> 3</th>
-              <th scope="col"><!-- TODO --> 4</th>
-              <th scope="col"><!-- TODO --> 5</th>
-            </tr>
-          </thead>
-          <tbody>
-            <!-- Row 1 -->
-            <tr>
-              <th scope="row"><!-- TODO row label --> Communication</th>
-              <td><input type="radio" name="matrix_r1" value="1" required></td>
-              <td><input type="radio" name="matrix_r1" value="2"></td>
-              <td><input type="radio" name="matrix_r1" value="3"></td>
-              <td><input type="radio" name="matrix_r1" value="4"></td>
-              <td><input type="radio" name="matrix_r1" value="5"></td>
-            </tr>
-            <!-- Row 2 -->
-            <tr>
-              <th scope="row"><!-- TODO row label --> Problem‑solving</th>
-              <td><input type="radio" name="matrix_r2" value="1" required></td>
-              <td><input type="radio" name="matrix_r2" value="2"></td>
-              <td><input type="radio" name="matrix_r2" value="3"></td>
-              <td><input type="radio" name="matrix_r2" value="4"></td>
-              <td><input type="radio" name="matrix_r2" value="5"></td>
-            </tr>
-            <!-- Row 3 -->
-            <tr>
-              <th scope="row"><!-- TODO row label --> Planning</th>
-              <td><input type="radio" name="matrix_r3" value="1" required></td>
-              <td><input type="radio" name="matrix_r3" value="2"></td>
-              <td><input type="radio" name="matrix_r3" value="3"></td>
-              <td><input type="radio" name="matrix_r3" value="4"></td>
-              <td><input type="radio" name="matrix_r3" value="5"></td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </section>
-
-    <!-- SECTION: Topic with 4–5 MCQs -->
-    <section class="card" id="sec-topic">
-      <h2>Section 3 — Topic Block</h2>
-      <h3>Topic: <!-- TODO replace --> Customer Service Scenario</h3>
-
-      <fieldset class="question">
-        <p>Q3. <!-- TODO --> Under this topic, MCQ #1</p>
-        <label class="option"><input type="radio" name="topic_q1" value="A" required> A) <!-- TODO --></label>
-        <label class="option"><input type="radio" name="topic_q1" value="B"> B) <!-- TODO --></label>
-        <label class="option"><input type="radio" name="topic_q1" value="C"> C) <!-- TODO --></label>
-        <label class="option"><input type="radio" name="topic_q1" value="D"> D) <!-- TODO --></label>
-      </fieldset>
-
-      <fieldset class="question">
-        <p>Q4. <!-- TODO --> Under this topic, MCQ #2</p>
-        <label class="option"><input type="radio" name="topic_q2" value="A" required> A) <!-- TODO --></label>
-        <label class="option"><input type="radio" name="topic_q2" value="B"> B) <!-- TODO --></label>
-        <label class="option"><input type="radio" name="topic_q2" value="C"> C) <!-- TODO --></label>
-        <label class="option"><input type="radio" name="topic_q2" value="D"> D) <!-- TODO --></label>
-      </fieldset>
-
-      <!-- TODO: Add Q5, Q6, Q7... as needed -->
-    </section>
-
-    <!-- SECTION: Written Responses -->
-    <section class="card" id="sec-written">
-      <h2>Section 4 — Written Responses</h2>
-
-      <div class="question">
-        <p>QX. <!-- TODO short-answer prompt --> In 1–2 sentences, explain your approach to resolving conflicts.</p>
-        <input type="text" name="short_answer_1" placeholder="Type your short answer here" required>
-      </div>
-
-      <div class="question">
-        <p>QY. <!-- TODO paragraph prompt --> Describe a situation where you solved a difficult problem (5–8 sentences).</p>
-        <textarea name="long_answer_1" rows="6" placeholder="Type your paragraph answer here" required></textarea>
-      </div>
-    </section>
-
-    <div id="timeUp" class="card">⏰ Time is up! Your test has been locked.</div>
-
-    <div class="actions">
-      <button class="secondary" id="saveDraft" type="button">Save Draft (local)</button>
-      <button class="primary" id="submitBtn" type="button">Submit Answers</button>
+<div class="container">
+    <div class="header-card">
+        <h1 style="margin:0 0 10px 0;">Worldpanel Assessment</h1>
+        <p><strong>Part 1:</strong> Numerical Aptitude (30 min) | <strong>Part 2:</strong> Data Interpretation (15 min)</p>
+        <p style="font-size: 13px; color: #d93025;"><strong>Strict Rules:</strong> Do not exit full-screen. Do not switch tabs. Do not use calculator unless permitted.</p>
     </div>
 
-    <div id="fsBanner" class="banner">⚠️ You exited full‑screen — please return immediately.</div>
-  </main>
+    <form id="assessmentForm">
+        <div class="question-card">
+            <label class="question-text">Candidate Full Name *</label>
+            <input type="text" name="candidate_name" required style="width:100%; border:none; border-bottom:2px solid #ddd; padding:10px 0; outline:none; font-size:18px;">
+        </div>
 
-  <script>
-    /* ============================
-       CONFIG
-       ============================ */
-    const TEST_DURATION_MIN = 48; // minutes; change if needed
+        <div class="section-header">Test 1: Numerical Aptitude</div>
 
-    /* ============================
-       TIMER
-       ============================ */
-    let timeLeft = TEST_DURATION_MIN * 60;
-    let countdown = null;
+        <div class="question-card">
+            <span class="question-num">1.</span> <span class="question-text">Which of the following fractions is less than one-third?</span>
+            <div class="options-list">
+                <label><input type="radio" name="q1_1" value="A"> A. 22/63</label>
+                <label><input type="radio" name="q1_1" value="B"> B. 4/11</label>
+                <label><input type="radio" name="q1_1" value="C"> C. 15/46</label>
+                <label><input type="radio" name="q1_1" value="D"> D. 33/98</label>
+                <label><input type="radio" name="q1_1" value="E"> E. 102/103</label>
+            </div>
+        </div>
 
-    const timerElement = document.getElementById('timer');
-    const warningElement = document.getElementById('warning');
-    const timeUpElement = document.getElementById('timeUp');
+        <div class="question-card">
+            <span class="question-num">2.</span> <span class="question-text">When it is noon at prime meridian on the equator, what time is it at 75 degree north latitude on this meridian?</span>
+            <div class="options-list">
+                <label><input type="radio" name="q1_2" value="A"> A. 12 noon</label>
+                <label><input type="radio" name="q1_2" value="B"> B. 3 pm</label>
+                <label><input type="radio" name="q1_2" value="C"> C. 5 pm</label>
+                <label><input type="radio" name="q1_2" value="D"> D. 7 am</label>
+                <label><input type="radio" name="q1_2" value="E"> E. Midnight</label>
+            </div>
+        </div>
 
-    function startTimer() {
-      countdown = setInterval(() => {
-        const minutes = Math.floor(timeLeft / 60);
-        const seconds = timeLeft % 60;
-        timerElement.textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+        <div class="question-card">
+            <span class="question-num">3.</span> <span class="question-text">A carpenter needs four boards, each 2 metres 70 cm long. If wood is sold only by the metre, how many metres must he buy?</span>
+            <div class="options-list">
+                <label><input type="radio" name="q1_3" value="A"> A. 9</label>
+                <label><input type="radio" name="q1_3" value="B"> B. 10</label>
+                <label><input type="radio" name="q1_3" value="C"> C. 11</label>
+                <label><input type="radio" name="q1_3" value="D"> D. 12</label>
+                <label><input type="radio" name="q1_3" value="E"> E. 13</label>
+            </div>
+        </div>
+
+        <div class="question-card">
+            <span class="question-num">4.</span> <span class="question-text">A motorist travels 120 KM at 60 KM/h and returns at 40 KM/h. Average speed for the entire trip is:</span>
+            <div class="options-list">
+                <label><input type="radio" name="q1_4" value="A"> A. 53 Km</label>
+                <label><input type="radio" name="q1_4" value="B"> B. 50 Km</label>
+                <label><input type="radio" name="q1_4" value="C"> C. 48 Km</label>
+                <label><input type="radio" name="q1_4" value="D"> D. 45 Km</label>
+                <label><input type="radio" name="q1_4" value="E"> E. 52 Km</label>
+            </div>
+        </div>
+
+        <div class="question-card">
+            <span class="question-num">5.</span> <span class="question-text">A room 19 feet 2 inches by 13 feet 2 inches. What is the floor area in sq. yards? (approx)</span>
+            <div class="options-list">
+                <label><input type="radio" name="q1_5" value="A"> A. 22</label>
+                <label><input type="radio" name="q1_5" value="B"> B. 28</label>
+                <label><input type="radio" name="q1_5" value="C"> C. 35</label>
+                <label><input type="radio" name="q1_5" value="D"> D. 26</label>
+                <label><input type="radio" name="q1_5" value="E"> E. 31</label>
+            </div>
+        </div>
+
+        <div class="question-card">
+            <span class="question-num">6.</span> <span class="question-text">If 5 pipes can drain a tank in 2 hours, how many pipes are needed to drain it in 20 minutes?</span>
+            <div class="options-list">
+                <label><input type="radio" name="q1_6" value="A"> A. 15</label>
+                <label><input type="radio" name="q1_6" value="B"> B. 20</label>
+                <label><input type="radio" name="q1_6" value="C"> C. 25</label>
+                <label><input type="radio" name="q1_6" value="D"> D. 30</label>
+                <label><input type="radio" name="q1_6" value="E"> E. 35</label>
+            </div>
+        </div>
+
+        <div class="question-card">
+            <span class="question-num">7.</span> <span class="question-text">If 4-1/2 yards of cloth cost Vnd.90,000, what is the cost of 2-1/2 yards?</span>
+            <div class="options-list">
+                <label><input type="radio" name="q1_7" value="A"> A. 40,000</label>
+                <label><input type="radio" name="q1_7" value="B"> B. 45,000</label>
+                <label><input type="radio" name="q1_7" value="C"> C. 50,000</label>
+                <label><input type="radio" name="q1_7" value="D"> D. 55,000</label>
+                <label><input type="radio" name="q1_7" value="E"> E. 60,000</label>
+            </div>
+        </div>
+
+        <div class="question-card">
+            <span class="question-num">8.</span> <span class="question-text">What is the next number in the series: 3, 5, 9, 17, __?</span>
+            <div class="options-list">
+                <label><input type="radio" name="q1_8" value="A"> A. 25</label>
+                <label><input type="radio" name="q1_8" value="B"> B. 26</label>
+                <label><input type="radio" name="q1_8" value="C"> C. 33</label>
+                <label><input type="radio" name="q1_8" value="D"> D. 34</label>
+                <label><input type="radio" name="q1_8" value="E"> E. 35</label>
+            </div>
+        </div>
+
+        <div class="question-card">
+            <span class="question-num">9.</span> <span class="question-text">A person spends 1/4 of salary on rent, 1/3 on food. If Vnd.1,200,000 remains, total salary is:</span>
+            <div class="options-list">
+                <label><input type="radio" name="q1_9" value="A"> A. 2,400,000</label>
+                <label><input type="radio" name="q1_9" value="B"> B. 2,880,000</label>
+                <label><input type="radio" name="q1_9" value="C"> C. 3,200,000</label>
+                <label><input type="radio" name="q1_9" value="D"> D. 3,600,000</label>
+                <label><input type="radio" name="q1_9" value="E"> E. 4,000,000</label>
+            </div>
+        </div>
+
+        <div class="question-card">
+            <span class="question-num">10.</span> <span class="question-text">If x + y = 6 and x - y = 2, then x is:</span>
+            <div class="options-list">
+                <label><input type="radio" name="q1_10" value="A"> A. 2</label>
+                <label><input type="radio" name="q1_10" value="B"> B. 3</label>
+                <label><input type="radio" name="q1_10" value="C"> C. 4</label>
+                <label><input type="radio" name="q1_10" value="D"> D. 5</label>
+                <label><input type="radio" name="q1_10" value="E"> E. 6</label>
+            </div>
+        </div>
+
+        <div class="question-card">
+            <span class="question-num">11.</span> <span class="question-text">What is 0.5% of 2000?</span>
+            <div class="options-list">
+                <label><input type="radio" name="q1_11" value="A"> A. 1</label>
+                <label><input type="radio" name="q1_11" value="B"> B. 10</label>
+                <label><input type="radio" name="q1_11" value="C"> C. 100</label>
+                <label><input type="radio" name="q1_11" value="D"> D. 0.1</label>
+                <label><input type="radio" name="q1_11" value="E"> E. 5</label>
+            </div>
+        </div>
+
+        <div class="question-card">
+            <span class="question-num">12.</span> <span class="question-text">A man buys a cycle for 1400 and sells it at a loss of 15%. What is the selling price?</span>
+            <div class="options-list">
+                <label><input type="radio" name="q1_12" value="A"> A. 1090</label>
+                <label><input type="radio" name="q1_12" value="B"> B. 1160</label>
+                <label><input type="radio" name="q1_12" value="C"> C. 1190</label>
+                <label><input type="radio" name="q1_12" value="D"> D. 1202</label>
+                <label><input type="radio" name="q1_12" value="E"> E. 1250</label>
+            </div>
+        </div>
+
+        <div class="question-card">
+            <span class="question-num">23.</span> <span class="question-text">How many ways can 6 be expressed as sum of two different positive integers?</span>
+            <div class="options-list">
+                <label><input type="radio" name="q1_23" value="A"> A. 4</label>
+                <label><input type="radio" name="q1_23" value="B"> B. 3</label>
+                <label><input type="radio" name="q1_23" value="C"> C. 5</label>
+                <label><input type="radio" name="q1_23" value="D"> D. 2</label>
+                <label><input type="radio" name="q1_23" value="E"> E. 1</label>
+            </div>
+        </div>
+
+        <div class="question-card">
+            <span class="question-num">26.</span> <span class="question-text">If a 20% discount saves Vnd.15,000, how much did he pay for the book?</span>
+            <div class="options-list">
+                <label><input type="radio" name="q1_26" value="A"> A. 35,000</label>
+                <label><input type="radio" name="q1_26" value="B"> B. 75,000</label>
+                <label><input type="radio" name="q1_26" value="C"> C. 60,000</label>
+                <label><input type="radio" name="q1_26" value="D"> D. 150,000</label>
+                <label><input type="radio" name="q1_26" value="E"> E. 300,000</label>
+            </div>
+        </div>
+
+        <div class="question-card">
+            <span class="question-num">27.</span> <span class="question-text">If T kg of snow falls in 1 sec, how many Kgs fall in M minutes?</span>
+            <div class="options-list">
+                <label><input type="radio" name="q1_27" value="A"> A. 60 MT</label>
+                <label><input type="radio" name="q1_27" value="B"> B. MT + 60</label>
+                <label><input type="radio" name="q1_27" value="C"> C. MT</label>
+                <label><input type="radio" name="q1_27" value="D"> D. 60 M/T</label>
+                <label><input type="radio" name="q1_27" value="E"> E. MT/60</label>
+            </div>
+        </div>
+
+        <div class="section-header">Test 2: Data Interpretation</div>
+
+        <div class="question-card">
+            <p><strong>REFERENCE DATA:</strong> Number of Employees in Civil Service (1902-1937)</p>
+            <table>
+                <tr><th>Year</th><th>Total</th><th>Competitive (k)</th><th>Labour (k)</th><th>Non-Comp (k)</th></tr>
+                <tr><td>1902</td><td>34</td><td>20</td><td>12</td><td>2</td></tr>
+                <tr><td>1906</td><td>42</td><td>24</td><td>16</td><td>2</td></tr>
+                <tr><td>1910</td><td>54</td><td>30</td><td>18</td><td>6</td></tr>
+                <tr><td>1914</td><td>55</td><td>31</td><td>18</td><td>6</td></tr>
+                <tr><td>1918</td><td>53</td><td>31</td><td>16</td><td>6</td></tr>
+                <tr><td>1922</td><td>60</td><td>35</td><td>17</td><td>8</td></tr>
+                <tr><td>1926</td><td>73</td><td>44</td><td>20</td><td>9</td></tr>
+                <tr><td>1930</td><td>90</td><td>52</td><td>26</td><td>12</td></tr>
+                <tr><td>1933</td><td>90</td><td>50</td><td>25</td><td>15</td></tr>
+                <tr><td>1937</td><td>112</td><td>63</td><td>30</td><td>19</td></tr>
+            </table>
+
+            <span class="question-num">1.1.</span> <span class="question-text">The percentage of employees in the non-competitive class has been constantly increasing since 1902.</span>
+            <div class="options-list">
+                <label><input type="radio" name="q2_1_1" value="Correct"> A. Correct</label>
+                <label><input type="radio" name="q2_1_1" value="Incorrect"> B. Incorrect</label>
+            </div>
+            <br>
+            <span class="question-num">1.2.</span> <span class="question-text">In 1922, the number of competitive class employees was exactly double the number of labour class.</span>
+            <div class="options-list">
+                <label><input type="radio" name="q2_1_2" value="Correct"> A. Correct</label>
+                <label><input type="radio" name="q2_1_2" value="Incorrect"> B. Incorrect</label>
+            </div>
+        </div>
+
+        <div class="question-card">
+            <p><strong>FEDERAL GOVERNMENT INCOME:</strong> Individual Income Taxes (43%), Corporation Taxes (31%), Social Insurance (19%), Others (7%).</p>
+            
+            <span class="question-num">2.1.</span> <span class="question-text">What is the ratio of individual income taxes to corporation income taxes?</span>
+            <div class="options-list">
+                <label><input type="radio" name="q2_2_1" value="A"> A. 1/3</label>
+                <label><input type="radio" name="q2_2_1" value="B"> B. 1/4</label>
+                <label><input type="radio" name="q2_2_1" value="C"> C. 2/5</label>
+                <label><input type="radio" name="q2_2_1" value="D"> D. 1/2</label>
+                <label><input type="radio" name="q2_2_1" value="E"> E. 3/4</label>
+            </div>
+            <br>
+            <span class="question-num">2.2.</span> <span class="question-text">What percent of federal income is derived from individual income taxes?</span>
+            <div class="options-list">
+                <label><input type="radio" name="q2_2_2" value="A"> A. 0.043%</label>
+                <label><input type="radio" name="q2_2_2" value="B"> B. 4.3%</label>
+                <label><input type="radio" name="q2_2_2" value="C"> C. 43%</label>
+                <label><input type="radio" name="q2_2_2" value="D"> D. 0.43%</label>
+            </div>
+        </div>
+
+        <button type="submit" class="btn-submit" id="submitBtn">FINISH & SUBMIT ASSESSMENT</button>
+    </form>
+</div>
+
+<script>
+    // --- TIMER CONFIGURATION (45 MINUTES) ---
+    let timeLeft = 45 * 60;
+    let tabSwitches = 0;
+    const alertPopup = document.getElementById('alert-popup');
+
+    const timerInterval = setInterval(() => {
+        let mins = Math.floor(timeLeft / 60);
+        let secs = timeLeft % 60;
+        document.getElementById('timer').textContent = `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+        if (timeLeft <= 0) {
+            clearInterval(timerInterval);
+            autoSubmit();
+        }
         timeLeft--;
+    }, 1000);
 
-        if (timeLeft === 60) {
-          warningElement.style.display = 'block';
-        }
-        if (timeLeft < 0) {
-          clearInterval(countdown);
-          lockTest("Time is up! Your test has been locked.");
-        }
-      }, 1000);
-    }
+    // --- ANTI-CHEAT ENGINE ---
+    const triggerViolation = () => {
+        alertPopup.style.display = 'block';
+        setTimeout(() => alertPopup.style.display = 'none', 3000);
+    };
 
-    function lockTest(msg) {
-      document.querySelectorAll('input, textarea, button').forEach(el => {
-        if (!el.closest('#startOverlay')) el.disabled = true;
-      });
-      timeUpElement.textContent = msg || "Test locked.";
-      timeUpElement.style.display = 'block';
-    }
+    // 1. Block Copy/Paste/Cut/Context Menu/Selection
+    ['copy', 'paste', 'cut', 'contextmenu', 'selectstart'].forEach(event => {
+        document.addEventListener(event, (e) => {
+            e.preventDefault();
+            triggerViolation();
+        });
+    });
 
-    /* ============================
-       FULLSCREEN ENFORCEMENT
-       ============================ */
-    const fsBanner = document.getElementById('fsBanner');
-
-    async function requestFullscreenMode() {
-      const docEl = document.documentElement;
-      try {
-        if (docEl.requestFullscreen) await docEl.requestFullscreen();
-        else if (docEl.webkitRequestFullscreen) await docEl.webkitRequestFullscreen();
-        else if (docEl.mozRequestFullScreen) await docEl.mozRequestFullScreen();
-        else if (docEl.msRequestFullscreen) await docEl.msRequestFullscreen();
-      } catch (e) {
-        // ignore; user gesture might be needed
-      }
-    }
-
-    function isFullscreen() {
-      return !!(document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement);
-    }
-
-    function handleFsChange() {
-      if (!isFullscreen()) {
-        fsBanner.style.display = 'block';
-        setTimeout(() => fsBanner.style.display = 'none', 2500);
-      }
-    }
-
-    document.addEventListener("fullscreenchange", handleFsChange);
-    document.addEventListener("webkitfullscreenchange", handleFsChange);
-    document.addEventListener("mozfullscreenchange", handleFsChange);
-    document.addEventListener("msfullscreenchange", handleFsChange);
-
-    /* ============================
-       ANTI‑CHEAT: copy/paste/select/right‑click + DevTools keys
-       ============================ */
-    document.addEventListener("copy", e => e.preventDefault());
-    document.addEventListener("paste", e => e.preventDefault());
-    document.addEventListener("cut", e => e.preventDefault());
-    document.addEventListener("contextmenu", e => e.preventDefault());
-    document.addEventListener("selectstart", e => e.preventDefault());
-
-    // Block common shortcuts (best effort; cannot block OS‑level screenshots etc.)
-    document.addEventListener("keydown", (e) => {
-      const k = e.key?.toLowerCase();
-      const ctrl = e.ctrlKey || e.metaKey; // Cmd on Mac
-      if (
-        (ctrl && ["c","x","v","s","p","u"].includes(k)) ||          // copy/cut/paste/save/print/view‑source
-        (ctrl && e.shiftKey && ["i","j","c"].includes(k)) ||        // DevTools, console
-        (e.keyCode === 123)                                         // F12
-      ) {
-        e.preventDefault();
-        e.stopPropagation();
-        return false;
-      }
-    }, true);
-
-    /* ============================
-       ANTI‑CHEAT: Tab switch detection
-       ============================ */
-    let tabSwitchCount = 0;
-    const tabCountEl = document.getElementById('tabCount');
+    // 2. Detect Tab Switching
     document.addEventListener("visibilitychange", () => {
-      if (document.hidden) {
-        tabSwitchCount++;
-        tabCountEl.textContent = String(tabSwitchCount);
-        alert(`⚠️ You left the test tab! (Total: ${tabSwitchCount})`);
-      }
+        if (document.hidden) {
+            tabSwitches++;
+            alert(`⚠️ WARNING: You left the assessment screen! Violation logged: ${tabSwitches}`);
+        }
     });
 
-    /* ============================
-       START OVERLAY (user gesture for FS + timer start)
-       ============================ */
-    const startOverlay = document.getElementById('startOverlay');
-    const startBtn = document.getElementById('startTest');
-    const tryFsBtn = document.getElementById('tryFullscreen');
+    // 3. Fullscreen Force (User must click to start)
+    document.addEventListener('click', () => {
+        if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen().catch(() => {});
+        }
+    }, { once: true });
 
-    tryFsBtn.addEventListener('click', async () => {
-      await requestFullscreenMode();
-    });
+    // --- DATA SUBMISSION ---
+    document.getElementById('assessmentForm').onsubmit = async (e) => {
+        e.preventDefault();
+        const btn = document.getElementById('submitBtn');
+        btn.disabled = true;
+        btn.innerText = "Processing Submission...";
 
-    startBtn.addEventListener('click', async () => {
-      const name = document.getElementById('candName').value.trim();
-      const email = document.getElementById('candEmail').value.trim();
-      if (!name || !email) {
-        alert("Please enter your name and email to start.");
-        return;
-      }
-      await requestFullscreenMode();
-      startOverlay.style.display = 'none';
-      startTimer();
-    });
+        const scriptURL = 'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE'; 
+        const formData = new FormData(e.target);
+        formData.append('tab_switches', tabSwitches);
+        
+        try {
+            // Attempt to send to Google Sheets
+            await fetch(scriptURL, { method: 'POST', body: formData });
+            alert("✅ Assessment submitted successfully!");
+            window.location.href = "https://github.com/Worldpanel"; 
+        } catch (error) {
+            alert("⚠️ Connection issue. Your answers are logged in console, but please check your script URL.");
+            console.log("Form Data:", Object.fromEntries(formData));
+            btn.disabled = false;
+            btn.innerText = "RETRY SUBMISSION";
+        }
+    };
 
-    /* ============================
-       SAVE DRAFT (local only)
-       ============================ */
-    function getFormData() {
-      const data = {
-        candidate: {
-          name: document.getElementById('candName').value.trim(),
-          email: document.getElementById('candEmail').value.trim(),
-        },
-        timestamp: new Date().toISOString(),
-        answers: {}
-      };
-
-      // MCQs
-      const mcqNames = ["mcq_q1","mcq_q2"]; // TODO add names if you add more MCQs
-      mcqNames.forEach(n => {
-        const sel = document.querySelector(`input[name="${n}"]:checked`);
-        data.answers[n] = sel ? sel.value : null;
-      });
-
-      // Matrix rows
-      const matrixRows = ["matrix_r1","matrix_r2","matrix_r3"]; // add/remove as needed
-      matrixRows.forEach(n => {
-        const sel = document.querySelector(`input[name="${n}"]:checked`);
-        data.answers[n] = sel ? sel.value : null;
-      });
-
-      // Topic MCQs
-      const topicNames = ["topic_q1","topic_q2"]; // TODO add more if needed
-      topicNames.forEach(n => {
-        const sel = document.querySelector(`input[name="${n}"]:checked`);
-        data.answers[n] = sel ? sel.value : null;
-      });
-
-      // Written
-      data.answers["short_answer_1"] = (document.querySelector('[name="short_answer_1"]')?.value || "").trim();
-      data.answers["long_answer_1"]  = (document.querySelector('[name="long_answer_1"]')?.value  || "").trim();
-
-      return data;
+    function autoSubmit() {
+        alert("⏰ Time is up! Submitting your work automatically.");
+        document.getElementById('assessmentForm').requestSubmit();
     }
-
-    document.getElementById('saveDraft').addEventListener('click', () => {
-      const data = getFormData();
-      localStorage.setItem('testDraft', JSON.stringify(data));
-      alert("Draft saved locally on this device.");
-    });
-
-    /* ============================
-       SUBMIT (local success screen; hook to Google Sheets later)
-       ============================ */
-    document.getElementById('submitBtn').addEventListener('click', () => {
-      // Basic front‑end validation
-      const requiredRadios = document.querySelectorAll('input[required][type="radio"]');
-      const groups = new Set(Array.from(requiredRadios).map(r => r.name));
-      for (const name of groups) {
-        if (!document.querySelector(`input[name="${name}"]:checked`)) {
-          alert("Please answer all required questions before submitting.");
-          return;
-        }
-      }
-      const requiredTexts = document.querySelectorAll('input[required][type="text"], textarea[required]');
-      for (const el of Array.from(requiredTexts)) {
-        if (!el.value.trim()) {
-          alert("Please fill all required written answers.");
-          return;
-        }
-      }
-
-      const payload = getFormData();
-
-      // TODO (optional): Send to Google Sheets via Apps Script webhook
-      // fetch('YOUR_APPS_SCRIPT_WEBHOOK_URL', { method:'POST', mode:'no-cors', body: JSON.stringify(payload) });
-
-      // Lock and show success
-      lockTest("✅ Submitted. Your responses have been locked.");
-      alert("✅ Answers submitted. (Currently stored locally / console)\n— Add Google Sheets webhook to store server-side.");
-      console.log("Submitted payload:", payload);
-      // Clear local draft after submit
-      localStorage.removeItem('testDraft');
-    });
-
-    /* ============================
-       RESTORE DRAFT IF PRESENT
-       ============================ */
-    (function restoreDraft() {
-      try {
-        const saved = localStorage.getItem('testDraft');
-        if (!saved) return;
-        const data = JSON.parse(saved) || {};
-        document.getElementById('candName').value = data.candidate?.name || '';
+</script>
+</body>
+</html>
