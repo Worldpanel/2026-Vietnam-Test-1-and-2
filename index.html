@@ -24,12 +24,11 @@
     .btn { background: var(--primary); color: white; border: none; padding: 14px 40px; border-radius: 5px; font-weight: 600; cursor: pointer; font-size: 16px; }
   </style>
 </head>
-<body oncontextmenu="return false;">
+<body>
 
 <div class="header-bar">
   <div class="stats">
     <div class="stat-item">Question: <span id="q-count">0</span>/45</div>
-    <div class="stat-item">Violations: <span id="v-count">0</span></div>
   </div>
   <div id="timer" class="timer">45:00</div>
 </div>
@@ -37,15 +36,14 @@
 <div class="container">
   <div id="start-screen" class="card">
     <h1>Worldpanel – Vietnam Test</h1>
-    [cite_start]<p>Numerical Aptitude & Data Interpretation (45 minutes) [cite: 1, 52]</p>
+    <p>Numerical Aptitude & Data Interpretation (45 minutes)</p>
     <div style="background:#f9f9f9; padding:20px; border-radius:5px; margin:25px 0; border-left: 5px solid var(--primary);">
-      <strong>Rules:</strong>
+      <strong>Updated Policy:</strong>
       <ul>
-        <li>You <strong>can skip</strong> questions, but you <strong>cannot go back</strong> once you click Next.</li>
-        <li>Tab switching or exiting fullscreen will count as a violation.</li>
+        <li>You <b>can skip</b> any question by clicking Next.</li>
+        <li>You <b>cannot go back</b> to a previous question.</li>
       </ul>
     </div>
-    <input type="email" id="email" placeholder="Candidate Email" style="width:100%; padding:15px; margin-bottom:20px; border:1px solid #ccc; border-radius:5px; box-sizing:border-box;">
     <button class="btn" onclick="startTest()">Start Test</button>
   </div>
 
@@ -59,18 +57,17 @@
   </div>
 
   <div id="end-screen" class="card hidden">
-    <h1>Assessment Submitted</h1>
-    <div id="final-stats" style="margin-top: 20px; font-size: 18px;"></div>
+    <h1>Test Completed</h1>
+    <p>Your responses have been recorded.</p>
   </div>
 </div>
 
 <script>
   const QUESTIONS = [
-    [cite_start]/* TEST 1: NUMERACY (1-32) [cite: 3-51] */
     { q: "1. Which of the following fractions is less than one-third?", o: ["A. 22/63", "B. 4/11", "C. 15/46", "D. 33/98", "E. 102/103"] },
     { q: "2. When it is noon at prime meridian on the equator, what time is it at 75 degree north latitude on this meridian?", o: ["A. 12 noon", "B. 3 pm", "C. 5 pm", "D. 7 am", "E. Midnight"] },
     { q: "3. A carpenter needs four boards, each 2 metres 70 cm long. If wood is sold only by the metre, how many metres must he buy?", o: ["A. 9", "B. 10", "C. 11", "D. 12", "E. 13"] },
-    { q: "4. A motorist travels 120 KM at 60 KM/hr and returns at 40 KM/hr. His average speed for the entire trip is:", o: ["A. 53 Km", "B. 50 Km", "C. 48 Km", "D. 43 Km", "E. 152 Km"] },
+    { q: "4. A motorist travels 120 KM at 60 KM/hr and returns at 40 KM/hr. Average speed for the entire trip is:", o: ["A. 53 Km", "B. 50 Km", "C. 48 Km", "D. 43 Km", "E. 152 Km"] },
     { q: "5. A train covers distance D in H hours arriving two hours late. What rate would permit the train to arrive on schedule?", o: ["A. H2", "B. D / (H-2)", "C. (D/H) 2", "D. DH 2", "E. D / (H+2)"] },
     { q: "6. From a square measuring 6 cm, the largest possible circle is cut out. Ratio of circle area to square area closest to (Pi=3):", o: ["A. 4/5", "B. 2/3", "C. 3/5", "D. 1/2", "E. 3/4"] },
     { q: "7. If square cm in area equals cm in circumference, the diameter is:", o: ["A. 4 cm", "B. 2 cm", "C. 1 cm", "D. 11 cm", "E. none of these"] },
@@ -85,7 +82,7 @@
     { q: "16. Girl earns twice in Dec as other months. Dec part of year earnings:", o: ["A. 2/11", "B. 2/13", "C. 3/14", "D. 1/6", "E. 1/7"] },
     { q: "17. Wheel A (30cm) takes 240 revs. Wheel B (20cm) revs for same distance:", o: ["A. 120", "B. 160", "C. 360", "D. 420", "E. 450"] },
     { q: "18. If RX=RY and X != Y, R is:", o: ["A. 0", "B. 1", "C. X/Y", "D. Y/X", "E. XY"] },
-    { q: "19. Smallest positive number divided by 3, 4, or 5 leaving remainder 2:", o: ["A. 22", "B. 42", "C. 122", "D. 62", "E. 182"] },
+    { q: "19. Smallest positive number divided by 3, 4, or 5 leaves remainder 2:", o: ["A. 22", "B. 42", "C. 122", "D. 62", "E. 182"] },
     { q: "20. Taxi: 20k first 0.25km, 5k per additional 0.25km. Cost for d km:", o: ["A. 20+5(4d-1)", "B. 20+5d", "C. 20+20d", "D. 20+4(d-1)", "E. 20+20(d-1)"] },
     { q: "21. 30% from Mekong, 10% of those from Can Tho. Can Tho total %:", o: ["A. 0.03", "B. 0.3", "C. 3", "D. 13", "E. 20"] },
     { q: "22. 9am to 2pm temp rose -14C to +36C. Temp at noon:", o: ["A. -4C", "B. +16C", "C. +6C", "D. +26C", "E. +31C"] },
@@ -95,12 +92,10 @@
     { q: "26. 20% discount saves 15,000. Paid price:", o: ["A. 35,000", "B. 75,000", "C. 60,000", "D. 150,000", "E. 300,000"] },
     { q: "27. T kg snow in 1 sec. Kgs in M mins:", o: ["A. 60MT", "B. MT+60", "C. MT", "D. 60M/T", "E. MT/60"] },
     { q: "28. Same value as P/Q:", o: ["A. P2/Q2", "B. 3P/3Q", "C. 3P/4Q", "D. (1+P)/(1+Q)", "E. (P+3)/(Q+3)"] },
-    { q: "29. Compare: Col A: (1/4)/(3/8) | Col B: 1", o: ["A. Col A > B", "B. Col B > A", "C. Same", "D. Cannot tell"] },
-    { q: "30. Compare: Col A: 0.25 | Col B: 1/4", o: ["A. Col A > B", "B. Col B > A", "C. Same", "D. Cannot tell"] },
-    { q: "31. Compare: Col A: 3.5% | Col B: 35/1000", o: ["A. Col A > B", "B. Col B > A", "C. Same", "D. Cannot tell"] },
-    { q: "32. Compare: Col A: Posts for 144m fence (12m apart) | Col B: 12 posts", o: ["A. Col A > B", "B. Col B > A", "C. Same", "D. Cannot tell"] },
-
-    [cite_start]/* TEST 2: DATA INTERPRETATION (33-45) [cite: 54-67] */
+    { q: "29. Compare: Col A: (1/4)/(3/8) | Col B: 1", o: ["A", "B", "C", "D"] },
+    { q: "30. Compare: Col A: 0.25 | Col B: 1/4", o: ["A", "B", "C", "D"] },
+    { q: "31. Compare: Col A: 3.5% | Col B: 35/1000", o: ["A", "B", "C", "D"] },
+    { q: "32. Compare: Col A: Posts for 144m fence (12m apart) | Col B: 12 posts", o: ["A", "B", "C", "D"] },
     { t: "CIVIL", q: "33. (1.1) Non-comp class % constantly increasing since 1902.", o: ["A. Correct", "B. Incorrect"] },
     { t: "CIVIL", q: "34. (1.2) Comp class % never below 55%.", o: ["A. Correct", "B. Incorrect"] },
     { t: "CIVIL", q: "35. (1.3) Labour class grew faster than non-comp 1926-1937.", o: ["A. Correct", "B. Incorrect"] },
@@ -112,7 +107,7 @@
     { q: "41. (3.2) 1990 TB cases per 1000 in HCMC?", o: ["A. 0.5", "B. 5.0", "C. 5.5", "D. 50.0", "E. 50.5"] },
     { q: "42. (3.3) Mekong Delta sharpest rise in TB cases:", o: ["A. 1972-73", "B. 1973-74", "C. 1975-76", "D. 1976-77", "E. 1980-81"] },
     { q: "43. (4.1) Ratio of sales to earnings in 1980:", o: ["A. 1/2", "B. 2/1", "C. 1/5", "D. 5/1", "E. 1/6"] },
-    { q: "44. (4.2) % increase in earning 1984 to 1985:", o: ["A. 2%", "B. 6%", "C. 10%", "D. 12%", "E. 20%"] },
+    { q: "44. (4.2) % increase in earning 1984 to 1985?", o: ["A. 2%", "B. 6%", "C. 10%", "D. 12%", "E. 20%"] },
     { q: "45. (4.3) If 'g' is 1980 earnings, 1985 earnings are:", o: ["A. 2g", "B. g/2", "C. g+2", "D. 2/g", "E. 3g"] }
   ];
 
@@ -124,15 +119,13 @@
     <tr><td>1926</td><td>73</td><td>44</td><td>20</td><td>9</td></tr><tr><td>1930</td><td>90</td><td>52</td><td>26</td><td>12</td></tr>
     <tr><td>1933</td><td>90</td><td>50</td><td>25</td><td>15</td></tr><tr><td>1937</td><td>112</td><td>63</td><td>30</td><td>19</td></tr></table>`;
 
-  let current = 0, violations = 0, time = 45 * 60;
+  let current = 0, time = 45 * 60;
 
   function startTest() {
-    if (!document.getElementById('email').value.includes('@')) return alert("Valid email required");
     document.getElementById('start-screen').classList.add('hidden');
     document.getElementById('test-screen').classList.remove('hidden');
     load();
     setInterval(updateTimer, 1000);
-    document.documentElement.requestFullscreen();
   }
 
   function load() {
@@ -148,13 +141,13 @@
     document.getElementById('next-btn').innerText = (current === QUESTIONS.length - 1) ? "Submit Test" : "Next Question";
   }
 
-  // FIXED: No validation check. nextQ() executes immediately.
   function nextQ() {
     if (current < QUESTIONS.length - 1) {
       current++;
       load();
     } else {
-      endTest();
+      document.getElementById('test-screen').classList.add('hidden');
+      document.getElementById('end-screen').classList.remove('hidden');
     }
   }
 
@@ -162,22 +155,8 @@
     time--;
     let m = Math.floor(time / 60), s = time % 60;
     document.getElementById('timer').innerText = `${m}:${s < 10 ? '0' : ''}${s}`;
-    if (time <= 0) endTest();
+    if (time <= 0) nextQ();
   }
-
-  function endTest() {
-    document.getElementById('test-screen').classList.add('hidden');
-    document.getElementById('end-screen').classList.remove('hidden');
-    document.getElementById('final-stats').innerText = `Email: ${document.getElementById('email').value} | Violations: ${violations}`;
-  }
-
-  document.addEventListener("visibilitychange", () => {
-    if (document.hidden) {
-      violations++;
-      document.getElementById('v-count').innerText = violations;
-      alert("⚠️ Tab switch detected. Recorded.");
-    }
-  });
 </script>
 </body>
 </html>
