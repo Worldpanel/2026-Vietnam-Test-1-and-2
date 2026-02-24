@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Worldpanel – Vietnam Test</title>
+<style>
+  :root{
+    --primary:#005EB8; --accent:#003D73; --bg:#F5F7FA; --text:#1A1A1A;
+    --danger:#c62828; --ok:#1b5e20;
+  }
+  *{box-sizing:border-box}
+  body{font-family:'Segoe UI',Tahoma,sans-serif;background:var(--bg);color:var(--text);margin:0;user-select:none}
+  .container{max-width:880px;margin:0 auto;padding:24px 16px 80px}
+  .card{background:#fff;border-radius:10px;padding:24px;margin:16px 0;box-shadow:0 1px 4px rgba(0,0,0,.08);border-top:10px solid var(--primary)}
+  .title{margin:0 0 4px;color:var(--accent)} .subtitle{margin:0;opacity:.85}
+  .hud{position:sticky;top:0;z-index:10;background:rgba(245,247,250,.92);backdrop-filter:blur(4px);padding:10px 12px;border-bottom:1px solid #e3eaf2}
+  .hud-inner{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center}
+  .hud-row{display:flex;gap:16px;align-items:baseline;flex-wrap:wrap;font-size:14px}
+  .hud-pill{padding:4px 10px;border-radius:999px;background:#fff;border:1px solid #e0e0e0}
+  .progress{height:10px;background:#D6E8F7;border-radius:6px;overflow:hidden;margin-top:6px}
+  .progress>div{height:100%;background:var(--primary);width:0%;transition:width .25s ease}
+  #timer{font-weight:700;color:var(--primary);font-size:18px}
+  .qtext{font-weight:600;line-height:1.55;margin-bottom:14px}
+  .options{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}
+  label.option{display:flex;align-items:center;gap:8px;padding:10px;border:1px solid #eee;border-radius:6px;cursor:pointer;background:#fff;font-size:14px}
+  label.option:hover{background:#E1F0FB}
+  .nav{display:flex;justify-content:flex-end;gap:10px;margin-top:16px}
+  button.btn{background:var(--primary);color:#fff;border:0;border-radius:6px;padding:12px 16px;cursor:pointer;font-weight:700;font-size:15px}
+  button.btn[disabled]{opacity:.6;cursor:not-allowed}
+  .muted{opacity:.8} .danger{color:var(--danger)} .hidden{display:none!important}
+  table{width:100%;border-collapse:collapse;margin:10px 0;font-size:13px}
+  th,td{border:1px solid #ccc;padding:6px;text-align:center} th{background:#f2f2f2}
+  @media print{body *{visibility:hidden!important} #print-blocker{display:block!important;visibility:visible!important}}
+</style>
+</head>
+<body oncontextmenu="return false;">
+  <div id="print-blocker" class="hidden">Printing is disabled for this assessment.</div>
+
+  <!-- HUD -->
+  <div class="hud">
+    <div class="hud-inner">
+      <div>
+        <div class="hud-row">
+          <div class="hud-pill">Question <span id="qIndex">0</span>/<span id="qTotal">0</span></div>
+          <div class="hud-pill">Progress: <span id="qPercent">0%</span></div>
+          <div class="hud-pill">Violations: <span id="violations">0</span></div>
+        </div>
+        <div class="progress"><div id="progressBar"></div></div>
+      </div>
+      <div class="hud-row"><div class="hud-pill">Time remaining: <span id="timer">45:00</span></div></div>
+    </div>
+  </div>
+
+  <!-- Main -->
+  <div class="container">
+    <!-- Start -->
+    <div id="screen-start" class="card">
+      <h1 class="title">Worldpanel – Vietnam Test</h1>
+      <p class="subtitle">Numerical Aptitude & Data Interpretation (45 minutes)</p>
+      <hr />
+      <p><strong>Instructions</strong></p>
+      <ul>
+        <li>One question per page. You <strong>cannot go back</strong> after moving forward.</li>
+        <li>Do not switch tabs, copy/paste, print, or take screenshots.</li>
+        <li>Auto‑submit when time ends.</li>
+      </ul>
+      <div style="margin:16px 0">
+        <label for="email"><strong>Email (required)</strong></label><br />
+        <input id="email" type="email" placeholder="name@example.com"
+               style="width:100%;padding:12px;border-radius:6px;border:1px solid #ddd;font-size:15px" />
+        <small class="muted">Your email is recorded with your submission (attempts counted).</small>
+      </div>
+      <button id="btnStart" class="btn">Start Test</button>
+      <div id="startMsg" class="muted" style="margin-top:10px"></div>
+    </div>
+
+    <!-- Question -->
+    <div id="screen-question" class="card hidden">
+      <div class="qtext" id="qText"></div>
+      <div id="qExtra"></div>
+      <div class="options" id="qOptions"></div>
+      <div class="nav"><button id="btnNext" class="btn">Next</button></div>
+      <div class="muted" id="qNote" style="margin-top:10px">You cannot return to previous questions after proceeding.</div>
+    </div>
+
+    <!-- End -->
+    <div id="screen-end" class="card hidden">
+      <h2>Submitting…</h2>
+      <p class="muted">Please wait while we securely upload  responses.</p>
+    </div>
+  </div>
+
+  <!-- Config (set your /exec URL here) -->
+  <script>
+    window.TEST_APP_CONFIG = {
+      SCRIPT_URL: "https://script.google.com/macros/s/AKfycbx47l85uUUVmO8i6OQStoQgCLY5dhIwBxfFQ9aIXoJPTU5Ar8wWFmU1Xymj9WVgPQEl4A/exec",   // e.g., https://script.google.com/macros/s/AKfycb.../exec
+      TOTAL_TIME_SECONDS: 45 * 60,
+      ENABLE_GRAPH_PLACEHOLDERS: true
+    };
+  </script>
+
+  <!-- Split scripts -->
+  <script src="questions.js"></script>
+  <script src="test-engine.js"></script>
+</body>
+</html>
