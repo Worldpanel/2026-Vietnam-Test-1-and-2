@@ -3,77 +3,109 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Worldpanel Vietnam Assessment</title>
+    <title>Worldpanel Recruitment Assessment</title>
     <style>
-        :root { --primary: #673ab7; --bg: #f0ebf8; --text: #202124; }
-        body { font-family: 'Segoe UI', Tahoma, sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 10px; user-select: none; }
-        .container { max-width: 850px; margin: 0 auto; padding-bottom: 50px; }
-        .timer-box { position: fixed; top: 10px; right: 10px; background: white; padding: 15px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); border-left: 5px solid var(--primary); z-index: 1000; text-align: center; }
-        #timer { font-size: 28px; font-weight: bold; color: var(--primary); }
-        .header-card { background: white; border-top: 10px solid var(--primary); border-radius: 8px; padding: 25px; margin-bottom: 20px; }
-        .section-header { background: #4a148c; color: white; padding: 15px; border-radius: 4px; font-weight: bold; margin: 30px 0 15px 0; text-transform: uppercase; }
-        .question-card { background: white; padding: 20px; border-radius: 8px; margin-bottom: 12px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
-        .question-text { font-size: 15px; font-weight: 600; margin-bottom: 15px; display: block; line-height: 1.6; }
-        .options-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; }
-        label { cursor: pointer; padding: 10px; border: 1px solid #eee; border-radius: 4px; display: flex; align-items: center; font-size: 14px; }
-        label:hover { background: #f3e5f5; }
-        input[type="radio"] { margin-right: 10px; }
-        table { width: 100%; border-collapse: collapse; margin: 15px 0; font-size: 12px; background: white; }
-        th, td { border: 1px solid #ccc; padding: 6px; text-align: center; }
-        th { background: #f2f2f2; }
-        .math-block { text-align: center; font-family: monospace; font-weight: bold; margin: 15px 0; font-size: 18px; }
-        .btn-submit { background: var(--primary); color: white; border: none; padding: 20px; border-radius: 4px; cursor: pointer; font-size: 18px; width: 100%; font-weight: bold; margin-top: 20px; }
+        :root { --primary: #673ab7; --bg: #f8f9fa; --text: #202124; --error: #d93025; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); margin: 0; user-select: none; -webkit-user-select: none; }
+        .setup-screen, .exam-container { max-width: 800px; margin: 40px auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .hidden { display: none; }
+        .timer-bar { position: fixed; top: 0; width: 100%; background: #fff; border-bottom: 2px solid var(--primary); padding: 10px; text-align: center; z-index: 1000; font-weight: bold; font-size: 1.2rem; }
+        .question-step { display: none; }
+        .question-step.active { display: block; }
+        .q-text { font-size: 1.1rem; font-weight: 600; margin-bottom: 20px; line-height: 1.5; white-space: pre-wrap; }
+        .options-list { list-style: none; padding: 0; }
+        .options-list li { margin-bottom: 12px; }
+        label { display: block; padding: 12px; border: 1px solid #ddd; border-radius: 5px; cursor: pointer; transition: 0.2s; }
+        label:hover { background: #f0ebf8; border-color: var(--primary); }
+        input[type="radio"] { margin-right: 15px; transform: scale(1.2); }
+        .nav-btns { margin-top: 30px; display: flex; justify-content: flex-end; }
+        button { background: var(--primary); color: white; border: none; padding: 12px 30px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 1rem; }
+        button:disabled { background: #ccc; cursor: not-allowed; }
+        table { width: 100%; border-collapse: collapse; margin: 15px 0; font-size: 0.9rem; }
+        th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
+        th { background: #eee; }
+        .progress-indicator { font-size: 0.8rem; color: #666; margin-bottom: 10px; }
+        .math-block { display: block; text-align: center; font-family: 'Courier New', monospace; font-size: 1.2rem; margin: 20px 0; font-weight: bold; }
     </style>
 </head>
 <body oncontextmenu="return false;">
 
-<div class="timer-box">
-    <div style="font-size: 11px;">TIME REMAINING</div>
-    <div id="timer">45:00</div>
-</div>
-
-<div class="container">
-    <div class="header-card">
-        <h1>Worldpanel - Vietnam Test</h1>
-        <p>Numerical Aptitude & Data Interpretation</p>
-        <input type="text" name="candidate_name" id="candidate_name" required placeholder="Enter Your Full Name *" style="width:100%; border:none; border-bottom:2px solid #ddd; padding:10px 0; outline:none; font-size:16px; margin-top:10px;">
+    <div id="setup" class="setup-screen">
+        <h2>Recruitment Assessment Center</h2>
+        <p><strong>Duration:</strong> 45 Minutes (Global Timer)</p>
+        <p><strong>Rules:</strong> Forward-only navigation. No tab switching. No copying.</p>
+        <hr>
+        <div style="margin-top: 20px;">
+            <label style="border:none; padding:0;">Email Address (Required)</label>
+            <input type="email" id="userEmail" required style="width:100%; padding:12px; margin-top:8px; border:1px solid #ccc; border-radius:4px;">
+            <button id="startBtn" style="margin-top: 20px; width: 100%;">START EXAMINATION</button>
+        </div>
     </div>
 
-    <form id="assessmentForm">
-        <div class="section-header">TEST 1: NUMERICAL APTITUDE (30 Minutes)</div>
-        
-        <div class="question-card"><span class="question-text">1. Which of the following fractions is less than one-third?</span><div class="options-grid"><label><input type="radio" name="q1_1" value="A"> A. 22/63</label><label><input type="radio" name="q1_1" value="B"> B. 4/11</label><label><input type="radio" name="q1_1" value="C"> C. 15/46</label><label><input type="radio" name="q1_1" value="D"> D. 33/98</label><label><input type="radio" name="q1_1" value="E"> E. 102/103</label></div></div>
-        <div class="question-card"><span class="question-text">2. When it is noon at prime meridian on the equator, what time is it at 75 degree north latitude on this meridian?</span><div class="options-grid"><label><input type="radio" name="q1_2" value="A"> A. 12 noon</label><label><input type="radio" name="q1_2" value="B"> B. 3 pm</label><label><input type="radio" name="q1_2" value="C"> C. 5 pm</label><label><input type="radio" name="q1_2" value="D"> D. 7 am</label><label><input type="radio" name="q1_2" value="E"> E. Midnight</label></div></div>
-        <div class="question-card"><span class="question-text">3. A carpenter needs four boards, each 2 metres 70 cm long. If wood is sold only by the metre, how many metres must he buy?</span><div class="options-grid"><label><input type="radio" name="q1_3" value="A"> A. 9</label><label><input type="radio" name="q1_3" value="B"> B. 10</label><label><input type="radio" name="q1_3" value="C"> C. 11</label><label><input type="radio" name="q1_3" value="D"> D. 12</label><label><input type="radio" name="q1_3" value="E"> E. 13</label></div></div>
-        <div class="question-card"><span class="question-text">4. A motorist travels 120 KM to his destination at 60 KM/h and returns at 40 Km/h. His average speed for the entire trip is:</span><div class="options-grid"><label><input type="radio" name="q1_4" value="A"> A. 53 Km</label><label><input type="radio" name="q1_4" value="B"> B. 50 Km</label><label><input type="radio" name="q1_4" value="C"> C. 48 Km</label><label><input type="radio" name="q1_4" value="D"> D. 45 Km</label><label><input type="radio" name="q1_4" value="E"> E. 52 Km</label></div></div>
-        <div class="question-card"><span class="question-text">5. A room 19 feet 2 inches by 13 feet 2 inches. What is the floor area in sq. yards? (approx)</span><div class="options-grid"><label><input type="radio" name="q1_5" value="A"> A. 22</label><label><input type="radio" name="q1_5" value="B"> B. 28</label><label><input type="radio" name="q1_5" value="C"> C. 35</label><label><input type="radio" name="q1_5" value="D"> D. 26</label><label><input type="radio" name="q1_5" value="E"> E. 31</label></div></div>
-
-        <div class="question-card"><span class="question-text">6. If 5 pipes can drain a tank in 2 hours, how many pipes are needed to drain it in 20 minutes?</span><div class="options-grid"><label><input type="radio" name="q1_6" value="A"> A. 15</label><label><input type="radio" name="q1_6" value="B"> B. 20</label><label><input type="radio" name="q1_6" value="C"> C. 25</label><label><input type="radio" name="q1_6" value="D"> D. 30</label><label><input type="radio" name="q1_6" value="E"> E. 35</label></div></div>
-        <div class="question-card"><span class="question-text">7. If 4-1/2 yards of cloth cost Vnd.90,000, what is the cost of 2-1/2 yards?</span><div class="options-grid"><label><input type="radio" name="q1_7" value="A"> A. 40,000</label><label><input type="radio" name="q1_7" value="B"> B. 45,000</label><label><input type="radio" name="q1_7" value="C"> C. 50,000</label><label><input type="radio" name="q1_7" value="D"> D. 55,000</label><label><input type="radio" name="q1_7" value="E"> E. 60,000</label></div></div>
-        <div class="question-card"><span class="question-text">8. What is the next number in the series: 3, 5, 9, 17, __?</span><div class="options-grid"><label><input type="radio" name="q1_8" value="A"> A. 25</label><label><input type="radio" name="q1_8" value="B"> B. 26</label><label><input type="radio" name="q1_8" value="C"> C. 33</label><label><input type="radio" name="q1_8" value="D"> D. 34</label><label><input type="radio" name="q1_8" value="E"> E. 35</label></div></div>
-        <div class="question-card"><span class="question-text">9. A person spends 1/4 of salary on rent, 1/3 on food. If Vnd.1,200,000 remains, total salary is:</span><div class="options-grid"><label><input type="radio" name="q1_9" value="A"> A. 2,400,000</label><label><input type="radio" name="q1_9" value="B"> B. 2,880,000</label><label><input type="radio" name="q1_9" value="C"> C. 3,200,000</label><label><input type="radio" name="q1_9" value="D"> D. 3,600,000</label><label><input type="radio" name="q1_9" value="E"> E. 4,000,000</label></div></div>
-        <div class="question-card"><span class="question-text">10. If x + y = 6 and x - y = 2, then x is:</span><div class="options-grid"><label><input type="radio" name="q1_10" value="A"> A. 2</label><label><input type="radio" name="q1_10" value="B"> B. 3</label><label><input type="radio" name="q1_10" value="C"> C. 4</label><label><input type="radio" name="q1_10" value="D"> D. 5</label><label><input type="radio" name="q1_10" value="E"> E. 6</label></div></div>
-
-        <div class="question-card"><span class="question-text">11. A clock is set right at 8 a.m. The clock gains 10 minutes in 24 hours. What will be the true time when the clock indicates 1 p.m. on the following day?</span><div class="options-grid"><label><input type="radio" name="q1_11" value="A"> A. 48 min. past 12</label><label><input type="radio" name="q1_11" value="B"> B. 46 min. past 12</label><label><input type="radio" name="q1_11" value="C"> C. 45 min. past 12</label><label><input type="radio" name="q1_11" value="D"> D. 47 min. past 12</label><label><input type="radio" name="q1_11" value="E"> E. 50 min. past 12</label></div></div>
-        <div class="question-card"><span class="question-text">12. A man can row 5 km/h in still water. If the speed of the current is 1 km/h and it takes him 1 hour to row to a place and come back, how far is the place?</span><div class="options-grid"><label><input type="radio" name="q1_12" value="A"> A. 2.4 km</label><label><input type="radio" name="q1_12" value="B"> B. 2.5 km</label><label><input type="radio" name="q1_12" value="C"> C. 3 km</label><label><input type="radio" name="q1_12" value="D"> D. 3.6 km</label><label><input type="radio" name="q1_12" value="E"> E. 4 km</label></div></div>
-        
-        <div class="question-card"><span class="question-text">23. In how many ways can 6 be expressed as the sum of two different positive (non zero) integers?</span><div class="options-grid"><label><input type="radio" name="q1_23" value="A"> A. 4</label><label><input type="radio" name="q1_23" value="B"> B. 3</label><label><input type="radio" name="q1_23" value="C"> C. 5</label><label><input type="radio" name="q1_23" value="D"> D. 6</label><label><input type="radio" name="q1_23" value="E"> E. 7</label></div></div>
-        
-        <div class="question-card">
-            <span class="question-text">24. Solve the following:</span>
-            <div class="math-block">36 / (29 - 4/0.2)</div>
-            <div class="options-grid"><label><input type="radio" name="q1_24" value="A"> A. 4/3</label><label><input type="radio" name="q1_24" value="B"> B. 2</label><label><input type="radio" name="q1_24" value="C"> C. 4</label><label><input type="radio" name="q1_24" value="D"> D. 9</label><label><input type="radio" name="q1_24" value="E"> E. 18</label></div>
+    <div id="exam" class="exam-container hidden">
+        <div class="timer-bar">Time Remaining: <span id="timeDisplay">45:00</span></div>
+        <div id="questionArea">
+            </div>
+        <div class="nav-btns">
+            <button id="nextBtn" disabled>NEXT QUESTION</button>
         </div>
+    </div>
 
-        <div class="question-card"><span class="question-text">25. The sum of three consecutive odd numbers is always divisible by (1) 2 (2) 3 (3) 5 (4) 6</span><div class="options-grid"><label><input type="radio" name="q1_25" value="A"> A. Only (4)</label><label><input type="radio" name="q1_25" value="B"> B. Only (2)</label><label><input type="radio" name="q1_25" value="C"> C. (1) and (2)</label><label><input type="radio" name="q1_25" value="D"> D. Only (1)</label><label><input type="radio" name="q1_25" value="E"> E. (2) and (4)</label></div></div>
-        <div class="question-card"><span class="question-text">26. If a discount of 20% of the market price saves a man Vnd.15,000, how much did he pay?</span><div class="options-grid"><label><input type="radio" name="q1_26" value="A"> A. 35,000</label><label><input type="radio" name="q1_26" value="B"> B. 75,000</label><label><input type="radio" name="q1_26" value="C"> C. 60,000</label><label><input type="radio" name="q1_26" value="D"> D. 150,000</label><label><input type="radio" name="q1_26" value="E"> E. 300,000</label></div></div>
-        <div class="question-card"><span class="question-text">27. If T kg of snow falls in one second, how many Kgs fall in M minutes?</span><div class="options-grid"><label><input type="radio" name="q1_27" value="A"> A. 60 MT</label><label><input type="radio" name="q1_27" value="B"> B. MT + 60</label><label><input type="radio" name="q1_27" value="C"> C. MT</label><label><input type="radio" name="q1_27" value="D"> D. 60 M/T</label><label><input type="radio" name="q1_27" value="E"> E. MT/60</label></div></div>
+    <script>
+        const QUESTIONS = [
+            // TEST 1: NUMERACY (Q1 - Q32)
+            { id: 1, text: "1. Which of the following fractions is less than one-third?", options: ["A. 22/63", "B. 4/11", "C. 15/46", "D. 33/98", "E. 102/103"] },
+            { id: 2, text: "2. When it is noon at prime meridian on the equator, what time is it at 75 degree north latitude on this meridian?", options: ["A. 12 noon", "B. 3 pm", "C. 5 pm", "D. 7 am", "E. Midnight"] },
+            { id: 3, text: "3. A carpenter needs four boards, each 2 metres 70 cm long. If wood is sold only by the metre, how many metres must he buy?", options: ["A. 9", "B. 10", "C. 11", "D. 12", "E. 13"] },
+            { id: 4, text: "4. A motorist travels 120 KM to his destination at an average speed of 60 KM. per hour and returns to the starting point at an average speed of 40 Km. per hour. His average speed for the entire trip is:", options: ["A. 53 Km", "B. 50 Km", "C. 48 Km", "D. 43 Km", "E. 152 Km"] },
+            { id: 5, text: "5. A train covers the distance D between two cities in H hours arriving two hours late. What rate would permit the train to arrive on schedule?", options: ["A. H2", "B. D / (H - 2)", "C. (D/H) 2", "D. DH 2", "E. D / (H + 2)"] },
+            { id: 6, text: "6. From a piece of tin in the shape of a square measuring 6 cm on each side, the largest possible circle is cut out. The ratio of the area of the circle to the area of the original square is closest in value to (Pi=3):", options: ["A. 4/5", "B. 2/3", "C. 3/5", "D. 1/2", "E. 3/4"] },
+            { id: 7, text: "7. If the number of square centimeters in the area of a circle is equal to the number of centimeters in its circumference, the diameter of the circle is:", options: ["A. 4 cm", "B. 2 cm", "C. 1 cm", "D. 11 cm", "E. none of these"] },
+            { id: 8, text: "8. Six litres of a 20% solution of alcohol is mixed with 4 litres of a 60% solution. The alcoholic strength of the mixture is:", options: ["A. 80%", "B. 40%", "C. 36%", "D. 48%", "E. none of these"] },
+            { id: 9, text: "9. If pens are bought at Vnd 35,000 per dozen and sold at 3 for Vnd 10,000 the total profit on 5 1/2 dozens is:", options: ["A. Vnd. 25,000", "B. Vnd. 27,500", "C. Vnd. 28,500", "D. Vnd. 32,500", "E. Vnd. 3,000"] },
+            { id: 10, text: "10. Which of the following is equal to 26 x 3.5?", options: ["A. (26 x 30) + (26 x 1/2)", "B. (26 x 3) + (6 x 1/2)", "C. (26 x 3 1/2) + (6 x 3)", "D. (26 x 3) + (26 x 1/2) + (6 x 3)", "E. (26 x 1/2) + (20 x 3) + (6 x 3)"] },
+            { id: 11, text: "11. In 1981 Mrs. Iyer paid 10% less in taxes than in 1980, and in 1982 she paid 10% less than in 1981. In 1982 Mrs. Iyer paid what % less in taxes than in 1980?", options: ["A. 19%", "B. 20%", "C. 21%", "D. 81%", "E. 90%"] },
+            { id: 12, text: "12. The difference between one hundred and five thousand eighty four and ninety three thousand seven hundred nine is:", options: ["A. 37,215", "B. 12,131", "C. 56,294", "D. 56,375", "E. 11,375"] },
+            { id: 13, text: "13. A train travels from City X to City Y in 3 hours and 30 mins at an average speed of 60 miles an hour. If the train returns at an average speed of 50 miles per hour, how long does the return trip take?", options: ["A. 2 Hr 55 min", "B. 3 Hr 40 min", "C. 4 Hr 32 min", "D. 4 Hr 12 min", "E. 4 Hr 40 min"] },
+            { id: 14, text: "14. Mr Nguyen's wage per hour is Vnd 15,000. He pays 15% of this as income tax and 10% of the remainder as professional tax. He is left with:", options: ["A. Vnd. 12,750", "B. Vnd. 9,750", "C. Vnd. 14,125", "D. Vnd. 13,500", "E. Vnd. 11,475"] },
+            { id: 15, text: "15. Which one of these quantities is the smallest?", options: ["A. 4/5", "B. 7/9", "C. 0.76", "D. 5/7", "E. 9/11"] },
+            { id: 16, text: "16. A girl earns twice as much in December as in each of the other months. Which part of her entire year's earnings does she earn in December?", options: ["A. 2/11", "B. 2/13", "C. 3/14", "D. 1/6", "E. 1/7"] },
+            { id: 17, text: "17. One wheel has a diameter of 30 cm and a second wheel has a diameter of 20cm. The first wheel travelled a certain distance in 240 revolutions. In how many revolutions did the second wheel travel the same distance?", options: ["A. 120", "B. 160", "C. 360", "D. 420", "E. 450"] },
+            { id: 18, text: "18. If X and Y are two different numbers and RX=RY, then R is equal to:", options: ["A. 0", "B. 1", "C. X/Y", "D. Y/X", "E. X Y"] },
+            { id: 19, text: "19. What is the smallest positive number, which, when it is divided by 3, 4 or 5 will leave a remainder of 2?", options: ["A. 22", "B. 42", "C. 122", "D. 62", "E. 182"] },
+            { id: 20, text: "20. A taxi charges Vnd 20,000 for the first quarter of a km and Vnd 5,000 for each additional quarter of a km. The cost in thousands of Vnd. for a trip of d kms is:", options: ["A. 20+5(4d-1)", "B. 20+5d", "C. 20+20d", "D. 20+4(d-1)", "E. 20+20(d-1)"] },
+            { id: 21, text: "21. In a certain army post, 30% of the men are from the Mekong Delta and 10% of these are from Can Tho. What percentage of the men in the post are from Can Tho?", options: ["A. 0.03", "B. 0.3", "C. 3", "D. 13", "E. 20"] },
+            { id: 22, text: "22. From 9 am to 2 pm the temperature rose at a constant rate from -14 C to +36 C. What was the temperature at noon?", options: ["A. -4C", "B. +16C", "C. +6C", "D. +26C", "E. +31C"] },
+            { id: 23, text: "23. In how many ways may 9 be expressed as the sum of two different positive (non zero) integers?", options: ["A. 4", "B. 3", "C. 5", "D. 6", "E. 7"] },
+            { id: 24, text: "24. Solve the following:\n\n<div class='math-block'>36 / (29 - 4/0.2)</div>", options: ["A. 4/3", "B. 2", "C. 4", "D. 9", "E. 18"] },
+            { id: 25, text: "25. The sum of three consecutive odd numbers is always divisible by (1) 2 (2) 3 (3) 5 (4) 6", options: ["A. Only (4)", "B. Only (2)", "C. Only (1) and (2)", "D. Only (1)", "E. Only (2) and (4)"] },
+            { id: 26, text: "26. If a discount of 20% of the market price of a book saves a man Vnd.15,000 how much did he pay for the book?", options: ["A. Vnd. 35,000", "B. Vnd. 75,000", "C. Vnd. 60,000", "D. Vnd. 150,000", "E. Vnd. 300,000"] },
+            { id: 27, text: "27. If T kg of snow falls in one second, how many Kgs fall in M minutes?", options: ["A. 60 MT", "B. MT + 60", "C. MT", "D. 60 M/T", "E. MT/60"] },
+            { id: 28, text: "28. Which of the following has the same value as P/Q?", options: ["A. P2 / Q2", "B. 3P/3Q", "C. 3P/4Q", "D. (1+P)/(1+Q)", "E. (P+3)/(Q+3)"] },
+            { id: 29, text: "29. Compare Column A and Column B:\nColumn A: (1/4) / (3/8)\nColumn B: 1", options: ["A. Column A is greater", "B. Column B is greater", "C. Two quantities are the same", "D. Comparison cannot be made"] },
+            { id: 30, text: "30. Compare Column A and Column B:\nColumn A: 0.25\nColumn B: 1/4", options: ["A. Column A is greater", "B. Column B is greater", "C. Two quantities are the same", "D. Comparison cannot be made"] },
+            { id: 31, text: "31. Compare Column A and Column B:\nColumn A: 3 1/2 %\nColumn B: 35/1000", options: ["A. Column A is greater", "B. Column B is greater", "C. Two quantities are the same", "D. Comparison cannot be made"] },
+            { id: 32, text: "32. Compare Column A and Column B:\nColumn A: The number of posts needed for a fence 144 m long if the posts are 12 m apart\nColumn B: 12 posts", options: ["A. Column A is greater", "B. Column B is greater", "C. Two quantities are the same", "D. Comparison cannot be made"] },
 
-        <div class="section-header">TEST 2: DATA INTERPRETATION (15 Minutes)</div>
-        <div class="question-card">
-            <p><strong>Table 1: Employees in Civil Service 1902-1937</strong></p>
+            // TEST 2: DATA INTERPRETATION (Q33 - Q45)
+            { id: 33, text: "33. [Table: Number of Employees 1902-1937]\n1.1. The percentage of employees in the non-competitive class has been constantly increasing since 1902.", options: ["A. Correct", "B. Incorrect"], isTable: true },
+            { id: 34, text: "34. 1.2. The percentage of employees in the competitive class has never fallen below 55%.", options: ["A. Correct", "B. Incorrect"], isTable: true },
+            { id: 35, text: "35. 1.3. Between 1926 and 1937, employees in the labour class have been increased at a faster rate than in the non competitive class.", options: ["A. Correct", "B. Incorrect"], isTable: true },
+            { id: 36, text: "36. 1.4. The average number of employees in the competitive class (1922-1937) was greater than the average of total employees (1902-1922).", options: ["A. Correct", "B. Incorrect"], isTable: true },
+            { id: 37, text: "37. 2.1 What part of all tax revenue comes from income taxes?", options: ["A. 1/3", "B. 1/4", "C. 2/5", "D. 1/2", "E. 3/4"] },
+            { id: 38, text: "38. 2.2 What percent of the federal government income is derived from individual income taxes?", options: ["A. 0.0043%", "B. 0.043%", "C. 0.43%", "D. 4.3%", "E. 43%"] },
+            { id: 39, text: "39. 2.3 Of every 1,000 VND. received by the government, how much is received from sources other than income taxes?", options: ["A. Vnd. 260", "B. Vnd. 310", "C. Vnd. 430", "D. Vnd. 570", "E. Vnd. 743"] },
+            { id: 40, text: "40. 3.1 Greatest difference in TB cases per 100,000 between HCMC and rest of country occurred in:", options: ["A. 1969", "B. 1972", "C. 1980", "D. 1985", "E. 1990"] },
+            { id: 41, text: "41. 3.2 In 1990, how many new cases of TB per 1000 population occurred in HCMC?", options: ["A. 0.5", "B. 5.0", "C. 5.5", "D. 50.0", "E. 50.5"] },
+            { id: 42, text: "42. 3.3 Mekong Delta sharpest rise in TB cases:", options: ["A. 1972-1973", "B. 1973-1974", "C. 1975-1976", "D. 1976-1977", "E. 1980-1981"] },
+            { id: 43, text: "43. 4.1 Ratio of sales to earnings in 1980:", options: ["A. 1/2", "B. 2/1", "C. 1/5", "D. 5/1", "E. 1/6"] },
+            { id: 44, text: "44. 4.2 Percentage increase in earning from 1984 to 1985:", options: ["A. 2%", "B. 6%", "C. 10%", "D. 12%", "E. 20%"] },
+            { id: 45, text: "45. 4.3 If 'g' is 1980 earnings, 1985 earnings are:", options: ["A. 2g", "B. g/2", "C. g + 2", "D. 2/g", "E. 3g"] }
+        ];
+
+        const CIVIL_SERVICE_TABLE = `
             <table>
-                <tr><th>Year</th><th>Total</th><th>Comp.</th><th>Labour</th><th>Non-Comp.</th></tr>
+                <tr><th>Year</th><th>Total</th><th>Comp (k)</th><th>Labour (k)</th><th>Non-Comp (k)</th></tr>
                 <tr><td>1902</td><td>34</td><td>20</td><td>12</td><td>2</td></tr>
                 <tr><td>1906</td><td>42</td><td>24</td><td>16</td><td>2</td></tr>
                 <tr><td>1910</td><td>54</td><td>30</td><td>18</td><td>6</td></tr>
@@ -84,67 +116,92 @@
                 <tr><td>1930</td><td>90</td><td>52</td><td>26</td><td>12</td></tr>
                 <tr><td>1933</td><td>90</td><td>50</td><td>25</td><td>15</td></tr>
                 <tr><td>1937</td><td>112</td><td>63</td><td>30</td><td>19</td></tr>
-            </table>
-            <span class="question-text">1.1. The percentage of employees in the non-competitive class has been constantly increasing since 1902.</span>
-            <div class="options-grid"><label><input type="radio" name="q2_1_1" value="A"> A. Correct</label><label><input type="radio" name="q2_1_1" value="B"> B. Incorrect</label></div>
-        </div>
+            </table>`;
 
-        <div class="question-card">
-            <p><strong>Ref: Individual Income Taxes (43%), Corp Taxes (31%), Social Insurance (19%), Other (7%)</strong></p>
-            <span class="question-text">2.1 What is the ratio of individual income taxes to corporation income taxes?</span>
-            <div class="options-grid"><label><input type="radio" name="q2_2_1" value="A"> A. 1/3</label><label><input type="radio" name="q2_2_1" value="B"> B. 1/4</label><label><input type="radio" name="q2_2_1" value="C"> C. 2/5</label><label><input type="radio" name="q2_2_1" value="D"> D. 1/2</label></div>
-        </div>
+        let currentIdx = 0;
+        let timeLeft = 45 * 60;
+        let answers = {};
+        let tabSwitches = 0;
 
-        <button type="submit" class="btn-submit" id="submitBtn">FINISH AND SUBMIT</button>
-    </form>
-</div>
+        // UI Handlers
+        const setupDiv = document.getElementById('setup');
+        const examDiv = document.getElementById('exam');
+        const startBtn = document.getElementById('startBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const qArea = document.getElementById('questionArea');
+        const timeDisplay = document.getElementById('timeDisplay');
 
-<script>
-    let timeLeft = 45 * 60;
-    let tabViolations = 0;
+        startBtn.onclick = () => {
+            const email = document.getElementById('userEmail').value;
+            if(!validateEmail(email)) return alert("Valid email required.");
+            setupDiv.classList.add('hidden');
+            examDiv.classList.remove('hidden');
+            renderQuestion();
+            startTimer();
+        };
 
-    const timer = setInterval(() => {
-        let mins = Math.floor(timeLeft / 60);
-        let secs = timeLeft % 60;
-        document.getElementById('timer').textContent = `${mins}:${secs < 10 ? '0' : ''}${secs}`;
-        if (timeLeft <= 0) { clearInterval(timer); autoSubmit(); }
-        timeLeft--;
-    }, 1000);
+        function validateEmail(email) { return /\S+@\S+\.\S+/.test(email); }
 
-    // Anti-cheat
-    ['copy','paste','cut','contextmenu','selectstart'].forEach(e => {
-        document.addEventListener(e, (err) => err.preventDefault());
-    });
-
-    document.addEventListener("visibilitychange", () => {
-        if (document.hidden) {
-            tabViolations++;
-            alert("⚠️ Warning: Leaving the test tab is recorded. Violation: " + tabViolations);
+        function renderQuestion() {
+            const q = QUESTIONS[currentIdx];
+            let html = `<div class="progress-indicator">Question ${currentIdx + 1} of ${QUESTIONS.length}</div>`;
+            if(q.isTable) html += CIVIL_SERVICE_TABLE;
+            html += `<div class="q-text">${q.text}</div><div class="options-list">`;
+            q.options.forEach(opt => {
+                const checked = answers[q.id] === opt ? 'checked' : '';
+                html += `<label><input type="radio" name="q" value="${opt}" onchange="selectOpt('${opt}')" ${checked}> ${opt}</label>`;
+            });
+            html += `</div>`;
+            qArea.innerHTML = html;
+            nextBtn.disabled = !answers[q.id];
+            nextBtn.innerText = currentIdx === QUESTIONS.length - 1 ? "FINISH EXAM" : "NEXT QUESTION";
         }
-    });
 
-    document.getElementById('assessmentForm').onsubmit = async (e) => {
-        e.preventDefault();
-        const btn = document.getElementById('submitBtn');
-        btn.disabled = true;
-        btn.innerText = "Submitting...";
+        window.selectOpt = (val) => {
+            answers[QUESTIONS[currentIdx].id] = val;
+            nextBtn.disabled = false;
+        };
 
-        // Use your Google Apps Script URL here
-        const scriptURL = 'YOUR_GOOGLE_APPS_SCRIPT_URL';
-        const formData = new FormData(e.target);
-        formData.append('candidate', document.getElementById('candidate_name').value);
-        formData.append('violations', tabViolations);
+        nextBtn.onclick = () => {
+            if(currentIdx < QUESTIONS.length - 1) {
+                currentIdx++;
+                renderQuestion();
+            } else {
+                submitExam();
+            }
+        };
 
-        try {
-            await fetch(scriptURL, { method: 'POST', body: formData });
-            alert("Submission Successful!");
-        } catch (err) {
-            alert("Error in submission. Check script URL.");
-            btn.disabled = false;
+        function startTimer() {
+            const tick = setInterval(() => {
+                if(timeLeft <= 0) {
+                    clearInterval(tick);
+                    submitExam("Timeout");
+                    return;
+                }
+                timeLeft--;
+                const m = Math.floor(timeLeft / 60);
+                const s = timeLeft % 60;
+                timeDisplay.innerText = `${m}:${s < 10 ? '0' : ''}${s}`;
+            }, 1000);
         }
-    };
 
-    function autoSubmit() { document.getElementById('assessmentForm').requestSubmit(); }
-</script>
+        function submitExam(reason = "Manual") {
+            alert("Submitting results. Thank you.");
+            console.log("Answers:", answers, "Violations:", tabSwitches);
+            // Integrate your Google Apps Script Fetch here
+        }
+
+        // Anti-Cheat Logic
+        document.addEventListener("visibilitychange", () => {
+            if (document.hidden) {
+                tabSwitches++;
+                alert(`Security Warning: Tab switching detected (${tabSwitches}). This is logged.`);
+            }
+        });
+
+        ['copy', 'paste', 'cut'].forEach(e => document.addEventListener(e, (ev) => ev.preventDefault()));
+        
+        window.onbeforeunload = () => "Warning: Progress will be lost.";
+    </script>
 </body>
 </html>
