@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Worldpanel Vietnam Assessment</title>
+    <title>Worldpanel Assessment Center</title>
     <style>
         :root { --primary: #673ab7; --bg: #f3f0f9; --white: #ffffff; --text: #202124; }
         body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); color: var(--text); margin: 0; user-select: none; }
@@ -22,7 +22,6 @@
         th, td { border: 1px solid #ddd; padding: 10px; text-align: center; }
         th { background: #f4f4f4; }
         .btn { background: var(--primary); color: white; border: none; padding: 14px 40px; border-radius: 5px; font-weight: 600; cursor: pointer; font-size: 16px; }
-        .math-block { display: block; text-align: center; font-family: 'Courier New', monospace; font-size: 1.2rem; margin: 20px 0; font-weight: bold; }
     </style>
 </head>
 <body oncontextmenu="return false;">
@@ -37,18 +36,18 @@
 
 <div class="container">
     <div id="start-screen" class="card">
-        <h1>Assessment Center</h1>
-        <p>Numerical Aptitude (30m) & Data Interpretation (15m) </p>
+        <h1>Worldpanel – Vietnam Test</h1>
+        <p>Numerical Aptitude & Data Interpretation (45 minutes)</p>
         <div style="background:#f9f9f9; padding:20px; border-radius:5px; margin:25px 0; border-left: 5px solid var(--primary);">
-            <strong>Policy Update:</strong>
+            <strong>Instructions:</strong>
             <ul>
-                <li><b>Skipping Allowed:</b> You may proceed without answering, but you cannot return later.</li>
-                <li><b>No Going Back:</b> Once "Next" is clicked, the decision is final[cite: 52].</li>
-                <li><b>Global Timer:</b> 45 minutes total for both sections.</li>
+                <li><b>Skipping:</b> You may skip questions, but you <b>cannot go back</b> to them later. [cite: 52]</li>
+                <li><b>Security:</b> Exiting full-screen or switching tabs is recorded as a violation.</li>
+                <li><b>Submission:</b> The test auto-submits when the timer reaches zero.</li>
             </ul>
         </div>
-        <input type="email" id="email" placeholder="Enter Candidate Email" style="width:100%; padding:15px; margin-bottom:20px; border:1px solid #ccc; border-radius:5px; box-sizing:border-box;">
-        <button class="btn" onclick="startTest()">Begin Test</button>
+        <input type="email" id="email" placeholder="Candidate Email" style="width:100%; padding:15px; margin-bottom:20px; border:1px solid #ccc; border-radius:5px; box-sizing:border-box;">
+        <button class="btn" onclick="startTest()">Start Test</button>
     </div>
 
     <div id="test-screen" class="card hidden">
@@ -56,6 +55,7 @@
         <span class="q-text" id="q-text"></span>
         <div id="options"></div>
         <div style="text-align:right; margin-top:30px; border-top: 1px solid #eee; padding-top: 20px;">
+            <p style="color:#666; font-size: 12px; float: left;">Note: You cannot return to this question after clicking Next.</p>
             <button class="btn" id="next-btn" onclick="nextQ()">Next Question</button>
         </div>
     </div>
@@ -63,48 +63,48 @@
 
 <script>
     const QUESTIONS = [
-        /* TEST 1: NUMERACY (1-32) [cite: 1] */
+        /* TEST 1: NUMERACY (1-32) [cite: 1, 50] */
         { q: "1. Which of the following fractions is less than one-third?", o: ["A. 22/63", "B. 4/11", "C. 15/46", "D. 33/98", "E. 102/103"] },
         { q: "2. When it is noon at prime meridian on the equator, what time is it at 75 degree north latitude on this meridian?", o: ["A. 12 noon", "B. 3 pm", "C. 5 pm", "D. 7 am", "E. Midnight"] },
         { q: "3. A carpenter needs four boards, each 2 metres 70 cm long. If wood is sold only by the metre, how many metres must he buy?", o: ["A. 9", "B. 10", "C. 11", "D. 12", "E. 13"] },
-        { q: "4. A motorist travels 120 KM to his destination at 60 KM/hr and returns at 40 KM/hr. Average speed for the entire trip is:", o: ["A. 53 Km", "B. 50 Km", "C. 48 Km", "D. 43 Km", "E. 152 Km"] },
-        { q: "5. A train covers distance D in H hours arriving two hours late. What rate would permit the train to arrive on schedule?", o: ["A. H2", "B. D / (H - 2)", "C. (D/H) 2", "D. DH 2", "E. D / (H + 2)"] },
-        { q: "6. From a square measuring 6 cm, the largest possible circle is cut out. Ratio of circle area to square area closest to (Pi=3):", o: ["A. 4/5", "B. 2/3", "C. 3/5", "D. 1/2", "E. 3/4"] },
-        { q: "7. If sq cm in area equals cm in circumference, the diameter of the circle is:", o: ["A. 4 cm", "B. 2 cm", "C. 1 cm", "D. 11 cm", "E. none of these"] },
-        { q: "8. 6L of a 20% alcohol solution is mixed with 4L of a 60% solution. The alcoholic strength is:", o: ["A. 80%", "B. 40%", "C. 36%", "D. 48%", "E. none of these"] },
-        { q: "9. Pens bought at Vnd 35,000/dozen and sold at 3 for Vnd 10,000. Total profit on 5 1/2 dozens is:", o: ["A. 25,000", "B. 27,500", "C. 28,500", "D. 32,500", "E. 3,000"] },
-        { q: "10. Which of the following is equal to 26 x 3.5?", o: ["A. (26 x 30) + (26 x 1/2)", "B. (26 x 3) + (6 x 1/2)", "C. (26 x 3 1/2) + (6 x 3)", "D. (26 x 3) + (26 x 1/2) + (6 x 3)", "E. (26 x 1/2) + (20 x 3) + (6 x 3)"] },
-        { q: "11. In 1981 tax was 10% less than 1980; in 1982 tax was 10% less than 1981. Total % less than 1980:", o: ["A. 19%", "B. 20%", "C. 21%", "D. 81%", "E. 90%"] },
-        { q: "12. Difference between one hundred and five thousand eighty four and ninety three thousand seven hundred nine:", o: ["A. 37,215", "B. 12,131", "C. 56,294", "D. 56,375", "E. 11,375"] },
-        { q: "13. X to Y in 3h 30m at 60 mph. Return trip at 50 mph takes:", o: ["A. 2h 55m", "B. 3h 40m", "C. 4h 32m", "D. 4h 12m", "E. 4h 40m"] },
-        { q: "14. Wage is 15,000/hr. 15% income tax, then 10% professional tax on remainder. Left with:", o: ["A. 12,750", "B. 9,750", "C. 14,125", "D. 13,500", "E. 11,475"] },
-        { q: "15. Which quantity is the smallest?", o: ["A. 4/5", "B. 7/9", "C. 0.76", "D. 5/7", "E. 9/11"] },
-        { q: "16. Girl earns twice in Dec as other months. Dec part of her entire year's earnings:", o: ["A. 2/11", "B. 2/13", "C. 3/14", "D. 1/6", "E. 1/7"] },
-        { q: "17. Wheel A (30cm) takes 240 revs. How many revs for Wheel B (20cm) same distance?", o: ["A. 120", "B. 160", "C. 360", "D. 420", "E. 450"] },
-        { q: "18. If X and Y are different and RX=RY, then R equals:", o: ["A. 0", "B. 1", "C. X/Y", "D. Y/X", "E. XY"] },
-        { q: "19. Smallest positive number divided by 3, 4, or 5 leaves remainder 2:", o: ["A. 22", "B. 42", "C. 122", "D. 62", "E. 182"] },
-        { q: "20. Taxi: 20k first 1/4 km, 5k each additional 1/4 km. Cost for d kms:", o: ["A. 20+5(4d-1)", "B. 20+5d", "C. 20+20d", "D. 20+4(d-1)", "E. 20+20(d-1)"] },
-        { q: "21. 30% from Mekong, 10% of those from Can Tho. Total % from Can Tho:", o: ["A. 0.03", "B. 0.3", "C. 3", "D. 13", "E. 20"] },
-        { q: "22. 9am to 2pm temp rose -14C to +36C. Temperature at noon:", o: ["A. -4C", "B. +16C", "C. +6C", "D. +26C", "E. +31C"] },
-        { q: "23. Ways 9 may be expressed as sum of two different positive integers:", o: ["A. 4", "B. 3", "C. 5", "D. 6", "E. 7"] },
-        { q: "24. Solve: 36 / (29 - 4 / 0.2) =", o: ["A. 4/3", "B. 2", "C. 4", "D. 9", "E. 18"] },
-        { q: "25. Sum of 3 consecutive odd numbers is always divisible by:", o: ["A. Only (4)", "B. Only (2)", "C. Only (1) and (2)", "D. Only (1)", "E. Only (2) and (4)"] },
-        { q: "26. 20% discount saves 15,000. Amount paid for book:", o: ["A. 35,000", "B. 75,000", "C. 60,000", "D. 150,000", "E. 300,000"] },
-        { q: "27. T kg snow in 1 sec. Kgs in M minutes:", o: ["A. 60 MT", "B. MT+60", "C. MT", "D. 60 M/T", "E. MT/60"] },
+        { q: "4. A motorist travels 120 KM at 60 KM/hr and returns at 40 KM/hr. Average speed for the trip is:", o: ["A. 53 Km", "B. 50 Km", "C. 48 Km", "D. 43 Km", "E. 152 Km"] },
+        { q: "5. A train covers distance D in H hours arriving 2 hours late. What rate allows arrival on schedule?", o: ["A. H2", "B. D / (H-2)", "C. (D/H) 2", "D. DH 2", "E. D / (H+2)"] },
+        { q: "6. Square 6cm side, largest circle cut. Ratio of circle area to square area closest to (Pi=3):", o: ["A. 4/5", "B. 2/3", "C. 3/5", "D. 1/2", "E. 3/4"] },
+        { q: "7. If sq cm in area equals cm in circumference, the diameter is:", o: ["A. 4 cm", "B. 2 cm", "C. 1 cm", "D. 11 cm", "E. none of these"] },
+        { q: "8. 6L of 20% alcohol mixed with 4L of 60% solution. Alcoholic strength is:", o: ["A. 80%", "B. 40%", "C. 36%", "D. 48%", "E. none"] },
+        { q: "9. Pens bought at 35,000/dozen, sold 3 for 10,000. Profit on 5.5 dozen:", o: ["A. 25,000", "B. 27,500", "C. 28,500", "D. 32,500", "E. 3,000"] },
+        { q: "10. Which is equal to 26 x 3.5?", o: ["A. (26x30)+(26x1/2)", "B. (26x3)+(6x1/2)", "C. (26x3.5)+(6x3)", "D. (26x3)+(26x1/2)+(6x3)", "E. (26x1/2)+(20x3)+(6x3)"] },
+        { q: "11. 1981 tax 10% less than 1980; 1982 was 10% less than 1981. Total % less than 1980:", o: ["A. 19%", "B. 20%", "C. 21%", "D. 81%", "E. 90%"] },
+        { q: "12. Difference between 105,084 and 93,709:", o: ["A. 37,215", "B. 12,131", "C. 56,294", "D. 56,375", "E. 11,375"] },
+        { q: "13. X to Y in 3.5 hrs at 60 mph. Return at 50 mph takes:", o: ["A. 2h 55m", "B. 3h 40m", "C. 4h 32m", "D. 4h 12m", "E. 4h 40m"] },
+        { q: "14. Wage 15,000/hr. 15% income tax, 10% professional tax on remainder. Left with:", o: ["A. 12,750", "B. 9,750", "C. 14,125", "D. 13,500", "E. 11,475"] },
+        { q: "15. Smallest quantity:", o: ["A. 4/5", "B. 7/9", "C. 0.76", "D. 5/7", "E. 9/11"] },
+        { q: "16. Girl earns twice in Dec as other months. Dec part of year earnings:", o: ["A. 2/11", "B. 2/13", "C. 3/14", "D. 1/6", "E. 1/7"] },
+        { q: "17. Wheel A (30cm) takes 240 revs. Wheel B (20cm) revs for same distance:", o: ["A. 120", "B. 160", "C. 360", "D. 420", "E. 450"] },
+        { q: "18. If RX=RY and X != Y, R is:", o: ["A. 0", "B. 1", "C. X/Y", "D. Y/X", "E. XY"] },
+        { q: "19. Smallest positive number divided by 3, 4, or 5 leaving remainder 2:", o: ["A. 22", "B. 42", "C. 122", "D. 62", "E. 182"] },
+        { q: "20. Taxi: 20k first 0.25km, 5k per additional 0.25km. Cost for d km:", o: ["A. 20+5(4d-1)", "B. 20+5d", "C. 20+20d", "D. 20+4(d-1)", "E. 20+20(d-1)"] },
+        { q: "21. 30% from Mekong, 10% of those from Can Tho. Can Tho total %:", o: ["A. 0.03", "B. 0.3", "C. 3", "D. 13", "E. 20"] },
+        { q: "22. 9am to 2pm temp rose -14C to +36C. Temp at noon:", o: ["A. -4C", "B. +16C", "C. +6C", "D. +26C", "E. +31C"] },
+        { q: "23. Ways to express 9 as sum of two different positive integers:", o: ["A. 4", "B. 3", "C. 5", "D. 6", "E. 7"] },
+        { q: "24. Solve: 36 / (29 - 4/0.2) =", o: ["A. 4/3", "B. 2", "C. 4", "D. 9", "E. 18"] },
+        { q: "25. Sum of 3 consecutive odd numbers always divisible by:", o: ["A. Only 4", "B. Only 2", "C. 1 and 2", "D. Only 1", "E. 2 and 4"] },
+        { q: "26. 20% discount saves 15,000. Paid price:", o: ["A. 35,000", "B. 75,000", "C. 60,000", "D. 150,000", "E. 300,000"] },
+        { q: "27. T kg snow in 1 sec. Kgs in M mins:", o: ["A. 60MT", "B. MT+60", "C. MT", "D. 60M/T", "E. MT/60"] },
         { q: "28. Same value as P/Q:", o: ["A. P2/Q2", "B. 3P/3Q", "C. 3P/4Q", "D. (1+P)/(1+Q)", "E. (P+3)/(Q+3)"] },
-        { q: "29. Compare: Col A: (1/4)/(3/8) | Col B: 1", o: ["A (Col A greater)", "B (Col B greater)", "C (Same)", "D (Can't tell)"] },
-        { q: "30. Compare: Col A: 0.25 | Col B: 1/4", o: ["A (Col A greater)", "B (Col B greater)", "C (Same)", "D (Can't tell)"] },
-        { q: "31. Compare: Col A: 3 1/2 % | Col B: 35/1000", o: ["A (Col A greater)", "B (Col B greater)", "C (Same)", "D (Can't tell)"] },
-        { q: "32. Compare: Col A: Posts for 144m fence (12m apart) | Col B: 12 posts", o: ["A (Col A greater)", "B (Col B greater)", "C (Same)", "D (Can't tell)"] },
+        { q: "29. Compare: Col A: (1/4)/(3/8) | Col B: 1", o: ["A. A > B", "B. B > A", "C. A = B", "D. Cannot tell"] },
+        { q: "30. Compare: Col A: 0.25 | Col B: 1/4", o: ["A. A > B", "B. B > A", "C. A = B", "D. Cannot tell"] },
+        { q: "31. Compare: Col A: 3 1/2 % | Col B: 35/1000", o: ["A. A > B", "B. B > A", "C. A = B", "D. Cannot tell"] },
+        { q: "32. Compare: Col A: Posts for 144m fence (12m apart) | Col B: 12 posts", o: ["A. A > B", "B. B > A", "C. A = B", "D. Cannot tell"] },
 
-        /* TEST 2: DATA INTERPRETATION (33-45) [cite: 52] */
+        /* TEST 2: DATA INTERPRETATION (33-45) [cite: 52, 53, 54] */
         { t: "CIVIL", q: "33. (1.1) Non-comp class percentage constantly increasing since 1902.", o: ["A. Correct", "B. Incorrect"] },
         { t: "CIVIL", q: "34. (1.2) Comp class percentage never below 55%.", o: ["A. Correct", "B. Incorrect"] },
         { t: "CIVIL", q: "35. (1.3) Labour class grew faster than non-comp 1926-1937.", o: ["A. Correct", "B. Incorrect"] },
         { t: "CIVIL", q: "36. (1.4) Avg Comp class (1922-37) > Avg Total employees (1902-22).", o: ["A. Correct", "B. Incorrect"] },
         { q: "37. (2.1) What part of all tax revenue comes from income taxes?", o: ["A. 1/3", "B. 1/4", "C. 2/5", "D. 1/2", "E. 3/4"] },
         { q: "38. (2.2) % of fed income derived from individual income taxes?", o: ["A. 0.0043%", "B. 0.043%", "C. 0.43%", "D. 4.3%", "E. 43%"] },
-        { q: "39. (2.3) Of 1,000 VND, how much from sources other than income taxes?", o: ["A. 260", "B. 310", "C. 430", "D. 570", "E. 743"] },
+        { q: "39. (2.3) Of 1,000 VND, how much from non-income tax sources?", o: ["A. 260", "B. 310", "C. 430", "D. 570", "E. 743"] },
         { q: "40. (3.1) Year of greatest TB case difference HCMC vs Country?", o: ["A. 1969", "B. 1972", "C. 1980", "D. 1985", "E. 1990"] },
         { q: "41. (3.2) 1990 TB cases per 1000 in HCMC?", o: ["A. 0.5", "B. 5.0", "C. 5.5", "D. 50.0", "E. 50.5"] },
         { q: "42. (3.3) Mekong Delta sharpest rise in TB cases:", o: ["A. 1972-73", "B. 1973-74", "C. 1975-76", "D. 1976-77", "E. 1980-81"] },
@@ -114,6 +114,7 @@
     ];
 
     const CIVIL_TABLE = `
+        <p><strong>Civil Service Employees (1902-1937)</strong></p>
         <table><tr><th>Year</th><th>Total</th><th>Comp</th><th>Labour</th><th>Non-Comp</th></tr>
         <tr><td>1902</td><td>34</td><td>20</td><td>12</td><td>2</td></tr><tr><td>1906</td><td>42</td><td>24</td><td>16</td><td>2</td></tr>
         <tr><td>1910</td><td>54</td><td>30</td><td>18</td><td>6</td></tr><tr><td>1914</td><td>55</td><td>31</td><td>18</td><td>6</td></tr>
@@ -126,7 +127,7 @@
     let time = 45 * 60;
 
     function startTest() {
-        if (!document.getElementById('email').value.includes('@')) return alert("Email required");
+        if (!document.getElementById('email').value.includes('@')) return alert("Valid email required");
         document.getElementById('start-screen').classList.add('hidden');
         document.getElementById('test-screen').classList.remove('hidden');
         load();
@@ -143,21 +144,19 @@
         item.o.forEach(opt => {
             optBox.innerHTML += `<label class="option-label"><input type="radio" name="ans"> ${opt}</label>`;
         });
-        // Next button is always enabled so they can skip if they want
-        document.getElementById('next-btn').disabled = false;
-        if(current === QUESTIONS.length - 1) document.getElementById('next-btn').innerText = "Finish Exam";
+        document.getElementById('next-btn').innerText = (current === QUESTIONS.length - 1) ? "Finish Test" : "Next Question";
     }
 
     function nextQ() {
         if (current < QUESTIONS.length - 1) { current++; load(); }
-        else { alert("Assessment completed!"); location.reload(); }
+        else { alert("Test completed!"); location.reload(); }
     }
 
     function updateTimer() {
         time--;
         let m = Math.floor(time / 60), s = time % 60;
         document.getElementById('timer').innerText = `${m}:${s < 10 ? '0' : ''}${s}`;
-        if (time <= 0) { alert("Time expired."); location.reload(); }
+        if (time <= 0) { alert("Time is up!"); location.reload(); }
     }
 
     document.addEventListener("visibilitychange", () => {
