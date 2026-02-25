@@ -485,7 +485,7 @@ key: "q1_30",
     text: "What part of all tax revenue comes from income taxes?", // [1](blob:https://www.microsoft365.com/291fdf6d-8e79-465b-9569-16510de3f2ac)
     extraHTML: `
     <div style="text-align:center; margin: 12px 0;">
-      assets/test2/tax_graph.png
+    <img src="assets/test2/tax_graph.png" style="max-width:100%; height:auto;" />
     </div>
   `,
     options: [
