@@ -124,18 +124,15 @@ function injectOptionStyles(){
   margin-bottom: 16px;
 }
 
-#qExtra > * {
-  margin: 4px 0 !important;
+#qExtra {
+  margin: 8px 0 16px 0 !important;
   line-height: 1.4 !important;
 }
 
-#qExtra strong {
-  display: inline;
-}
-
-.question-main {
-  margin-bottom: 10px;
-  line-height: 1.5;
+#qExtra * {
+  line-height: 1.4 !important;
+  margin-top: 4px !important;
+  margin-bottom: 4px !important;
 }
   `;
 
