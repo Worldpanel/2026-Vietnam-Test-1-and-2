@@ -346,7 +346,9 @@ async function submitNow() {
 
   clearInterval(timerHandle);
   showScreen("screen-end");
-
+ localStorage.removeItem("exam_active");
+  localStorage.removeItem("exam_email");
+  localStorage.removeItem("exam_responses");
  try {
   const response = await fetch(SCRIPT_URL, {
     method: "POST",
@@ -372,10 +374,7 @@ async function submitNow() {
   }
 
   // ✅ SUCCESS
-  localStorage.removeItem("exam_active");
-  localStorage.removeItem("exam_email");
-  localStorage.removeItem("exam_responses");
-  document.body.innerHTML = `
+   document.body.innerHTML = `
     <h2 style="text-align:center; color:green;">Submission Successful</h2>
     <p style="text-align:center;">Thank you.</p>
   `;
