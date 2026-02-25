@@ -350,7 +350,7 @@ window.QUESTION_BANK = [
       C. if the two quantities are the same<br />
       D. if the comparison cannot be made based on the information given<br /><br />
       <strong>Tick the correct answer.</strong><br /><br />
-      <div style="background:#eee; padding:10px; border-radius:5px;">
+      <div style="background:#eee; padding:5px 8px; line-height:1.25; border-radius:5px;">
         <strong>Column A:</strong> (1/4) / (3/8) &nbsp;&nbsp;|&nbsp;&nbsp; <strong>Column B:</strong> 1 1/2
       </div>
     `,
@@ -370,7 +370,7 @@ key: "q1_30",
       <strong>B.</strong> if Column B is greater<br>
       <strong>C.</strong> if they are the same<br>
       <strong>D.</strong> if the comparison cannot be made<br><br>
-      <div style="background:#eee; padding:10px; border-radius:5px;">
+      <div style="background:#eee; padding:5px 8px; line-height:1.25; border-radius:5px;">
         <strong>Column A:</strong> 0.25 &nbsp;&nbsp;|&nbsp;&nbsp; <strong>Column B:</strong> 1
       </div>
     `,
@@ -390,7 +390,7 @@ key: "q1_30",
       <strong>B.</strong> if Column B is greater<br>
       <strong>C.</strong> if they are the same<br>
       <strong>D.</strong> if the comparison cannot be made<br><br>
-      <div style="background:#eee; padding:10px; border-radius:5px;">
+      <div style="background:#eee; padding:5px 8px; line-height:1.25; border-radius:5px;">
         <strong>Column A:</strong> 3 1/2 % &nbsp;&nbsp;|&nbsp;&nbsp; <strong>Column B:</strong> 35/1000
       </div>
     `,
@@ -410,7 +410,7 @@ key: "q1_30",
       <strong>B.</strong> if Column B is greater<br>
       <strong>C.</strong> if they are the same<br>
       <strong>D.</strong> if the comparison cannot be made<br><br>
-      <div style="background:#eee; padding:10px; border-radius:5px;">
+      <div style="background:#eee; padding:5px 8px; line-height:1.25; border-radius:5px;">
         <strong>Column A:</strong> The number of posts needed for a fence 144 m. long if the posts are 12 m apart<br>
         <strong>Column B:</strong> 12 posts
       </div>
