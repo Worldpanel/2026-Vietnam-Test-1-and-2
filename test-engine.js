@@ -385,54 +385,86 @@ function formatTime(s) {
 // SUBMIT
 // =============================================
 
+let hasSubmitted = false;
+
 async function submitNow() {
+
+  if (hasSubmitted) return;
+  hasSubmitted = true;
 
   clearInterval(timerHandle);
   showScreen("screen-end");
- localStorage.removeItem("exam_active");
-  localStorage.removeItem("exam_email");
-  localStorage.removeItem("exam_responses");
- try {
-  const response = await fetch(SCRIPT_URL, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded"
-    },
-    body: new URLSearchParams({
-      email,
-      responses: JSON.stringify(responses),
-      violations: tabSwitchCount,
-      timeRemainingSec: timeLeft
-    })
-  });
 
-  if (!response.ok) {
-    throw new Error("Server error: " + response.status);
-  }
-
-  const result = await response.json();
-
-  if (!result.ok) {
-    throw new Error(result.message || "Submission failed");
-  }
-
-  // ✅ SUCCESS
-   document.body.innerHTML = `
-    <h2 style="text-align:center; color:green;">Submission Successful</h2>
-    <p style="text-align:center;">Thank you.</p>
+  const endScreen = $("screen-end");
+  endScreen.innerHTML = `
+    <h2 style="text-align:center;">Submitting your test...</h2>
+    <p style="text-align:center;">Please wait and do not close this page.</p>
   `;
 
-} catch (e) {
-  console.error("Submit failed:", e);
+  try {
 
-  // ❌ ERROR
-  document.body.innerHTML = `
-    <h2 style="text-align:center; color:red;">Submission Failed</h2>
-    <p style="text-align:center;">
-      There was a problem submitting your test.<br>
-      Please check your internet connection and try again.
-    </p>
-  `;
+    const response = await fetch(SCRIPT_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded"
+      },
+      body: new URLSearchParams({
+        email,
+        responses: JSON.stringify(responses),
+        violations: tabSwitchCount,
+        timeRemainingSec: timeLeft,
+        submittedAt: new Date().toISOString()
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error("Server error: " + response.status);
+    }
+
+    const result = await response.json();
+
+    if (!result.ok) {
+      throw new Error(result.message || "Submission failed");
+    }
+
+    // ✅ SUCCESS
+    localStorage.removeItem("exam_active");
+    localStorage.removeItem("exam_email");
+    localStorage.removeItem("exam_responses");
+
+    endScreen.innerHTML = `
+      <h2 style="text-align:center; color:green;">Submission Successful</h2>
+      <p style="text-align:center;">Thank you for completing the assessment.</p>
+    `;
+
+  } catch (e) {
+
+    console.error("Submit failed:", e);
+
+    hasSubmitted = false; // allow retry
+
+    endScreen.innerHTML = `
+      <h2 style="text-align:center; color:red;">Submission Failed</h2>
+      <p style="text-align:center;">
+        There was a problem submitting your test.<br>
+        Please check your internet connection.
+      </p>
+      <div style="text-align:center; margin-top:15px;">
+        <button id="retryBtn" style="
+          padding:10px 20px;
+          background:#005EB8;
+          color:#fff;
+          border:none;
+          border-radius:6px;
+          cursor:pointer;
+        ">
+          Retry Submission
+        </button>
+      </div>
+    `;
+
+    $("retryBtn").onclick = submitNow;
+  
 }
 }
 // =============================================
