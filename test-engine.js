@@ -120,6 +120,23 @@ function injectOptionStyles(){
     .option-text{
       flex:1;
     }
+    #qExtra {
+  margin-bottom: 16px;
+}
+
+#qExtra > * {
+  margin: 4px 0 !important;
+  line-height: 1.4 !important;
+}
+
+#qExtra strong {
+  display: inline;
+}
+
+.question-main {
+  margin-bottom: 10px;
+  line-height: 1.5;
+}
   `;
 
   document.head.appendChild(style);
