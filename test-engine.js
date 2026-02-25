@@ -60,9 +60,9 @@ function detectRefreshAutoSubmit() {
 
       document.body.innerHTML = `
         <h2 style="color:#d32f2f;text-align:center;margin-top:40px;">
-          Test Automatically Submitted
+          Test Ended Due to Page Refresh
         </h2>
-        <p style="text-align:center;">You refreshed the page.</p>
+        <p style="text-align:center;">If you believe submission was blocked by network policy, please contact HR.</p>
       `;
     }
   }
