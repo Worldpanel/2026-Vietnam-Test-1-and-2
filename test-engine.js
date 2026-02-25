@@ -10,6 +10,13 @@ const ENABLE_GRAPH_PLACEHOLDERS = !!CFG.ENABLE_GRAPH_PLACEHOLDERS;
 let timeLeft = TOTAL_TIME_SECONDS;
 let tabViolations = 0;
 let currentIndex = 0;
+// Nếu user confirm leaving thì sẽ auto-submit,
+// auto-submit immediately on the next load.
+if (localStorage.getItem("TEST_ACTIVE") === "1" &&
+    localStorage.getItem("PENDING_FORCED_SUBMIT") === "1") {
+  localStorage.removeItem("PENDING_FORCED_SUBMIT"); // avoid loops
+  submitNow(true); // forced refresh-submit
+}
 const responses = {};   // skipped => key undefined
 let email = "";
 const questionBank = (Array.isArray(window.QUESTION_BANK) ? window.QUESTION_BANK : []);
@@ -45,7 +52,27 @@ $("qText").innerHTML = `<div style="margin-bottom:8px; opacity:.7;">Question ${i
   $("btnNext").textContent = (i === questionBank.length - 1) ? "Submit Test" : "Next";
   updateHUD();
 }
+// --- Refresh Guard: warn before leaving; mark a flag if they actually leave.
+function enableRefreshGuard() {
+  // 1) Show the standard browser warning when the test is active
+  const beforeUnloadHandler = (e) => {
+    if (localStorage.getItem("TEST_ACTIVE") === "1") {
+      e.preventDefault();
+      // Most browsers ignore custom strings, but this line is still required
+      e.returnValue = "Warning: The test will auto-submit if you reload or close this tab.";
+      return e.returnValue;
+    }
+  };
+  window.addEventListener("beforeunload", beforeUnloadHandler);
 
+  // 2) When the page is actually being hidden/unloaded (user confirmed leave),
+  // mark a flag so we auto-submit on the next load.
+  window.addEventListener("pagehide", () => {
+    if (localStorage.getItem("TEST_ACTIVE") === "1") {
+      localStorage.setItem("PENDING_FORCED_SUBMIT", "1");
+    }
+  });
+}
 // --- Timer
 let timerHandle = null;
 function startTimer(){
@@ -94,6 +121,12 @@ $("btnStart").addEventListener("click", ()=>{
     return;
   }
   email = val;
++  // +++ Session lock: mark test as active
++  localStorage.setItem("TEST_ACTIVE", "1");
++  localStorage.setItem("SESSION_START", String(Date.now()));
++  localStorage.removeItem("PENDING_FORCED_SUBMIT"); // clear if any
++  // +++ Enable browser refresh/leave warning
++  enableRefreshGuard();
   timeLeft = TOTAL_TIME_SECONDS;
   startTimer();
   showScreen("screen-question");
@@ -114,8 +147,8 @@ $("btnNext").addEventListener("click", ()=>{
   }
 });
 
-// --- Submit
-async function submitNow(){
+// --- Submit function (supports forced auto-submit on refresh)
+async function submitNow(forceSubmit = false){
   showScreen("screen-end");
   try{
     const payload = new URLSearchParams({
@@ -123,24 +156,37 @@ async function submitNow(){
       email,
       violations: String(tabViolations),
       timeRemainingSec: String(Math.max(0, timeLeft)),
-      responses: JSON.stringify(responses)
+      responses: JSON.stringify(responses),
+      forced: forceSubmit ? "1" : "0"   // tell backend it's a refresh-forced submission
     });
+
     const res = await fetch(SCRIPT_URL, {
       method: "POST",
       headers: {"Content-Type":"application/x-www-form-urlencoded;charset=UTF-8"},
       body: payload.toString()
     });
+
     const data = await res.json().catch(()=>({ok:false,error:"Invalid JSON from server"}));
     if (!data || data.ok !== true) {
       alert("Submission error: " + (data && data.error ? data.error : "Unknown"));
       showScreen("screen-question");
       return;
     }
+
     alert(`Submission successful. Attempt #${data.attempt || 1}`);
-    document.body.innerHTML = "<div style='padding:40px;font-family:Segoe UI;'><h2>Submitted</h2><p>You may now close this tab.</p></div>";
+    document.body.innerHTML = `
+### Submitted
+
+This session has ended. You may now close this tab.
+`;
   }catch(e){
     alert("Error submitting. Please verify your Google Apps Script deployment.");
     showScreen("screen-question");
+  } finally {
+    // --- Clear session state no matter what
+    localStorage.removeItem("TEST_ACTIVE");
+    localStorage.removeItem("SESSION_START");
+    localStorage.removeItem("PENDING_FORCED_SUBMIT");
   }
 }
 function autoSubmit(){ submitNow(); }
