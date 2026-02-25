@@ -1,4 +1,4 @@
-// ===== Test Engine – CHẶN REFRESH & LƯU TIẾN TRÌNH TUYỆT ĐỐI =====
+// ===== Test Engine – REFRESH PROTECTION WITH WARNING =====
 
 const CFG = window.TEST_APP_CONFIG || {};
 const SCRIPT_URL = String(CFG.SCRIPT_URL || "");
@@ -11,34 +11,38 @@ const questionBank = Array.isArray(window.QUESTION_BANK) ? window.QUESTION_BANK 
 
 const $ = (id) => document.getElementById(id);
 
-// --- 1. CHẶN NGAY TỪ CỬA NGÕ (VỪA LOAD TRANG) ---
-(function checkViolationOnLoad() {
+// --- 1. DETECTION ON PAGE LOAD ---
+(function checkIntegrity() {
     const isTesting = localStorage.getItem("IS_TESTING");
     if (isTesting === "true") {
-        // Nếu refresh, email và đáp án vẫn còn trong LocalStorage
         const savedEmail = localStorage.getItem("TEMP_EMAIL");
         const savedResp = localStorage.getItem("TEMP_RESPONSES");
         
-        // Hiện thông báo và khóa màn hình luôn
         document.addEventListener("DOMContentLoaded", () => {
             document.body.innerHTML = `
                 <div style="text-align:center; padding:50px; font-family:sans-serif;">
-                    <h2 style="color:red;">PHÁT HIỆN VI PHẠM: REFRESH TRANG</h2>
-                    <p>Hệ thống đang tự động nộp bài làm của bạn...</p>
+                    <h2 style="color:#c62828;">TEST TERMINATED</h2>
+                    <p>A page refresh was detected. Your progress has been automatically submitted.</p>
+                    <p>You cannot restart this test session.</p>
                 </div>`;
-            
-            // Ép nộp dữ liệu cũ lên Google Sheets
             forceSubmit(savedEmail, savedResp);
         });
     }
 })();
 
-// --- 2. HÀM ÉP NỘP BÀI KHI REFRESH ---
+// --- 2. BROWSER REFRESH WARNING ---
+// This triggers the "Leave site? Changes you made may not be saved" popup
+window.onbeforeunload = function() {
+    if (localStorage.getItem("IS_TESTING") === "true") {
+        return "Warning: Refreshing the page will automatically submit your test and you won't be able to continue!";
+    }
+};
+
 async function forceSubmit(vEmail, vResp) {
     try {
         await fetch(SCRIPT_URL, {
             method: "POST",
-            mode: 'no-cors', // Dùng no-cors để đi xuyên qua mọi lỗi mạng/cors lúc này
+            mode: 'no-cors', 
             body: new URLSearchParams({
                 action: "submit",
                 email: vEmail || "unknown_refresh",
@@ -48,10 +52,9 @@ async function forceSubmit(vEmail, vResp) {
             })
         });
     } catch (e) {}
-    localStorage.clear(); // Xóa sạch để không bị lặp
+    localStorage.removeItem("IS_TESTING"); 
 }
 
-// --- 3. ĐỒNG BỘ DỮ LIỆU LIÊN TỤC ---
 function sync() {
     if (!email) return;
     localStorage.setItem("TEMP_EMAIL", email);
@@ -59,13 +62,13 @@ function sync() {
     localStorage.setItem("TEMP_VIOLATIONS", String(tabViolations));
 }
 
-// --- 4. LOGIC START TEST ---
+// --- 3. START TEST ---
 $("btnStart").onclick = () => {
     const mailVal = $("email").value.trim();
-    if (!mailVal || !mailVal.includes("@")) return alert("Vui lòng nhập Email chính xác!");
+    if (!mailVal || !mailVal.includes("@")) return alert("Please enter a valid email address!");
     
     email = mailVal;
-    localStorage.setItem("IS_TESTING", "true"); // Cắm cờ bắt đầu
+    localStorage.setItem("IS_TESTING", "true");
     sync();
     
     showScreen("screen-question");
@@ -73,7 +76,7 @@ $("btnStart").onclick = () => {
     startTimer();
 };
 
-// --- 5. RENDER CÂU HỎI (CÓ LƯU ĐÁP ÁN NGAY) ---
+// --- 4. RENDER QUESTION ---
 function renderQuestion(i) {
     currentIndex = i;
     const q = questionBank[i];
@@ -91,10 +94,9 @@ function renderQuestion(i) {
         lbl.className = "option";
         lbl.innerHTML = `<input type="radio" id="${id}" name="${q.key}" value="${opt.value}" ${responses[q.key]===opt.value?'checked':''}/> ${opt.label}`;
         
-        // Khi chọn đáp án là lưu ngay vào LocalStorage
         lbl.onclick = () => {
             responses[q.key] = opt.value;
-            sync();
+            sync(); // Save choice immediately
         };
         wrap.appendChild(lbl);
     });
@@ -103,13 +105,13 @@ function renderQuestion(i) {
     updateHUD();
 }
 
-// --- 6. CÁC HÀM CÒN LẠI ---
 function startTimer() {
-    setInterval(() => {
+    const timerInterval = setInterval(() => {
         if (timeLeft > 0) {
             timeLeft--;
             $("timer").textContent = Math.floor(timeLeft/60) + ":" + (timeLeft%60).toString().padStart(2,'0');
         } else {
+            clearInterval(timerInterval);
             submitNow();
         }
     }, 1000);
@@ -126,7 +128,7 @@ $("btnNext").onclick = () => {
 };
 
 async function submitNow() {
-    localStorage.removeItem("IS_TESTING"); // Gỡ cờ vi phạm vì nộp tự nguyện
+    localStorage.removeItem("IS_TESTING"); 
     showScreen("screen-end");
     
     const payload = new URLSearchParams({
@@ -139,10 +141,10 @@ async function submitNow() {
     try {
         await fetch(SCRIPT_URL, { method: "POST", body: payload });
         localStorage.clear();
-        alert("Nộp bài thành công!");
+        alert("Test submitted successfully!");
         location.reload();
     } catch (e) {
-        alert("Lỗi kết nối, vui lòng thử lại!");
+        alert("Connection error. Please try again.");
         showScreen("screen-question");
     }
 }
@@ -157,7 +159,7 @@ function updateHUD(){
     $("violations").textContent = tabViolations;
 }
 
-// Chặn chuyển tab
+// Tab Switching detection
 window.onblur = () => {
     if(localStorage.getItem("IS_TESTING") === "true"){
         tabViolations++;
