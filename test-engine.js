@@ -158,7 +158,7 @@ function injectOptionStyles(){
 }
 
 #qExtra br{
-  line-height:1.05 !important;
+  line-height:1 !important;
 }
 
 #qExtra div{
