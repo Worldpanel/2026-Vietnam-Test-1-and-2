@@ -493,3 +493,32 @@ function handleForcedSubmit(reason) {
   console.log("Forced submit:", reason);
   submitNow();
 }
+// =============================================
+// FULLSCREEN EXIT DETECTION
+// =============================================
+
+document.addEventListener("fullscreenchange", checkFullscreenExit);
+document.addEventListener("webkitfullscreenchange", checkFullscreenExit);
+
+function checkFullscreenExit() {
+
+  if (!examStarted) return;
+
+  const isFullscreen =
+    document.fullscreenElement ||
+    document.webkitFullscreenElement;
+
+  if (!isFullscreen) {
+
+    tabSwitchCount++;
+    updateViolationUI();
+
+    showSoftWarning(
+      `You exited fullscreen (${tabSwitchCount}/${MAX_TAB_SWITCH})`
+    );
+
+    if (tabSwitchCount >= MAX_TAB_SWITCH) {
+      handleForcedSubmit("Exited fullscreen too many times");
+    }
+  }
+}
