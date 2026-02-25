@@ -1,5 +1,5 @@
 // =====================================================
-// WORLD PANEL – STABLE TEST ENGINE (SAFE VERSION)
+// WORLD PANEL – STABLE ENGINE (ENHANCED UX + TAB LOCK)
 // =====================================================
 
 // ---------------- CONFIG ----------------
@@ -14,21 +14,50 @@ let responses = {};
 let email = "";
 let timerHandle = null;
 let examStarted = false;
+let TAB_ID = crypto.randomUUID();
 
 // Helper
 const $ = (id) => document.getElementById(id);
 
 // =====================================================
-// SAFE RELOAD DETECTION (NO FALSE TRIGGER)
+// TAB LOCK (PREVENT DUPLICATE TAB CHEAT)
+// =====================================================
+
+function lockToSingleTab() {
+  const existing = localStorage.getItem("ACTIVE_TAB_ID");
+
+  if (!existing) {
+    localStorage.setItem("ACTIVE_TAB_ID", TAB_ID);
+  } else if (existing !== TAB_ID) {
+    document.body.innerHTML = `
+      <h2 style="color:red;text-align:center;margin-top:40px;">
+        Multiple Tabs Detected
+      </h2>
+      <p style="text-align:center;">
+        This test can only run in one tab. Please close other tabs.
+      </p>
+    `;
+    throw new Error("Duplicate tab blocked");
+  }
+
+  window.addEventListener("storage", (e) => {
+    if (e.key === "ACTIVE_TAB_ID" && e.newValue !== TAB_ID) {
+      location.reload();
+    }
+  });
+}
+
+// =====================================================
+// RELOAD DETECTION
 // =====================================================
 
 document.addEventListener("DOMContentLoaded", () => {
 
-  const active = localStorage.getItem("TEST_ACTIVE") === "1";
+  lockToSingleTab();
 
+  const active = localStorage.getItem("TEST_ACTIVE") === "1";
   const navEntries = performance.getEntriesByType("navigation");
-  const isReload =
-    navEntries.length && navEntries[0].type === "reload";
+  const isReload = navEntries.length && navEntries[0].type === "reload";
 
   if (active && isReload) {
     handleForcedSubmit();
@@ -46,7 +75,7 @@ function initUI() {
 
   $("btnStart").onclick = () => {
 
-    if (!window.QUESTION_BANK || !window.QUESTION_BANK.length) {
+    if (!window.QUESTION_BANK?.length) {
       alert("Question bank not loaded.");
       return;
     }
@@ -73,12 +102,6 @@ function initUI() {
     if (!examStarted) return;
 
     const bank = window.QUESTION_BANK;
-    const q = bank[currentIndex];
-
-    if (!responses[q.key]) {
-      alert("Please select an answer before continuing.");
-      return;
-    }
 
     if (currentIndex < bank.length - 1) {
       currentIndex++;
@@ -89,13 +112,12 @@ function initUI() {
     }
   };
 
-  // Warning before leaving
+  // Warn before leaving
   window.addEventListener("beforeunload", (e) => {
     if (localStorage.getItem("TEST_ACTIVE") === "1") {
       e.preventDefault();
       e.returnValue =
-        "Warning: The test will auto-submit if you refresh or close this page.";
-      return e.returnValue;
+        "Leaving or refreshing will auto-submit your test.";
     }
   });
 }
@@ -119,24 +141,12 @@ function renderQuestion(i) {
   $("qPercent").textContent = percent + "%";
   $("progressBar").style.width = percent + "%";
 
-  const warningBanner = `
-    <div style="
-      background:#ffe4e4;
-      padding:12px;
-      border-left:6px solid red;
-      margin-bottom:10px;
-      border-radius:4px;
-      font-weight:600;">
-      ⚠️ Refreshing or leaving this page will auto-submit your test.
-    </div>
-  `;
-
-  $("qText").innerHTML =
-    warningBanner +
-    `
-      <div style="margin-bottom:6px; opacity:.7;">Question ${i + 1}</div>
+  $("qText").innerHTML = `
+      <div style="margin-bottom:6px; opacity:.6;">
+        Question ${i + 1}
+      </div>
       <div>${q.text.replace(/\n/g, "<br>")}</div>
-    `;
+  `;
 
   $("qExtra").innerHTML = q.extraHTML || "";
 
@@ -145,21 +155,25 @@ function renderQuestion(i) {
 
   q.options.forEach((opt) => {
 
-    const lbl = document.createElement("label");
-    lbl.className = "option";
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "option-btn";
+    btn.innerHTML = opt.label;
 
-    lbl.innerHTML = `<span>${opt.label}</span>`;
+    if (responses[q.key] === opt.value) {
+      btn.classList.add("selected");
+    }
 
-    lbl.onclick = () => {
+    btn.onclick = () => {
       responses[q.key] = opt.value;
 
-      document.querySelectorAll(".option")
-        .forEach(o => o.classList.remove("selected"));
+      document.querySelectorAll(".option-btn")
+        .forEach(b => b.classList.remove("selected"));
 
-      lbl.classList.add("selected");
+      btn.classList.add("selected");
     };
 
-    wrap.appendChild(lbl);
+    wrap.appendChild(btn);
   });
 
   $("btnNext").textContent =
@@ -213,8 +227,7 @@ async function submitNow() {
     });
   } catch (e) {}
 
-  localStorage.removeItem("TEST_ACTIVE");
-  localStorage.removeItem("TEMP_EMAIL");
+  localStorage.clear();
 
   setTimeout(() => {
     document.body.innerHTML = `
@@ -225,7 +238,7 @@ async function submitNow() {
 }
 
 // =====================================================
-// FORCED SUBMIT (RELOAD DETECTED)
+// FORCED SUBMIT
 // =====================================================
 
 async function handleForcedSubmit() {
@@ -243,15 +256,14 @@ async function handleForcedSubmit() {
     });
   } catch (e) {}
 
-  localStorage.removeItem("TEST_ACTIVE");
-  localStorage.removeItem("TEMP_EMAIL");
+  localStorage.clear();
 
   document.body.innerHTML = `
-    <h2 style="color:red; text-align:center; margin-top:40px;">
-      VIOLATION DETECTED: PAGE REFRESH
+    <h2 style="color:red;text-align:center;margin-top:40px;">
+      Test Ended
     </h2>
     <p style="text-align:center;">
-      Your test has been automatically submitted.
+      Page refresh detected. Your test has been submitted.
     </p>
   `;
 }
