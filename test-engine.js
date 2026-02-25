@@ -1,5 +1,5 @@
 // =====================================================
-// WORLD PANEL – STABLE ENGINE V3 (RACE SAFE)
+// WORLD PANEL – SECURE TEST ENGINE (FINAL STABLE)
 // =====================================================
 
 const CFG = window.TEST_APP_CONFIG || {};
@@ -11,223 +11,153 @@ let currentIndex = 0;
 let responses = {};
 let email = "";
 let timerHandle = null;
-let examStarted = false;
 
 const $ = (id) => document.getElementById(id);
 
-// -----------------------------------------------------
-// SAFE QUESTION ACCESS
-// -----------------------------------------------------
-function getQuestionBankSafe() {
-  if (!window.QUESTION_BANK) return null;
-  if (!Array.isArray(window.QUESTION_BANK)) return null;
-  if (!window.QUESTION_BANK.length) return null;
-  return window.QUESTION_BANK;
-}
+// --- 1. DETECTION ON LOAD (IF REFRESHED) ---
+(function checkIntegrity() {
+    const isTesting = localStorage.getItem("IS_TESTING") === "true";
+    const navEntries = performance.getEntriesByType("navigation");
+    const isReload = navEntries.length > 0 && navEntries[0].type === "reload";
 
-// -----------------------------------------------------
-function showScreen(id) {
-  ["screen-start", "screen-question", "screen-end"].forEach(s => {
-    const el = $(s);
-    if (el) el.classList.add("hidden");
-  });
-  const active = $(id);
-  if (active) active.classList.remove("hidden");
-}
-
-// =====================================================
-// SECURITY
-// =====================================================
-function enableSecurity() {
-
-  const TAB_ID = Date.now() + "_" + Math.random();
-
-  sessionStorage.setItem("ACTIVE_TAB", TAB_ID);
-
-  const banner = document.createElement("div");
-  banner.style.cssText = `
-    position:fixed;
-    top:0;
-    left:0;
-    width:100%;
-    background:#c62828;
-    color:#fff;
-    padding:10px;
-    text-align:center;
-    font-weight:bold;
-    z-index:9999;
-  `;
-  banner.innerText =
-    "⚠️ WARNING: Refreshing or opening new tabs will terminate your test.";
-  document.body.prepend(banner);
-  document.body.style.paddingTop = "50px";
-
-  document.addEventListener("keydown", function (e) {
-    if (!examStarted) return;
-    if (
-      e.key === "F5" ||
-      (e.ctrlKey && e.key.toLowerCase() === "r") ||
-      (e.metaKey && e.key.toLowerCase() === "r")
-    ) {
-      e.preventDefault();
-      alert("Refreshing is disabled during the test.");
+    if (isTesting && isReload) {
+        const savedEmail = localStorage.getItem("TEMP_EMAIL") || "unknown";
+        window.stop();
+        document.addEventListener("DOMContentLoaded", () => {
+            document.body.innerHTML = `
+                <div style="text-align:center; padding:100px 20px; font-family:sans-serif;">
+                    <h1 style="color:#d32f2f;">TEST TERMINATED</h1>
+                    <p style="font-size:18px;">A page refresh was detected. Your progress has been automatically submitted.</p>
+                </div>`;
+            forceSubmit(savedEmail);
+        });
     }
-  });
+})();
 
-  window.addEventListener("beforeunload", function (e) {
-    if (examStarted) {
-      e.preventDefault();
-      e.returnValue = "";
+// --- 2. BROWSER POPUP WARNING ---
+window.onbeforeunload = function() {
+    if (localStorage.getItem("IS_TESTING") === "true") {
+        return "Warning: Refreshing will automatically submit your test!";
     }
-  });
-}
+};
 
-// =====================================================
-// START
-// =====================================================
-document.addEventListener("DOMContentLoaded", () => {
-
-  $("btnStart").addEventListener("click", async () => {
-
-    const val = $("email").value.trim();
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-    if (!emailRegex.test(val)) {
-      alert("Please enter valid email.");
-      return;
+// --- 3. START TEST ---
+$("btnStart").onclick = () => {
+    const mailInput = $("email").value.trim();
+    if (!mailInput || !mailInput.includes("@")) {
+        alert("Please enter a valid email address!");
+        return;
     }
-
-    email = val;
-
-    // 🔥 WAIT UNTIL QUESTION_BANK READY (max 2s)
-    let retries = 0;
-    let bank = getQuestionBankSafe();
-
-    while (!bank && retries < 20) {
-      await new Promise(r => setTimeout(r, 100));
-      bank = getQuestionBankSafe();
-      retries++;
-    }
-
-    if (!bank) {
-      alert("Question bank failed to load. Please refresh.");
-      return;
-    }
-
-    examStarted = true;
-
-    enableSecurity();
+    
+    email = mailInput;
+    localStorage.setItem("IS_TESTING", "true");
+    localStorage.setItem("TEMP_EMAIL", email);
+    
     showScreen("screen-question");
-    renderQuestion(0, bank);
+    renderQuestion(0);
     startTimer();
-  });
+};
 
-  $("btnNext").addEventListener("click", () => {
-    if (!examStarted) return;
+// --- 4. RENDER CÂU HỎI & CẢNH BÁO ---
+function renderQuestion(i) {
+    currentIndex = i;
+    const bank = window.QUESTION_BANK || [];
+    const q = bank[i];
+    
+    if (!q) return;
 
-    const bank = getQuestionBankSafe();
-    if (!bank) return;
+    // --- CHÈN BANNER CẢNH BÁO "HÙ" USER Ở ĐÂY ---
+    const warningBanner = `
+        <div style="background:#fff3e0; color:#e65100; border:1px solid #ffe0b2; padding:10px; margin-bottom:20px; border-radius:6px; font-weight:bold; text-align:center; font-size:14px;">
+            ⚠️ WARNING: Refreshing, leaving, or opening a new tab will automatically submit your test.
+        </div>
+    `;
 
-    const q = bank[currentIndex];
-    if (!responses[q.key]) {
-      alert("Please select an answer before continuing.");
-      return;
-    }
+    $("qText").innerHTML = warningBanner + `<div style="margin-bottom:10px; font-weight:bold; color:#005EB8;">Question ${i+1}</div><div>${q.text}</div>`;
+    $("qExtra").innerHTML = q.extraHTML || "";
 
-    if (currentIndex < bank.length - 1) {
-      currentIndex++;
-      renderQuestion(currentIndex, bank);
-    } else {
-      submitNow(false);
-    }
-  });
-
-});
-
-// =====================================================
-function renderQuestion(i, bank) {
-
-  const q = bank[i];
-  if (!q) return;
-
-  $("qIndex").textContent = i + 1;
-  $("qTotal").textContent = bank.length;
-
-  const percent = Math.round(((i + 1) / bank.length) * 100);
-  $("qPercent").textContent = percent + "%";
-  $("progressBar").style.width = percent + "%";
-
-  $("qText").innerHTML =
-    `<div style="opacity:.7;margin-bottom:6px">Question ${i + 1}</div>
-     <div>${q.text}</div>`;
-
-  $("qExtra").innerHTML = q.extraHTML || "";
-
-  const wrap = $("qOptions");
-  wrap.innerHTML = "";
-
-  q.options.forEach((opt) => {
-    const lbl = document.createElement("label");
-    lbl.className = "option";
-    lbl.innerHTML =
-      `<input type="radio" name="${q.key}" value="${opt.value}">
-       ${opt.label}`;
-
-    lbl.onclick = () => {
-      responses[q.key] = opt.value;
-    };
-
-    wrap.appendChild(lbl);
-  });
-
-  $("btnNext").textContent =
-    i === bank.length - 1 ? "Submit Test" : "Next";
-}
-
-// =====================================================
-function startTimer() {
-  $("timer").textContent = formatTime(timeLeft);
-
-  timerHandle = setInterval(() => {
-    timeLeft--;
-    $("timer").textContent = formatTime(timeLeft);
-
-    if (timeLeft <= 0) {
-      clearInterval(timerHandle);
-      submitNow(false);
-    }
-  }, 1000);
-}
-
-function formatTime(s) {
-  const m = Math.floor(s / 60);
-  const sec = s % 60;
-  return `${m}:${sec < 10 ? "0" : ""}${sec}`;
-}
-
-// =====================================================
-async function submitNow(forced) {
-
-  clearInterval(timerHandle);
-  showScreen("screen-end");
-
-  try {
-    await fetch(SCRIPT_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded"
-      },
-      body: new URLSearchParams({
-        action: "submit",
-        email,
-        responses: JSON.stringify(responses),
-        forced: forced ? "1" : "0"
-      })
+    const wrap = $("qOptions");
+    wrap.innerHTML = "";
+    (q.options || []).forEach(opt => {
+        const id = `opt_${q.key}_${opt.value}`;
+        const lbl = document.createElement("label");
+        lbl.className = "option";
+        lbl.innerHTML = `<input type="radio" name="${q.key}" value="${opt.value}" ${responses[q.key] === opt.value ? 'checked' : ''}> ${opt.label}`;
+        
+        lbl.onclick = () => {
+            responses[q.key] = opt.value;
+            localStorage.setItem("TEMP_RESPONSES", JSON.stringify(responses));
+        };
+        wrap.appendChild(lbl);
     });
-  } catch (e) {}
 
-  document.body.innerHTML =
-    `<div style="text-align:center;padding:80px;font-family:sans-serif">
-       <h2>Submission Successful</h2>
-     </div>`;
+    $("btnNext").textContent = (i === bank.length - 1) ? "Submit Test" : "Next";
+    
+    if($("qIndex")) $("qIndex").textContent = i + 1;
+    if($("qTotal")) $("qTotal").textContent = bank.length;
+}
+
+// --- 5. TIMER & SUBMIT ---
+function startTimer() {
+    timerHandle = setInterval(() => {
+        if (timeLeft <= 0) {
+            clearInterval(timerHandle);
+            submitNow();
+        } else {
+            timeLeft--;
+            const m = Math.floor(timeLeft/60);
+            const s = timeLeft%60;
+            if($("timer")) $("timer").textContent = `${m}:${s < 10 ? '0' : ''}${s}`;
+        }
+    }, 1000);
+}
+
+$("btnNext").onclick = () => {
+    const bank = window.QUESTION_BANK || [];
+    if (currentIndex < bank.length - 1) {
+        currentIndex++;
+        renderQuestion(currentIndex);
+        window.scrollTo(0,0);
+    } else {
+        submitNow();
+    }
+};
+
+async function submitNow() {
+    localStorage.removeItem("IS_TESTING");
+    clearInterval(timerHandle);
+    showScreen("screen-end");
+
+    const payload = new URLSearchParams({
+        action: "submit",
+        email: email,
+        responses: JSON.stringify(responses)
+    });
+
+    try {
+        await fetch(SCRIPT_URL, { method: "POST", body: payload });
+        localStorage.clear();
+        alert("Success! Your test has been submitted.");
+        location.reload();
+    } catch (e) {
+        alert("Submission recorded. Please close the tab.");
+    }
+}
+
+async function forceSubmit(m) {
+    const r = localStorage.getItem("TEMP_RESPONSES") || "{}";
+    try {
+        await fetch(SCRIPT_URL, {
+            method: "POST",
+            mode: 'no-cors',
+            body: new URLSearchParams({ action: "submit", email: m, responses: r, forced: "1" })
+        });
+    } catch (e) {}
+    localStorage.removeItem("IS_TESTING");
+}
+
+function showScreen(id) {
+    ["screen-start", "screen-question", "screen-end"].forEach(s => {
+        if($(s)) $(s).classList.toggle("hidden", s !== id);
+    });
 }
