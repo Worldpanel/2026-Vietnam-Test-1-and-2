@@ -1,7 +1,47 @@
 // =====================================================
 // WORLD PANEL – SECURE TEST ENGINE (PRODUCTION READY)
 // =====================================================
+(function detectRefreshViaFlag() {
+  const isActive = localStorage.getItem("TEST_ACTIVE") === "1";
+  const wasLeaving = localStorage.getItem("PAGE_LEAVING") === "1";
 
+  if (isActive && wasLeaving) {
+    const savedEmail = localStorage.getItem("SAVED_EMAIL");
+    const savedResponses = localStorage.getItem("SAVED_RESPONSES");
+    const savedViolations = localStorage.getItem("SAVED_VIOLATIONS");
+
+    document.addEventListener("DOMContentLoaded", async () => {
+      document.body.innerHTML = `
+        <div style="text-align:center;padding:80px;font-family:sans-serif">
+          <h2 style="color:#d32f2f">Test Auto-Submitted</h2>
+          <p>A refresh was detected.</p>
+          <p>Your test is being submitted automatically.</p>
+        </div>
+      `;
+
+      try {
+        await fetch(SCRIPT_URL, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded"
+          },
+          body: new URLSearchParams({
+            action: "submit",
+            email: savedEmail || "refresh_user",
+            responses: savedResponses || "{}",
+            violations: savedViolations || "0",
+            forced: "1"
+          }).toString()
+        });
+      } catch (e) {}
+
+      localStorage.clear();
+    });
+  }
+
+  // clear flag
+  localStorage.removeItem("PAGE_LEAVING");
+})();
 // ---------------- CONFIG ----------------
 const CFG = window.TEST_APP_CONFIG || {};
 const SCRIPT_URL = String(CFG.SCRIPT_URL || "");
@@ -77,7 +117,9 @@ const LS_KEYS = {
 // 2️⃣ BEFORE UNLOAD WARNING
 // =====================================================
 window.addEventListener("beforeunload", function (e) {
-  if (localStorage.getItem(LS_KEYS.ACTIVE) === "1") {
+  if (localStorage.getItem("TEST_ACTIVE") === "1") {
+    localStorage.setItem("PAGE_LEAVING", "1");
+
     e.preventDefault();
     e.returnValue =
       "Refreshing or leaving this page will auto-submit your test.";
