@@ -1,5 +1,5 @@
 // =============================================
-// WORLD PANEL – CLEAN STABLE ENGINE (UI FIXED)
+// WORLD PANEL – ENGINE (REFRESH FIX + SKIP OK)
 // =============================================
 
 // ---------------- CONFIG ----------------
@@ -26,13 +26,50 @@ const $ = (id) => document.getElementById(id);
 
 document.addEventListener("DOMContentLoaded", () => {
 
-  injectOptionStyles(); // inject UI style (NO HTML EDIT)
+  injectOptionStyles();
   initUI();
   injectTopWarningBanner();
+
+  detectRefreshAutoSubmit();
 });
 
 // =============================================
-// OPTION UI STYLE (Injected via JS)
+// REFRESH AUTO SUBMIT (FIXED)
+// =============================================
+
+function detectRefreshAutoSubmit() {
+
+  const navEntries = performance.getEntriesByType("navigation");
+  if (!navEntries.length) return;
+
+  if (navEntries[0].type === "reload") {
+
+    if (localStorage.getItem("exam_active") === "1") {
+
+      const savedEmail = localStorage.getItem("exam_email") || "unknown";
+
+      navigator.sendBeacon(
+        SCRIPT_URL,
+        new URLSearchParams({
+          email: savedEmail,
+          responses: localStorage.getItem("exam_responses") || "{}",
+          violations: tabSwitchCount,
+          reason: "Page refreshed"
+        })
+      );
+
+      document.body.innerHTML = `
+        <h2 style="color:#d32f2f;text-align:center;margin-top:40px;">
+          Test Automatically Submitted
+        </h2>
+        <p style="text-align:center;">You refreshed the page.</p>
+      `;
+    }
+  }
+}
+
+// =============================================
+// OPTION UI STYLE
 // =============================================
 
 function injectOptionStyles(){
@@ -110,6 +147,9 @@ function initUI() {
     email = val;
     examStarted = true;
 
+    localStorage.setItem("exam_active", "1");
+    localStorage.setItem("exam_email", email);
+
     showScreen("screen-question");
     renderQuestion(0);
     startTimer();
@@ -118,12 +158,8 @@ function initUI() {
   $("btnNext").onclick = () => {
 
     const bank = window.QUESTION_BANK;
-    const q = bank[currentIndex];
 
-    if (!responses[q.key]) {
-      alert("Please select an answer.");
-      return;
-    }
+    // ❌ Removed validation → now skip allowed
 
     if (currentIndex < bank.length - 1) {
       currentIndex++;
@@ -134,11 +170,11 @@ function initUI() {
     }
   };
 
-  window.addEventListener("beforeunload", (e) => {
-    if (examStarted) {
-      e.preventDefault();
-      e.returnValue = "Refreshing will end your test.";
-    }
+  window.addEventListener("beforeunload", () => {
+
+    if (!examStarted) return;
+
+    localStorage.setItem("exam_responses", JSON.stringify(responses));
   });
 
   document.addEventListener("visibilitychange", () => {
@@ -215,6 +251,8 @@ function renderQuestion(i) {
           .forEach(el => el.classList.remove("selected"));
 
       btn.classList.add("selected");
+
+      localStorage.setItem("exam_responses", JSON.stringify(responses));
     };
 
     wrap.appendChild(btn);
@@ -260,6 +298,10 @@ async function submitNow() {
   clearInterval(timerHandle);
   showScreen("screen-end");
 
+  localStorage.removeItem("exam_active");
+  localStorage.removeItem("exam_email");
+  localStorage.removeItem("exam_responses");
+
   try {
     await fetch(SCRIPT_URL, {
       method: "POST",
@@ -277,44 +319,6 @@ async function submitNow() {
       <p style="text-align:center;">Thank you.</p>
     `;
   }, 800);
-}
-
-// =============================================
-// FORCED SUBMIT
-// =============================================
-
-function handleForcedSubmit(reason) {
-
-  clearInterval(timerHandle);
-
-  document.body.innerHTML = `
-    <h2 style="color:#d32f2f;text-align:center;margin-top:40px;">
-      Test Ended
-    </h2>
-    <p style="text-align:center;">${reason}</p>
-  `;
-}
-
-// =============================================
-// WARNING BANNER
-// =============================================
-
-function injectTopWarningBanner() {
-
-  const banner = document.createElement("div");
-
-  banner.style.background = "#fff8e1";
-  banner.style.color = "#8d6e63";
-  banner.style.textAlign = "center";
-  banner.style.padding = "8px";
-  banner.style.fontSize = "13px";
-  banner.style.borderBottom = "1px solid #ffe0b2";
-
-  banner.innerHTML =
-    "⚠️ WARNING: Refreshing, leaving, or opening a new tab may end your test.";
-
-  const hud = document.querySelector(".hud");
-  hud.parentNode.insertBefore(banner, hud);
 }
 
 // =============================================
@@ -352,4 +356,22 @@ function showSoftWarning(msg) {
   document.body.appendChild(warn);
 
   setTimeout(() => warn.remove(), 2000);
+}
+
+function injectTopWarningBanner() {
+
+  const banner = document.createElement("div");
+
+  banner.style.background = "#fff8e1";
+  banner.style.color = "#8d6e63";
+  banner.style.textAlign = "center";
+  banner.style.padding = "8px";
+  banner.style.fontSize = "13px";
+  banner.style.borderBottom = "1px solid #ffe0b2";
+
+  banner.innerHTML =
+    "⚠️ WARNING: Refreshing, leaving, or opening a new tab may end your test.";
+
+  const hud = document.querySelector(".hud");
+  hud.parentNode.insertBefore(banner, hud);
 }
