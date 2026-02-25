@@ -1,6 +1,6 @@
-// =====================================================
-// WORLD PANEL – STABLE ENGINE (SOFT MONITORING VERSION)
-// =====================================================
+// =============================================
+// WORLD PANEL – CLEAN STABLE ENGINE (FINAL FIX)
+// =============================================
 
 // ---------------- CONFIG ----------------
 const CFG = window.TEST_APP_CONFIG || {};
@@ -15,34 +15,25 @@ let email = "";
 let timerHandle = null;
 let examStarted = false;
 
-// Tab monitoring
+// Soft monitoring only
 let tabSwitchCount = 0;
 const MAX_TAB_SWITCH = 5;
 
-// Helper
 const $ = (id) => document.getElementById(id);
 
-// =====================================================
+// =============================================
 // INIT
-// =====================================================
+// =============================================
 
 document.addEventListener("DOMContentLoaded", () => {
 
-  const active = localStorage.getItem("TEST_ACTIVE") === "1";
-  const navEntries = performance.getEntriesByType("navigation");
-  const isReload = navEntries.length && navEntries[0].type === "reload";
-
-  if (active && isReload) {
-    handleForcedSubmit("Page refresh detected");
-    return;
-  }
-
   initUI();
+  injectTopWarningBanner();
 });
 
-// =====================================================
-// INIT UI
-// =====================================================
+// =============================================
+// UI INIT
+// =============================================
 
 function initUI() {
 
@@ -55,24 +46,19 @@ function initUI() {
 
     const val = $("email").value.trim();
     if (!val || !val.includes("@")) {
-      alert("Please enter a valid email address.");
+      alert("Please enter valid email.");
       return;
     }
 
     email = val;
-
-    localStorage.setItem("TEST_ACTIVE", "1");
-    localStorage.setItem("TEMP_EMAIL", email);
-
     examStarted = true;
+
     showScreen("screen-question");
     renderQuestion(0);
     startTimer();
   };
 
   $("btnNext").onclick = () => {
-
-    if (!examStarted) return;
 
     const bank = window.QUESTION_BANK;
 
@@ -85,16 +71,16 @@ function initUI() {
     }
   };
 
-  // Warn before leaving
+  // Warning before refresh (no locking, no auto submit)
   window.addEventListener("beforeunload", (e) => {
-    if (localStorage.getItem("TEST_ACTIVE") === "1") {
+    if (examStarted) {
       e.preventDefault();
       e.returnValue =
-        "Leaving or refreshing will auto-submit your test.";
+        "Refreshing will end your test.";
     }
   });
 
-  // Soft tab monitoring
+  // SOFT tab switch monitor (NO LOCK)
   document.addEventListener("visibilitychange", () => {
 
     if (!examStarted) return;
@@ -105,7 +91,7 @@ function initUI() {
       updateViolationUI();
 
       showSoftWarning(
-        `Tab switched (${tabSwitchCount}/${MAX_TAB_SWITCH})`
+        `You switched tab (${tabSwitchCount}/${MAX_TAB_SWITCH})`
       );
 
       if (tabSwitchCount >= MAX_TAB_SWITCH) {
@@ -115,9 +101,9 @@ function initUI() {
   });
 }
 
-// =====================================================
-// RENDER QUESTION
-// =====================================================
+// =============================================
+// RENDER QUESTION (100% highlight working)
+// =============================================
 
 function renderQuestion(i) {
 
@@ -143,35 +129,38 @@ function renderQuestion(i) {
 
   const wrap = $("qOptions");
   wrap.innerHTML = "";
-  wrap.className = "options-grid";
+  wrap.style.display = "flex";
+  wrap.style.flexDirection = "column";
+  wrap.style.gap = "12px";
 
   q.options.forEach((opt) => {
 
     const btn = document.createElement("button");
     btn.type = "button";
     btn.className = "option-card";
-    btn.dataset.value = opt.value;
 
     btn.innerHTML = `
-      <div class="option-letter">${opt.value}</div>
-      <div class="option-text">
+      <span class="option-letter">${opt.value}</span>
+      <span class="option-text">
         ${opt.label.replace(opt.value + ". ", "")}
-      </div>
+      </span>
     `;
 
+    // restore previous answer
     if (responses[q.key] === opt.value) {
       btn.classList.add("selected");
     }
 
-    btn.addEventListener("click", () => {
+    btn.onclick = () => {
 
       responses[q.key] = opt.value;
 
+      // remove highlight only inside current question
       wrap.querySelectorAll(".option-card")
-          .forEach(b => b.classList.remove("selected"));
+          .forEach(el => el.classList.remove("selected"));
 
       btn.classList.add("selected");
-    });
+    };
 
     wrap.appendChild(btn);
   });
@@ -180,9 +169,9 @@ function renderQuestion(i) {
     i === bank.length - 1 ? "Submit Test" : "Next";
 }
 
-// =====================================================
+// =============================================
 // TIMER
-// =====================================================
+// =============================================
 
 function startTimer() {
 
@@ -207,9 +196,9 @@ function formatTime(s) {
   return `${m}:${sec < 10 ? "0" : ""}${sec}`;
 }
 
-// =====================================================
+// =============================================
 // SUBMIT
-// =====================================================
+// =============================================
 
 async function submitNow() {
 
@@ -220,63 +209,66 @@ async function submitNow() {
     await fetch(SCRIPT_URL, {
       method: "POST",
       body: new URLSearchParams({
-        action: "submit",
-        email: email,
+        email,
         responses: JSON.stringify(responses),
         violations: tabSwitchCount
       }),
     });
   } catch (e) {}
 
-  localStorage.removeItem("TEST_ACTIVE");
-  localStorage.removeItem("TEMP_EMAIL");
-
   setTimeout(() => {
     document.body.innerHTML = `
       <h2 style="text-align:center;">Submission Successful</h2>
-      <p style="text-align:center;">
-        Thank you. You may now close this tab.
-      </p>
+      <p style="text-align:center;">Thank you.</p>
     `;
   }, 800);
 }
 
-// =====================================================
+// =============================================
 // FORCED SUBMIT
-// =====================================================
+// =============================================
 
-async function handleForcedSubmit(reason = "Violation") {
+function handleForcedSubmit(reason) {
 
-  const email = localStorage.getItem("TEMP_EMAIL") || "unknown";
-
-  try {
-    await fetch(SCRIPT_URL, {
-      method: "POST",
-      body: new URLSearchParams({
-        action: "submit",
-        email: email,
-        forced: "1",
-        reason: reason,
-        violations: tabSwitchCount
-      }),
-    });
-  } catch (e) {}
-
-  localStorage.clear();
+  clearInterval(timerHandle);
 
   document.body.innerHTML = `
-    <h2 style="color:red;text-align:center;margin-top:40px;">
+    <h2 style="color:#d32f2f;text-align:center;margin-top:40px;">
       Test Ended
     </h2>
-    <p style="text-align:center;">
-      ${reason}
-    </p>
+    <p style="text-align:center;">${reason}</p>
   `;
 }
 
-// =====================================================
-// UI HELPERS
-// =====================================================
+// =============================================
+// WARNING BANNER
+// =============================================
+
+function injectTopWarningBanner() {
+
+  const banner = document.createElement("div");
+
+  banner.style.position = "fixed";
+  banner.style.top = "0";
+  banner.style.left = "0";
+  banner.style.width = "100%";
+  banner.style.background = "#fff8e1";
+  banner.style.color = "#8d6e63";
+  banner.style.textAlign = "center";
+  banner.style.padding = "8px";
+  banner.style.fontSize = "13px";
+  banner.style.borderBottom = "1px solid #ffe0b2";
+  banner.style.zIndex = "9999";
+
+  banner.innerHTML =
+    "⚠️ WARNING: Refreshing, leaving, or opening a new tab will automatically end your test.";
+
+  document.body.appendChild(banner);
+}
+
+// =============================================
+// HELPERS
+// =============================================
 
 function showScreen(id) {
   ["screen-start", "screen-question", "screen-end"]
@@ -288,31 +280,25 @@ function updateViolationUI() {
   if (v) v.textContent = tabSwitchCount;
 }
 
-function showSoftWarning(message) {
+function showSoftWarning(msg) {
 
-  let banner = document.getElementById("softWarning");
+  const warn = document.createElement("div");
 
-  if (!banner) {
-    banner = document.createElement("div");
-    banner.id = "softWarning";
-    banner.style.position = "fixed";
-    banner.style.bottom = "20px";
-    banner.style.left = "50%";
-    banner.style.transform = "translateX(-50%)";
-    banner.style.background = "#ff9800";
-    banner.style.color = "#fff";
-    banner.style.padding = "10px 18px";
-    banner.style.borderRadius = "8px";
-    banner.style.fontSize = "14px";
-    banner.style.boxShadow = "0 4px 12px rgba(0,0,0,.2)";
-    banner.style.zIndex = "9999";
-    document.body.appendChild(banner);
-  }
+  warn.style.position = "fixed";
+  warn.style.bottom = "20px";
+  warn.style.left = "50%";
+  warn.style.transform = "translateX(-50%)";
+  warn.style.background = "#ff9800";
+  warn.style.color = "#fff";
+  warn.style.padding = "10px 18px";
+  warn.style.borderRadius = "8px";
+  warn.style.fontSize = "14px";
+  warn.style.boxShadow = "0 4px 12px rgba(0,0,0,.2)";
+  warn.style.zIndex = "9999";
 
-  banner.textContent = message;
-  banner.style.display = "block";
+  warn.innerText = msg;
 
-  setTimeout(() => {
-    banner.style.display = "none";
-  }, 2000);
+  document.body.appendChild(warn);
+
+  setTimeout(() => warn.remove(), 2000);
 }
