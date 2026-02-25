@@ -124,15 +124,39 @@ function injectOptionStyles(){
   margin-bottom: 16px;
 }
 
-#qExtra {
-  margin: 8px 0 16px 0 !important;
-  line-height: 1.4 !important;
+/* ===== Question spacing fix ===== */
+
+.qtext{
+  margin-bottom:8px !important;
 }
 
-#qExtra * {
-  line-height: 1.4 !important;
-  margin-top: 4px !important;
-  margin-bottom: 4px !important;
+.question-label{
+  font-size:14px;
+  font-weight:600;
+  color:#003D73;
+  margin-bottom:6px;
+}
+
+.question-main{
+  line-height:1.45;
+  margin-bottom:6px;
+}
+
+#qExtra{
+  margin:6px 0 10px 0 !important;
+  line-height:1.4 !important;
+}
+
+#qExtra p{
+  margin:4px 0 !important;
+}
+
+#qExtra table{
+  margin:6px 0 !important;
+}
+
+#qExtra br{
+  line-height:1.2 !important;
 }
   `;
 
