@@ -582,9 +582,9 @@ key: "q1_30",
     key: "q2_3_1",
     text: "During what year was there the greatest difference between the cases per 100,000 of tuberculosis in HCMC and in the rest of the country?", // [1](blob:https://www.microsoft365.com/291fdf6d-8e79-465b-9569-16510de3f2ac)
     extraHTML: `
-    <div style="text-align:center; margin: 12px 0;">
-      assets/test2/tuberculosis_graph.png
-    </div>
+  <div style="text-align:center; margin: 12px 0;">
+    <img src="assets/test2/tuberculosis_graph.png" style="max-width:100%; border-radius:6px;">
+  </div>
   `,
     options: [
       { value: "A", label: "A. 1969" },
@@ -599,9 +599,9 @@ key: "q1_30",
     key: "q2_3_2",
     text: "In 1990, how many new cases of tuberculosis per 1000 population occurred in HCMC?", // [1](blob:https://www.microsoft365.com/291fdf6d-8e79-465b-9569-16510de3f2ac)
     extraHTML: `
-    <div style="text-align:center; margin: 12px 0;">
-      assets/test2/tuberculosis_graph.png
-    </div>
+  <div style="text-align:center; margin: 12px 0;">
+    <img src="assets/test2/tuberculosis_graph.png" style="max-width:100%; border-radius:6px;">
+  </div>
   `,
     options: [
       { value: "A", label: "A. 0.5" },
@@ -615,10 +615,10 @@ key: "q1_30",
   {
     key: "q2_3_3",
     text: "When did the Mekong Delta experience the sharpest rise in tuberculosis cases?", // [1](blob:https://www.microsoft365.com/291fdf6d-8e79-465b-9569-16510de3f2ac)
-   extraHTML: `
-    <div style="text-align:center; margin: 12px 0;">
-      assets/test2/tuberculosis_graph.png
-    </div>
+  extraHTML: `
+  <div style="text-align:center; margin: 12px 0;">
+    <img src="assets/test2/tuberculosis_graph.png" style="max-width:100%; border-radius:6px;">
+  </div>
   `,
     options: [
       { value: "A", label: "A. 1972 - 1973" },
@@ -633,9 +633,9 @@ key: "q1_30",
     key: "q2_4_1",
     text: "What was the ratio of sales to earnings in 1980 ?", // [1](blob:https://www.microsoft365.com/291fdf6d-8e79-465b-9569-16510de3f2ac)
     extraHTML: `
-    <div style="text-align:center; margin: 12px 0;">
-      assets/test2/sales_earnings_graph.png
-    </div>
+  <div style="text-align:center; margin: 12px 0;">
+    <img src="assets/test2/sales_earnings_graph.png" style="max-width:100%; border-radius:6px;">
+  </div>
   `,
     options: [
       { value: "A", label: "A. 1/2" },
@@ -650,9 +650,9 @@ key: "q1_30",
     key: "q2_4_2",
     text: "What was the percentage increase in earning from 1984 to 1985 ?", // [1](blob:https://www.microsoft365.com/291fdf6d-8e79-465b-9569-16510de3f2ac)
    extraHTML: `
-    <div style="text-align:center; margin: 12px 0;">
-      assets/test2/sales_earnings_graph.png
-    </div>
+  <div style="text-align:center; margin: 12px 0;">
+    <img src="assets/test2/sales_earnings_graph.png" style="max-width:100%; border-radius:6px;">
+  </div>
   `,
     options: [
       { value: "A", label: "A. 2%" },
@@ -667,9 +667,9 @@ key: "q1_30",
     key: "q2_4_3",
     text: "If 'g' represents the earning in 1980 then the earnings in 1985 are expressed as", // [1](blob:https://www.microsoft365.com/291fdf6d-8e79-465b-9569-16510de3f2ac)
    extraHTML: `
-    <div style="text-align:center; margin: 12px 0;">
-      assets/test2/sales_earnings_graph.png
-    </div>
+  <div style="text-align:center; margin: 12px 0;">
+    <img src="assets/test2/sales_earnings_graph.png" style="max-width:100%; border-radius:6px;">
+  </div>
   `,
     options: [
       { value: "A", label: "A. 2g" },
