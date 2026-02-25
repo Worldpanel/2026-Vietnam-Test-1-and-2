@@ -352,19 +352,26 @@ async function submitNow() {
   localStorage.removeItem("exam_responses");
 
   try {
+
     await fetch(SCRIPT_URL, {
       method: "POST",
+      mode: "no-cors",
+      credentials: "omit",
       body: new URLSearchParams({
         email,
         responses: JSON.stringify(responses),
-        violations: tabSwitchCount
+        violations: tabSwitchCount,
+        timeRemainingSec: timeLeft
       }),
     });
-  } catch (e) {}
+
+  } catch (e) {
+    console.error(e);
+  }
 
   setTimeout(() => {
     document.body.innerHTML = `
-      <h2 style="text-align:center;">Submission Successful</h2>
+      <h2 style="text-align:center;">Submission Completed</h2>
       <p style="text-align:center;">Thank you.</p>
     `;
   }, 800);
