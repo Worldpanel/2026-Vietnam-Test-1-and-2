@@ -1,5 +1,5 @@
 // =====================================================
-// WORLD PANEL – STRICT SECURE TEST ENGINE (FIXED)
+// WORLD PANEL – SECURE TEST ENGINE (STABLE CLEAN)
 // =====================================================
 
 // ---------------- CONFIG ----------------
@@ -9,69 +9,35 @@ const TOTAL_TIME_SECONDS = Number(CFG.TOTAL_TIME_SECONDS || 45 * 60);
 
 // ---------------- STATE ----------------
 let timeLeft = TOTAL_TIME_SECONDS;
-let tabViolations = 0;
 let currentIndex = 0;
 let responses = {};
 let email = "";
 let timerHandle = null;
 
-// 🔥 FIX: always get fresh QUESTION_BANK
+// ---------------- HELPERS ----------------
+const $ = (id) => document.getElementById(id);
+
 function getQuestionBank() {
   return Array.isArray(window.QUESTION_BANK)
     ? window.QUESTION_BANK
     : [];
 }
 
-const $ = (id) => document.getElementById(id);
+function showScreen(id) {
+  ["screen-start", "screen-question", "screen-end"].forEach(s => {
+    const el = document.getElementById(s);
+    if (el) el.classList.add("hidden");
+  });
+
+  const active = document.getElementById(id);
+  if (active) active.classList.remove("hidden");
+}
 
 // ---------------- STORAGE KEYS ----------------
-const LS = {
+const SS = {
   ACTIVE: "TEST_ACTIVE",
-  TAB: "ACTIVE_TAB_ID",
-  LEAVING: "PAGE_LEAVING",
-  EMAIL: "SAVED_EMAIL",
-  RESP: "SAVED_RESPONSES",
-  VIOL: "SAVED_VIOLATIONS"
+  TAB: "ACTIVE_TAB_ID"
 };
-
-// =====================================================
-// 🔥 RELOAD DETECTION
-// =====================================================
-(function detectReload() {
-  const active = localStorage.getItem(LS.ACTIVE) === "1";
-  const leaving = localStorage.getItem(LS.LEAVING) === "1";
-
-  if (active && leaving) {
-    document.addEventListener("DOMContentLoaded", async () => {
-      document.body.innerHTML = `
-        <div style="text-align:center;padding:80px;font-family:sans-serif">
-          <h2 style="color:#d32f2f">Test Auto-Submitted</h2>
-          <p>A refresh or navigation was detected.</p>
-        </div>
-      `;
-
-      try {
-        await fetch(SCRIPT_URL, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded"
-          },
-          body: new URLSearchParams({
-            action: "submit",
-            email: localStorage.getItem(LS.EMAIL) || "refresh_user",
-            responses: localStorage.getItem(LS.RESP) || "{}",
-            violations: localStorage.getItem(LS.VIOL) || "0",
-            forced: "1"
-          }).toString()
-        });
-      } catch (e) {}
-
-      localStorage.clear();
-    });
-  }
-
-  localStorage.removeItem(LS.LEAVING);
-})();
 
 // =====================================================
 // 🔐 SECURITY
@@ -80,8 +46,8 @@ function enableExamSecurity() {
 
   const TAB_ID = Date.now() + "_" + Math.random().toString(36).slice(2);
 
-  localStorage.setItem(LS.ACTIVE, "1");
-  localStorage.setItem(LS.TAB, TAB_ID);
+  sessionStorage.setItem(SS.ACTIVE, "1");
+  sessionStorage.setItem(SS.TAB, TAB_ID);
 
   // 🔴 Banner
   const banner = document.createElement("div");
@@ -103,7 +69,7 @@ function enableExamSecurity() {
 
   // 🔒 Block refresh keys
   document.addEventListener("keydown", function (e) {
-    if (localStorage.getItem(LS.ACTIVE) !== "1") return;
+    if (sessionStorage.getItem(SS.ACTIVE) !== "1") return;
 
     if (
       e.key === "F5" ||
@@ -111,42 +77,30 @@ function enableExamSecurity() {
       (e.metaKey && e.key.toLowerCase() === "r")
     ) {
       e.preventDefault();
-      alert("Refreshing is blocked.");
+      alert("Refreshing is blocked during the test.");
     }
   });
 
   // 🚫 Disable right click
   document.addEventListener("contextmenu", function (e) {
-    if (localStorage.getItem(LS.ACTIVE) === "1") {
+    if (sessionStorage.getItem(SS.ACTIVE) === "1") {
       e.preventDefault();
     }
   });
 
-  // ⛔ Block back
+  // ⛔ Block back button
   history.pushState(null, "", location.href);
   window.addEventListener("popstate", function () {
-    if (localStorage.getItem(LS.ACTIVE) === "1") {
+    if (sessionStorage.getItem(SS.ACTIVE) === "1") {
       history.go(1);
     }
   });
 
-  // 📱 Disable pull refresh
-  document.body.style.overscrollBehavior = "none";
-
-  // ⚠️ Before unload
-  window.addEventListener("beforeunload", function (e) {
-    if (localStorage.getItem(LS.ACTIVE) === "1") {
-      localStorage.setItem(LS.LEAVING, "1");
-      e.preventDefault();
-      e.returnValue = "";
-    }
-  });
-
-  // 🔐 Single tab lock
+  // ⚠️ Detect tab switch (single tab lock)
   setInterval(() => {
-    if (localStorage.getItem(LS.ACTIVE) !== "1") return;
+    if (sessionStorage.getItem(SS.ACTIVE) !== "1") return;
 
-    if (localStorage.getItem(LS.TAB) !== TAB_ID) {
+    if (sessionStorage.getItem(SS.TAB) !== TAB_ID) {
       document.body.innerHTML = `
         <div style="text-align:center;padding:80px;font-family:sans-serif">
           <h2 style="color:#d32f2f">Test Terminated</h2>
@@ -156,16 +110,14 @@ function enableExamSecurity() {
       submitNow(true);
     }
   }, 1000);
-}
 
-// =====================================================
-// SESSION SAVE
-// =====================================================
-function persistSession() {
-  if (!email) return;
-  localStorage.setItem(LS.EMAIL, email);
-  localStorage.setItem(LS.RESP, JSON.stringify(responses));
-  localStorage.setItem(LS.VIOL, String(tabViolations));
+  // Warn before unload
+  window.addEventListener("beforeunload", function (e) {
+    if (sessionStorage.getItem(SS.ACTIVE) === "1") {
+      e.preventDefault();
+      e.returnValue = "";
+    }
+  });
 }
 
 // =====================================================
@@ -175,7 +127,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   $("btnStart").addEventListener("click", () => {
 
-    if (!getQuestionBank().length) {
+    const bank = getQuestionBank();
+
+    if (!bank.length) {
       alert("Question bank not loaded.");
       return;
     }
@@ -191,7 +145,6 @@ document.addEventListener("DOMContentLoaded", () => {
     email = val;
 
     enableExamSecurity();
-    persistSession();
 
     showScreen("screen-question");
     renderQuestion(0);
@@ -201,12 +154,21 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 // =====================================================
+// RENDER QUESTION
+// =====================================================
 function renderQuestion(i) {
   const bank = getQuestionBank();
   currentIndex = i;
 
   const q = bank[i];
   if (!q) return;
+
+  $("qIndex").textContent = i + 1;
+  $("qTotal").textContent = bank.length;
+
+  const percent = Math.round(((i + 1) / bank.length) * 100);
+  $("qPercent").textContent = percent + "%";
+  $("progressBar").style.width = percent + "%";
 
   $("qText").innerHTML =
     `<div style="opacity:.7;margin-bottom:6px">Question ${i + 1}</div>
@@ -225,7 +187,6 @@ function renderQuestion(i) {
        ${opt.label}`;
     lbl.onclick = () => {
       responses[q.key] = opt.value;
-      persistSession();
     };
     wrap.appendChild(lbl);
   });
@@ -234,6 +195,21 @@ function renderQuestion(i) {
     i === bank.length - 1 ? "Submit Test" : "Next";
 }
 
+// =====================================================
+$("btnNext").addEventListener("click", () => {
+  const bank = getQuestionBank();
+
+  if (currentIndex < bank.length - 1) {
+    currentIndex++;
+    renderQuestion(currentIndex);
+  } else {
+    submitNow(false);
+  }
+});
+
+// =====================================================
+// TIMER
+// =====================================================
 function startTimer() {
   $("timer").textContent = formatTime(timeLeft);
 
@@ -254,20 +230,14 @@ function formatTime(s) {
   return `${m}:${sec < 10 ? "0" : ""}${sec}`;
 }
 
-$("btnNext").addEventListener("click", () => {
-  const bank = getQuestionBank();
-
-  if (currentIndex < bank.length - 1) {
-    currentIndex++;
-    renderQuestion(currentIndex);
-  } else {
-    submitNow(false);
-  }
-});
-
+// =====================================================
+// SUBMIT
 // =====================================================
 async function submitNow(forced = false) {
+
   clearInterval(timerHandle);
+
+  showScreen("screen-end");
 
   try {
     await fetch(SCRIPT_URL, {
@@ -279,13 +249,12 @@ async function submitNow(forced = false) {
         action: "submit",
         email,
         responses: JSON.stringify(responses),
-        violations: String(tabViolations),
         forced: forced ? "1" : "0"
       }).toString()
     });
   } catch (e) {}
 
-  localStorage.clear();
+  sessionStorage.clear();
 
   document.body.innerHTML =
     `<div style="text-align:center;padding:80px;font-family:sans-serif">
