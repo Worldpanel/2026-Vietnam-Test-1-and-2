@@ -363,7 +363,7 @@ window.QUESTION_BANK = [
 },
 
 {
- key: "q1_30",
+key: "q1_30",
     text: `
       Compare the two quantities below and choose:<br>
       <strong>A.</strong> if Column A is greater<br>
