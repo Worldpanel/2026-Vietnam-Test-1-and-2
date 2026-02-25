@@ -125,30 +125,24 @@ function enableExamSecurity() {
 // =====================================================
 document.addEventListener("DOMContentLoaded", () => {
 
-  $("btnStart").addEventListener("click", () => {
+  $("btnNext").addEventListener("click", () => {
 
     const bank = getQuestionBank();
 
-    if (!bank.length) {
-      alert("Question bank not loaded.");
+    if (!bank.length) return;
+
+    if (!(bank[currentIndex] && responses[bank[currentIndex].key])) {
+      alert("Please select an answer before proceeding.");
       return;
     }
 
-    const val = $("email").value.trim();
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-    if (!emailRegex.test(val)) {
-      alert("Please enter valid email.");
-      return;
+    if (currentIndex < bank.length - 1) {
+      currentIndex++;
+      renderQuestion(currentIndex);
+    } else {
+      submitNow(false);
     }
 
-    email = val;
-
-    enableExamSecurity();
-
-    showScreen("screen-question");
-    renderQuestion(0);
-    startTimer();
   });
 
 });
