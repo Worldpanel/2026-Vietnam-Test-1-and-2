@@ -446,3 +446,7 @@ function injectTopWarningBanner() {
   const hud = document.querySelector(".hud");
   hud.parentNode.insertBefore(banner, hud);
 }
+function handleForcedSubmit(reason) {
+  console.log("Forced submit:", reason);
+  submitNow();
+}
