@@ -121,12 +121,12 @@ $("btnStart").addEventListener("click", ()=>{
     return;
   }
   email = val;
-+  // +++ Session lock: mark test as active
-+  localStorage.setItem("TEST_ACTIVE", "1");
-+  localStorage.setItem("SESSION_START", String(Date.now()));
-+  localStorage.removeItem("PENDING_FORCED_SUBMIT"); // clear if any
-+  // +++ Enable browser refresh/leave warning
-+  enableRefreshGuard();
+  // +++ Session lock: mark test as active
+  localStorage.setItem("TEST_ACTIVE", "1");
+  localStorage.setItem("SESSION_START", String(Date.now()));
+  localStorage.removeItem("PENDING_FORCED_SUBMIT"); // clear if any
+  // +++ Enable browser refresh/leave warning
+  enableRefreshGuard();
   timeLeft = TOTAL_TIME_SECONDS;
   startTimer();
   showScreen("screen-question");
