@@ -32,8 +32,7 @@ function updateHUD(){
 }
 function renderQuestion(i){
   const q = questionBank[i];
-  $("qText").innerHTML = `<span style="opacity:.7;">Q${i+1}.</span> ${q.text}`;
-  $("qExtra").innerHTML = q.extraHTML || "";
+$("qText").innerHTML = `<div style="margin-bottom:8px; opacity:.7;">Question ${i+1}</div><div>${q.text}</div>`;  $("qExtra").innerHTML = q.extraHTML || "";
   const wrap = $("qOptions"); wrap.innerHTML = "";
   (q.options || []).forEach(opt=>{
     const id = `opt_${q.key}_${opt.value}`;
