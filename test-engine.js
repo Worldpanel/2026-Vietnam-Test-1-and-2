@@ -347,34 +347,50 @@ async function submitNow() {
   clearInterval(timerHandle);
   showScreen("screen-end");
 
+ try {
+  const response = await fetch(SCRIPT_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded"
+    },
+    body: new URLSearchParams({
+      email,
+      responses: JSON.stringify(responses),
+      violations: tabSwitchCount,
+      timeRemainingSec: timeLeft
+    })
+  });
+
+  if (!response.ok) {
+    throw new Error("Server error: " + response.status);
+  }
+
+  const result = await response.json();
+
+  if (!result.ok) {
+    throw new Error(result.message || "Submission failed");
+  }
+
+  // ✅ SUCCESS
   localStorage.removeItem("exam_active");
   localStorage.removeItem("exam_email");
   localStorage.removeItem("exam_responses");
+  document.body.innerHTML = `
+    <h2 style="text-align:center; color:green;">Submission Successful</h2>
+    <p style="text-align:center;">Thank you.</p>
+  `;
 
-  try {
+} catch (e) {
+  console.error("Submit failed:", e);
 
-    await fetch(SCRIPT_URL, {
-  method: "POST",
-  mode: "no-cors",
-  credentials: "omit",
-  body: new URLSearchParams({
-    email,
-    responses: JSON.stringify(responses),
-    violations: tabSwitchCount,
-    timeRemainingSec: timeLeft
-      }),
-    });
-
-  } catch (e) {
-    console.error(e);
-  }
-
-  setTimeout(() => {
-    document.body.innerHTML = `
-      <h2 style="text-align:center;">Submission Completed</h2>
-      <p style="text-align:center;">Thank you.</p>
-    `;
-  }, 800);
+  // ❌ ERROR
+  document.body.innerHTML = `
+    <h2 style="text-align:center; color:red;">Submission Failed</h2>
+    <p style="text-align:center;">
+      There was a problem submitting your test.<br>
+      Please check your internet connection and try again.
+    </p>
+  `;
 }
 
 // =============================================
