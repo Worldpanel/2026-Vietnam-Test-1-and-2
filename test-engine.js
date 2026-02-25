@@ -124,44 +124,56 @@ function injectOptionStyles(){
   margin-bottom: 16px;
 }
 
-/* ===== Question spacing fix ===== */
+/* ===== Question spacing fix – ULTRA COMPACT ===== */
+
+#screen-question.card{
+  padding:14px 16px !important;
+}
 
 .qtext{
-  margin-bottom:6px !important;
-    line-height:1.35 !important;
+  margin-bottom:4px !important;
+  line-height:1.25 !important;
 }
 
 .question-label{
   font-size:14px;
   font-weight:600;
   color:#003D73;
-  margin-bottom:4px;
-}
-
-.question-main{
-  line-height:1.45;
-  margin-bottom:4px;
-}
-
-#qExtra{
-  margin:4px 0 8px 0 !important;
-  line-height:1.35 !important;
-}
-
-#qExtra *{
-  margin-top:2px !important;
   margin-bottom:2px !important;
 }
 
-#qExtra table{
-  margin:4px 0 !important;
+.question-main{
+  line-height:1.3 !important;
+  margin-bottom:2px !important;
+}
+
+.question-main br{
+  line-height:1.1 !important;
+}
+
+#qExtra{
+  margin:2px 0 6px 0 !important;
+  line-height:1.3 !important;
+}
+
+#qExtra *{
+  margin-top:1px !important;
+  margin-bottom:1px !important;
+}
+
+#qExtra br{
+  line-height:1.05 !important;
+}
+
+#qExtra div{
+  margin:3px 0 !important;
 }
 
 .options{
-  margin-top:6px !important;
-  gap:8px !important;
+  margin-top:4px !important;
+  gap:6px !important;
 }
-  `;
+`;
 
   document.head.appendChild(style);
 }
