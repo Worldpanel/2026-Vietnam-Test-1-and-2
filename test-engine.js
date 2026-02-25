@@ -265,26 +265,45 @@ function renderQuestion(i) {
   $("qPercent").textContent = percent + "%";
   $("progressBar").style.width = percent + "%";
 
-  let sectionTitle = "";
+  let sectionHTML = "";
 
-if (i < 32) {
-  sectionTitle = "Section 1 of 2 – Numerical Aptitude (32 Questions)";
-} else {
-  sectionTitle = "Section 2 of 2 – Data Interpretation (13 Questions)";
+if (i === 0) {
+  sectionHTML = `
+    <div style="
+      padding:8px 12px;
+      background:#E3F2FD;
+      color:#005EB8;
+      font-weight:700;
+      border-radius:6px;
+      margin-bottom:10px;
+    ">
+      Section 1 of 2 – Numerical Aptitude (32 Questions)
+    </div>
+  `;
+}
+
+if (i === 32) {
+  sectionHTML = `
+    <div style="
+      padding:8px 12px;
+      background:#E3F2FD;
+      color:#005EB8;
+      font-weight:700;
+      border-radius:6px;
+      margin-bottom:10px;
+    ">
+      Section 2 of 2 – Data Interpretation (13 Questions)
+    </div>
+  `;
 }
 
 $("qText").innerHTML = `
-  <div class="question-label" style="color:#005EB8; font-weight:700; margin-bottom:6px;">
-    ${sectionTitle}
-  </div>
-  <div class="question-label">
-    Question ${i + 1}
-  </div>
+  ${sectionHTML}
+  <div class="question-label">Question ${i + 1}</div>
   <div class="question-main">
     ${q.text.replace(/\n/g, "<br>")}
   </div>
 `;
-
   $("qExtra").innerHTML = q.extraHTML || "";
 
   const wrap = $("qOptions");
