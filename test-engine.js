@@ -36,8 +36,8 @@ document.addEventListener("DOMContentLoaded", () => {
 });
   $("btnStart").onclick = () => {
 
-    if (typeof questions === "undefined" || !questions.length) {
-      alert("Question bank not loaded.");
+if (!window.QUESTION_BANK || !window.QUESTION_BANK.length)
+    alert("Question bank not loaded.");
       return;
     }
 
@@ -59,8 +59,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (!examStarted) return;
 
-    const bank = questions;
-
+const bank = window.QUESTION_BANK;
+      
     const q = bank[currentIndex];
     if (!responses[q.key]) {
       alert("Please select an answer before continuing.");
