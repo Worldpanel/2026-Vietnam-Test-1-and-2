@@ -180,30 +180,39 @@ function injectOptionStyles(){
 
 function initUI() {
 
-  $("btnStart").onclick = () => {
+  $("btnStart").onclick = async () => {
 
-    if (!window.QUESTION_BANK?.length) {
-      alert("Question bank not loaded.");
-      return;
+  if (!window.QUESTION_BANK?.length) {
+    alert("Question bank not loaded.");
+    return;
+  }
+
+  const val = $("email").value.trim();
+  if (!val || !val.includes("@")) {
+    alert("Please enter valid email.");
+    return;
+  }
+
+  // 🔒 REQUEST FULLSCREEN (SAFE)
+  if (document.documentElement.requestFullscreen) {
+    try {
+      await document.documentElement.requestFullscreen();
+    } catch (err) {
+      console.log("Fullscreen denied");
     }
+  }
 
-    const val = $("email").value.trim();
-    if (!val || !val.includes("@")) {
-      alert("Please enter valid email.");
-      return;
-    }
+  email = val;
+  examStarted = true;
 
-    email = val;
-    examStarted = true;
+  localStorage.setItem("exam_active", "1");
+  localStorage.setItem("exam_email", email);
 
-    localStorage.setItem("exam_active", "1");
-    localStorage.setItem("exam_email", email);
-
-    showScreen("screen-question");
-    renderQuestion(0);
-    startTimer();
-  };
-
+  showScreen("screen-question");
+  renderQuestion(0);
+  startTimer();
+};
+  
   $("btnNext").onclick = () => {
 
     const bank = window.QUESTION_BANK;
