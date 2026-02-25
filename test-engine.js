@@ -354,14 +354,14 @@ async function submitNow() {
   try {
 
     await fetch(SCRIPT_URL, {
-      method: "POST",
-      mode: "no-cors",
-      credentials: "omit",
-      body: new URLSearchParams({
-        email,
-        responses: JSON.stringify(responses),
-        violations: tabSwitchCount,
-        timeRemainingSec: timeLeft
+  method: "POST",
+  mode: "no-cors",
+  credentials: "omit",
+  body: new URLSearchParams({
+    email,
+    responses: JSON.stringify(responses),
+    violations: tabSwitchCount,
+    timeRemainingSec: timeLeft
       }),
     });
 
