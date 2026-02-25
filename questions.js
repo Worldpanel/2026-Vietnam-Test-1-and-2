@@ -341,20 +341,24 @@ window.QUESTION_BANK = [
 
   {
  key: "q1_29",
-  text: "<strong>Directions:</strong><br />" +
-        "The following questions consist of two quantities, one in Column A and one in Column B.<br />" +
-        "The two quantities are to be compared and you are to choose:<br /><br />" +
-        "A. if the quantity in Column A is greater<br />" +
-        "B. if the quantity in Column B is greater<br />" +
-        "C. if the two quantities are the same<br />" +
-        "D. if the comparison cannot be made based on the information given<br /><br />" +
-        "<strong>Tick the correct answer.</strong><br /><br />" +
-        "Column A: (1/4) / (3/8)   |   Column B: 1 1/2",
-  options: [
-    { value: 'A', label: 'A. Column A greater' },
-    { value: 'B', label: 'B. Column B greater' },
-    { value: 'C', label: 'C. Equal' },
-    { value: 'D', label: 'D. Cannot determine' }
+    text: `
+      <strong>Directions:</strong><br />
+      The following questions consist of two quantities, one in Column A and one in Column B.<br />
+      The two quantities are to be compared and you are to choose:<br /><br />
+      A. if the quantity in Column A is greater<br />
+      B. if the quantity in Column B is greater<br />
+      C. if the two quantities are the same<br />
+      D. if the comparison cannot be made based on the information given<br /><br />
+      <strong>Tick the correct answer.</strong><br /><br />
+      <div style="background:#eee; padding:10px; border-radius:5px;">
+        <strong>Column A:</strong> (1/4) / (3/8) &nbsp;&nbsp;|&nbsp;&nbsp; <strong>Column B:</strong> 1 1/2
+      </div>
+    `,
+    options: [
+      { value: 'A', label: 'A. Column A greater' },
+      { value: 'B', label: 'B. Column B greater' },
+      { value: 'C', label: 'C. Equal' },
+      { value: 'D', label: 'D. Cannot determine' }
   ]
 },
 
