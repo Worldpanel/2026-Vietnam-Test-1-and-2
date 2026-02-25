@@ -1,119 +1,81 @@
 // =====================================================
-// WORLD PANEL – SECURE TEST ENGINE (STABLE CLEAN)
+// WORLD PANEL – STABLE ENGINE V3 (RACE SAFE)
 // =====================================================
 
-// ---------------- CONFIG ----------------
 const CFG = window.TEST_APP_CONFIG || {};
 const SCRIPT_URL = String(CFG.SCRIPT_URL || "");
 const TOTAL_TIME_SECONDS = Number(CFG.TOTAL_TIME_SECONDS || 45 * 60);
 
-// ---------------- STATE ----------------
 let timeLeft = TOTAL_TIME_SECONDS;
 let currentIndex = 0;
 let responses = {};
 let email = "";
 let timerHandle = null;
+let examStarted = false;
 
-// ---------------- HELPERS ----------------
 const $ = (id) => document.getElementById(id);
 
-function getQuestionBank() {
-  return Array.isArray(window.QUESTION_BANK)
-    ? window.QUESTION_BANK
-    : [];
+// -----------------------------------------------------
+// SAFE QUESTION ACCESS
+// -----------------------------------------------------
+function getQuestionBankSafe() {
+  if (!window.QUESTION_BANK) return null;
+  if (!Array.isArray(window.QUESTION_BANK)) return null;
+  if (!window.QUESTION_BANK.length) return null;
+  return window.QUESTION_BANK;
 }
 
+// -----------------------------------------------------
 function showScreen(id) {
   ["screen-start", "screen-question", "screen-end"].forEach(s => {
-    const el = document.getElementById(s);
+    const el = $(s);
     if (el) el.classList.add("hidden");
   });
-
-  const active = document.getElementById(id);
+  const active = $(id);
   if (active) active.classList.remove("hidden");
 }
 
-// ---------------- STORAGE KEYS ----------------
-const SS = {
-  ACTIVE: "TEST_ACTIVE",
-  TAB: "ACTIVE_TAB_ID"
-};
-
 // =====================================================
-// 🔐 SECURITY
+// SECURITY
 // =====================================================
-function enableExamSecurity() {
+function enableSecurity() {
 
-  const TAB_ID = Date.now() + "_" + Math.random().toString(36).slice(2);
+  const TAB_ID = Date.now() + "_" + Math.random();
 
-  sessionStorage.setItem(SS.ACTIVE, "1");
-  sessionStorage.setItem(SS.TAB, TAB_ID);
+  sessionStorage.setItem("ACTIVE_TAB", TAB_ID);
 
-  // 🔴 Banner
   const banner = document.createElement("div");
-  banner.style.position = "fixed";
-  banner.style.top = "0";
-  banner.style.left = "0";
-  banner.style.width = "100%";
-  banner.style.background = "#d32f2f";
-  banner.style.color = "white";
-  banner.style.padding = "10px";
-  banner.style.textAlign = "center";
-  banner.style.fontSize = "14px";
-  banner.style.fontWeight = "bold";
-  banner.style.zIndex = "9999";
+  banner.style.cssText = `
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    background:#c62828;
+    color:#fff;
+    padding:10px;
+    text-align:center;
+    font-weight:bold;
+    z-index:9999;
+  `;
   banner.innerText =
-    "⚠️ WARNING: Refreshing, leaving, or opening a new tab will automatically submit your test.";
+    "⚠️ WARNING: Refreshing or opening new tabs will terminate your test.";
   document.body.prepend(banner);
   document.body.style.paddingTop = "50px";
 
-  // 🔒 Block refresh keys
   document.addEventListener("keydown", function (e) {
-    if (sessionStorage.getItem(SS.ACTIVE) !== "1") return;
-
+    if (!examStarted) return;
     if (
       e.key === "F5" ||
       (e.ctrlKey && e.key.toLowerCase() === "r") ||
       (e.metaKey && e.key.toLowerCase() === "r")
     ) {
       e.preventDefault();
-      alert("Refreshing is blocked during the test.");
+      alert("Refreshing is disabled during the test.");
     }
   });
 
-  // 🚫 Disable right click
-  document.addEventListener("contextmenu", function (e) {
-    if (sessionStorage.getItem(SS.ACTIVE) === "1") {
-      e.preventDefault();
-    }
-  });
-
-  // ⛔ Block back button
-  history.pushState(null, "", location.href);
-  window.addEventListener("popstate", function () {
-    if (sessionStorage.getItem(SS.ACTIVE) === "1") {
-      history.go(1);
-    }
-  });
-
-  // ⚠️ Detect tab switch (single tab lock)
-  setInterval(() => {
-    if (sessionStorage.getItem(SS.ACTIVE) !== "1") return;
-
-    if (sessionStorage.getItem(SS.TAB) !== TAB_ID) {
-      document.body.innerHTML = `
-        <div style="text-align:center;padding:80px;font-family:sans-serif">
-          <h2 style="color:#d32f2f">Test Terminated</h2>
-          <p>Multiple tabs detected.</p>
-        </div>
-      `;
-      submitNow(true);
-    }
-  }, 1000);
-
-  // Warn before unload
   window.addEventListener("beforeunload", function (e) {
-    if (sessionStorage.getItem(SS.ACTIVE) === "1") {
+    if (examStarted) {
       e.preventDefault();
       e.returnValue = "";
     }
@@ -121,38 +83,69 @@ function enableExamSecurity() {
 }
 
 // =====================================================
-// START TEST
+// START
 // =====================================================
 document.addEventListener("DOMContentLoaded", () => {
 
+  $("btnStart").addEventListener("click", async () => {
+
+    const val = $("email").value.trim();
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!emailRegex.test(val)) {
+      alert("Please enter valid email.");
+      return;
+    }
+
+    email = val;
+
+    // 🔥 WAIT UNTIL QUESTION_BANK READY (max 2s)
+    let retries = 0;
+    let bank = getQuestionBankSafe();
+
+    while (!bank && retries < 20) {
+      await new Promise(r => setTimeout(r, 100));
+      bank = getQuestionBankSafe();
+      retries++;
+    }
+
+    if (!bank) {
+      alert("Question bank failed to load. Please refresh.");
+      return;
+    }
+
+    examStarted = true;
+
+    enableSecurity();
+    showScreen("screen-question");
+    renderQuestion(0, bank);
+    startTimer();
+  });
+
   $("btnNext").addEventListener("click", () => {
+    if (!examStarted) return;
 
-    const bank = getQuestionBank();
+    const bank = getQuestionBankSafe();
+    if (!bank) return;
 
-    if (!bank.length) return;
-
-    if (!(bank[currentIndex] && responses[bank[currentIndex].key])) {
-      alert("Please select an answer before proceeding.");
+    const q = bank[currentIndex];
+    if (!responses[q.key]) {
+      alert("Please select an answer before continuing.");
       return;
     }
 
     if (currentIndex < bank.length - 1) {
       currentIndex++;
-      renderQuestion(currentIndex);
+      renderQuestion(currentIndex, bank);
     } else {
       submitNow(false);
     }
-
   });
 
 });
 
 // =====================================================
-// RENDER QUESTION
-// =====================================================
-function renderQuestion(i) {
-  const bank = getQuestionBank();
-  currentIndex = i;
+function renderQuestion(i, bank) {
 
   const q = bank[i];
   if (!q) return;
@@ -173,15 +166,17 @@ function renderQuestion(i) {
   const wrap = $("qOptions");
   wrap.innerHTML = "";
 
-  (q.options || []).forEach((opt) => {
+  q.options.forEach((opt) => {
     const lbl = document.createElement("label");
     lbl.className = "option";
     lbl.innerHTML =
       `<input type="radio" name="${q.key}" value="${opt.value}">
        ${opt.label}`;
+
     lbl.onclick = () => {
       responses[q.key] = opt.value;
     };
+
     wrap.appendChild(lbl);
   });
 
@@ -189,20 +184,6 @@ function renderQuestion(i) {
     i === bank.length - 1 ? "Submit Test" : "Next";
 }
 
-// =====================================================
-$("btnNext").addEventListener("click", () => {
-  const bank = getQuestionBank();
-
-  if (currentIndex < bank.length - 1) {
-    currentIndex++;
-    renderQuestion(currentIndex);
-  } else {
-    submitNow(false);
-  }
-});
-
-// =====================================================
-// TIMER
 // =====================================================
 function startTimer() {
   $("timer").textContent = formatTime(timeLeft);
@@ -225,12 +206,9 @@ function formatTime(s) {
 }
 
 // =====================================================
-// SUBMIT
-// =====================================================
-async function submitNow(forced = false) {
+async function submitNow(forced) {
 
   clearInterval(timerHandle);
-
   showScreen("screen-end");
 
   try {
@@ -244,11 +222,9 @@ async function submitNow(forced = false) {
         email,
         responses: JSON.stringify(responses),
         forced: forced ? "1" : "0"
-      }).toString()
+      })
     });
   } catch (e) {}
-
-  sessionStorage.clear();
 
   document.body.innerHTML =
     `<div style="text-align:center;padding:80px;font-family:sans-serif">
