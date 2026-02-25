@@ -281,7 +281,15 @@ window.QUESTION_BANK = [
 
   {
     key: "q1_24",
-    text: "36 -------------- = 29 - 4/0. 2", // [1](blob:https://www.microsoft365.com/87fc0e71-eef0-413a-8378-e51bf4484610)
+    text: "36 ÷ (29 - 4/0.2) = ?",
+  // HTML để hiển thị phân số xếp dọc đúng như bản gốc (36 là tử số)
+  extraHTML: `
+    <span class="frac">
+      <span class="top">36</span>
+      <span class="bar"></span>
+      <span class="bottom">(29 - 4/0.2)</span>
+    </span> = ?
+  `,
     options: [
       { value: "A", label: "A. 4/3" },
       { value: "B", label: "B. 2" },
