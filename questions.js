@@ -363,35 +363,63 @@ window.QUESTION_BANK = [
 },
 
 {
-  key: "q1_30",
-  text: "Compare the two quantities below and choose:\nA if Column A is greater\nB if Column B is greater\nC if they are the same\nD if the comparison cannot be made\n\nColumn A: 0.25   |   Column B: 1",
-  options: [
-    { value: 'A', label: 'A. Column A greater' },
-    { value: 'B', label: 'B. Column B greater' },
-    { value: 'C', label: 'C. Equal' },
-    { value: 'D', label: 'D. Cannot determine' }
-  ]
-},
+ key: "q1_30",
+    text: `
+      Compare the two quantities below and choose:<br>
+      <strong>A.</strong> if Column A is greater<br>
+      <strong>B.</strong> if Column B is greater<br>
+      <strong>C.</strong> if they are the same<br>
+      <strong>D.</strong> if the comparison cannot be made<br><br>
+      <div style="background:#eee; padding:10px; border-radius:5px;">
+        <strong>Column A:</strong> 0.25 &nbsp;&nbsp;|&nbsp;&nbsp; <strong>Column B:</strong> 1
+      </div>
+    `,
+    options: [
+      { value: 'A', label: 'A. Column A greater' },
+      { value: 'B', label: 'B. Column B greater' },
+      { value: 'C', label: 'C. Equal' },
+      { value: 'D', label: 'D. Cannot determine' }
+    ]
+  },
 
-{
-  key: "q1_31",
-  text: "Compare the two quantities below and choose:\nA if Column A is greater\nB if Column B is greater\nC if they are the same\nD if the comparison cannot be made\n\nColumn A: 3 1/2 %   |   Column B: 35/1000",
-  options: [
-    { value: 'A', label: 'A. Column A greater' },
-    { value: 'B', label: 'B. Column B greater' },
-    { value: 'C', label: 'C. Equal' },
-    { value: 'D', label: 'D. Cannot determine' }
-  ]
-},
+  {
+    key: "q1_31",
+    text: `
+      Compare the two quantities below and choose:<br>
+      <strong>A.</strong> if Column A is greater<br>
+      <strong>B.</strong> if Column B is greater<br>
+      <strong>C.</strong> if they are the same<br>
+      <strong>D.</strong> if the comparison cannot be made<br><br>
+      <div style="background:#eee; padding:10px; border-radius:5px;">
+        <strong>Column A:</strong> 3 1/2 % &nbsp;&nbsp;|&nbsp;&nbsp; <strong>Column B:</strong> 35/1000
+      </div>
+    `,
+    options: [
+      { value: 'A', label: 'A. Column A greater' },
+      { value: 'B', label: 'B. Column B greater' },
+      { value: 'C', label: 'C. Equal' },
+      { value: 'D', label: 'D. Cannot determine' }
+    ]
+  },
 
-{
-  key: "q1_32",
-  text: "Compare the two quantities below and choose:\nA if Column A is greater\nB if Column B is greater\nC if they are the same\nD if the comparison cannot be made\n\nColumn A: The number of posts needed for a fence 144 m. long if the posts are 12 m apart   |   Column B: 12 posts",
-  options: [
-    { value: 'A', label: 'A. Column A greater' },
-    { value: 'B', label: 'B. Column B greater' },
-    { value: 'C', label: 'C. Equal' },
-    { value: 'D', label: 'D. Cannot determine' }
+  {
+    key: "q1_32",
+    text: `
+      Compare the two quantities below and choose:<br>
+      <strong>A.</strong> if Column A is greater<br>
+      <strong>B.</strong> if Column B is greater<br>
+      <strong>C.</strong> if they are the same<br>
+      <strong>D.</strong> if the comparison cannot be made<br><br>
+      <div style="background:#eee; padding:10px; border-radius:5px;">
+        <strong>Column A:</strong> The number of posts needed for a fence 144 m. long if the posts are 12 m apart<br>
+        <strong>Column B:</strong> 12 posts
+      </div>
+    `,
+    options: [
+      { value: 'A', label: 'A. Column A greater' },
+      { value: 'B', label: 'B. Column B greater' },
+      { value: 'C', label: 'C. Equal' },
+      { value: 'D', label: 'D. Cannot determine' }
   ]
   },
   // ================================
