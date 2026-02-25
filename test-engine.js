@@ -265,10 +265,25 @@ function renderQuestion(i) {
   $("qPercent").textContent = percent + "%";
   $("progressBar").style.width = percent + "%";
 
-  $("qText").innerHTML = `
-    <div class="question-label">Question ${i + 1}</div>
-    <div class="question-main">${q.text.replace(/\n/g, "<br>")}</div>
-  `;
+  let sectionTitle = "";
+
+if (i < 32) {
+  sectionTitle = "Section 1 of 2 – Numerical Aptitude (32 Questions)";
+} else {
+  sectionTitle = "Section 2 of 2 – Data Interpretation (13 Questions)";
+}
+
+$("qText").innerHTML = `
+  <div class="question-label" style="color:#005EB8; font-weight:700; margin-bottom:6px;">
+    ${sectionTitle}
+  </div>
+  <div class="question-label">
+    Question ${i + 1}
+  </div>
+  <div class="question-main">
+    ${q.text.replace(/\n/g, "<br>")}
+  </div>
+`;
 
   $("qExtra").innerHTML = q.extraHTML || "";
 
