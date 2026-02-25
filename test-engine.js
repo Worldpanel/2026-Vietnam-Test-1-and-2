@@ -1,6 +1,5 @@
 // =====================================================
-// WORLD PANEL – STRICT SECURE TEST ENGINE (2026)
-// Banner + Refresh Block + Single Tab Lock
+// WORLD PANEL – STRICT SECURE TEST ENGINE (FIXED)
 // =====================================================
 
 // ---------------- CONFIG ----------------
@@ -16,9 +15,12 @@ let responses = {};
 let email = "";
 let timerHandle = null;
 
-const questionBank = Array.isArray(window.QUESTION_BANK)
-  ? window.QUESTION_BANK
-  : [];
+// 🔥 FIX: always get fresh QUESTION_BANK
+function getQuestionBank() {
+  return Array.isArray(window.QUESTION_BANK)
+    ? window.QUESTION_BANK
+    : [];
+}
 
 const $ = (id) => document.getElementById(id);
 
@@ -33,7 +35,7 @@ const LS = {
 };
 
 // =====================================================
-// 🔥 RELOAD DETECTION (AUTO SUBMIT)
+// 🔥 RELOAD DETECTION
 // =====================================================
 (function detectReload() {
   const active = localStorage.getItem(LS.ACTIVE) === "1";
@@ -72,7 +74,7 @@ const LS = {
 })();
 
 // =====================================================
-// 🔐 ENABLE STRICT SECURITY
+// 🔐 SECURITY
 // =====================================================
 function enableExamSecurity() {
 
@@ -109,7 +111,7 @@ function enableExamSecurity() {
       (e.metaKey && e.key.toLowerCase() === "r")
     ) {
       e.preventDefault();
-      alert("Refreshing is blocked. Your test will be auto-submitted.");
+      alert("Refreshing is blocked.");
     }
   });
 
@@ -120,7 +122,7 @@ function enableExamSecurity() {
     }
   });
 
-  // ⛔ Block back button
+  // ⛔ Block back
   history.pushState(null, "", location.href);
   window.addEventListener("popstate", function () {
     if (localStorage.getItem(LS.ACTIVE) === "1") {
@@ -128,10 +130,10 @@ function enableExamSecurity() {
     }
   });
 
-  // 📱 Disable pull-to-refresh
+  // 📱 Disable pull refresh
   document.body.style.overscrollBehavior = "none";
 
-  // ⚠️ Before unload warning
+  // ⚠️ Before unload
   window.addEventListener("beforeunload", function (e) {
     if (localStorage.getItem(LS.ACTIVE) === "1") {
       localStorage.setItem(LS.LEAVING, "1");
@@ -140,22 +142,18 @@ function enableExamSecurity() {
     }
   });
 
-  // 🔐 Single Tab Lock
+  // 🔐 Single tab lock
   setInterval(() => {
     if (localStorage.getItem(LS.ACTIVE) !== "1") return;
 
-    const activeTab = localStorage.getItem(LS.TAB);
-
-    if (activeTab !== TAB_ID) {
+    if (localStorage.getItem(LS.TAB) !== TAB_ID) {
       document.body.innerHTML = `
         <div style="text-align:center;padding:80px;font-family:sans-serif">
           <h2 style="color:#d32f2f">Test Terminated</h2>
           <p>Multiple tabs detected.</p>
         </div>
       `;
-
       submitNow(true);
-      localStorage.clear();
     }
   }, 1000);
 }
@@ -173,28 +171,41 @@ function persistSession() {
 // =====================================================
 // START TEST
 // =====================================================
-$("btnStart").addEventListener("click", () => {
-  const val = $("email").value.trim();
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+document.addEventListener("DOMContentLoaded", () => {
 
-  if (!emailRegex.test(val)) {
-    alert("Please enter a valid email.");
-    return;
-  }
+  $("btnStart").addEventListener("click", () => {
 
-  email = val;
-  enableExamSecurity();   // 🔥 activate security
-  persistSession();
+    if (!getQuestionBank().length) {
+      alert("Question bank not loaded.");
+      return;
+    }
 
-  showScreen("screen-question");
-  renderQuestion(0);
-  startTimer();
+    const val = $("email").value.trim();
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!emailRegex.test(val)) {
+      alert("Please enter valid email.");
+      return;
+    }
+
+    email = val;
+
+    enableExamSecurity();
+    persistSession();
+
+    showScreen("screen-question");
+    renderQuestion(0);
+    startTimer();
+  });
+
 });
 
 // =====================================================
 function renderQuestion(i) {
+  const bank = getQuestionBank();
   currentIndex = i;
-  const q = questionBank[i];
+
+  const q = bank[i];
   if (!q) return;
 
   $("qText").innerHTML =
@@ -202,16 +213,16 @@ function renderQuestion(i) {
      <div>${q.text}</div>`;
 
   $("qExtra").innerHTML = q.extraHTML || "";
+
   const wrap = $("qOptions");
   wrap.innerHTML = "";
 
   (q.options || []).forEach((opt) => {
     const lbl = document.createElement("label");
     lbl.className = "option";
-    lbl.innerHTML = `
-      <input type="radio" name="${q.key}" value="${opt.value}">
-      ${opt.label}
-    `;
+    lbl.innerHTML =
+      `<input type="radio" name="${q.key}" value="${opt.value}">
+       ${opt.label}`;
     lbl.onclick = () => {
       responses[q.key] = opt.value;
       persistSession();
@@ -220,7 +231,7 @@ function renderQuestion(i) {
   });
 
   $("btnNext").textContent =
-    i === questionBank.length - 1 ? "Submit Test" : "Next";
+    i === bank.length - 1 ? "Submit Test" : "Next";
 }
 
 function startTimer() {
@@ -244,7 +255,9 @@ function formatTime(s) {
 }
 
 $("btnNext").addEventListener("click", () => {
-  if (currentIndex < questionBank.length - 1) {
+  const bank = getQuestionBank();
+
+  if (currentIndex < bank.length - 1) {
     currentIndex++;
     renderQuestion(currentIndex);
   } else {
@@ -253,11 +266,8 @@ $("btnNext").addEventListener("click", () => {
 });
 
 // =====================================================
-// SUBMIT
-// =====================================================
 async function submitNow(forced = false) {
   clearInterval(timerHandle);
-  showScreen("screen-end");
 
   try {
     await fetch(SCRIPT_URL, {
@@ -273,16 +283,12 @@ async function submitNow(forced = false) {
         forced: forced ? "1" : "0"
       }).toString()
     });
+  } catch (e) {}
 
-    document.body.innerHTML = `
-      <div style="text-align:center;padding:80px;font-family:sans-serif">
-        <h2>Submission Successful</h2>
-        <p>This session has ended.</p>
-      </div>
-    `;
-  } catch (e) {
-    alert("Network error during submission.");
-  } finally {
-    localStorage.clear();
-  }
+  localStorage.clear();
+
+  document.body.innerHTML =
+    `<div style="text-align:center;padding:80px;font-family:sans-serif">
+       <h2>Submission Successful</h2>
+     </div>`;
 }
