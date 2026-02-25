@@ -21,8 +21,11 @@
   .progress{height:10px;background:#D6E8F7;border-radius:6px;overflow:hidden;margin-top:6px}
   .progress>div{height:100%;background:var(--primary);width:0%;transition:width .25s ease}
   #timer{font-weight:700;color:var(--primary);font-size:18px}
-  .qtext{font-weight:600;line-height:1.55;margin-bottom:14px}
-  .options{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}
+  .qtext{font-weight:600; line-height:1.25;  margin-bottom:6px;}
+.options{
+  display:flex;
+  flex-direction:column;
+  gap:8px;}  
   label.option{display:flex;align-items:center;gap:8px;padding:10px;border:1px solid #eee;border-radius:6px;cursor:pointer;background:#fff;font-size:14px}
   label.option:hover{background:#E1F0FB}
   .nav{display:flex;justify-content:flex-end;gap:10px;margin-top:16px}
