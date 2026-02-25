@@ -1,5 +1,5 @@
 // =============================================
-// WORLD PANEL – CLEAN STABLE ENGINE (FINAL FIX)
+// WORLD PANEL – CLEAN STABLE ENGINE (UI FIXED)
 // =============================================
 
 // ---------------- CONFIG ----------------
@@ -15,7 +15,6 @@ let email = "";
 let timerHandle = null;
 let examStarted = false;
 
-// Soft monitoring only
 let tabSwitchCount = 0;
 const MAX_TAB_SWITCH = 5;
 
@@ -27,9 +26,59 @@ const $ = (id) => document.getElementById(id);
 
 document.addEventListener("DOMContentLoaded", () => {
 
+  injectOptionStyles(); // inject UI style (NO HTML EDIT)
   initUI();
   injectTopWarningBanner();
 });
+
+// =============================================
+// OPTION UI STYLE (Injected via JS)
+// =============================================
+
+function injectOptionStyles(){
+
+  const style = document.createElement("style");
+
+  style.innerHTML = `
+    .option-card{
+      display:flex;
+      align-items:center;
+      gap:14px;
+      padding:14px 16px;
+      border:2px solid #e3eaf2;
+      border-radius:10px;
+      background:#fff;
+      cursor:pointer;
+      transition:all .2s ease;
+      font-size:15px;
+      text-align:left;
+      width:100%;
+    }
+
+    .option-card:hover{
+      border-color:#005EB8;
+      background:#f0f7ff;
+    }
+
+    .option-card.selected{
+      border-color:#005EB8;
+      background:#e3f2fd;
+      box-shadow:0 0 0 2px rgba(0,94,184,.15);
+    }
+
+    .option-letter{
+      font-weight:700;
+      color:#005EB8;
+      min-width:24px;
+    }
+
+    .option-text{
+      flex:1;
+    }
+  `;
+
+  document.head.appendChild(style);
+}
 
 // =============================================
 // UI INIT
@@ -61,6 +110,12 @@ function initUI() {
   $("btnNext").onclick = () => {
 
     const bank = window.QUESTION_BANK;
+    const q = bank[currentIndex];
+
+    if (!responses[q.key]) {
+      alert("Please select an answer.");
+      return;
+    }
 
     if (currentIndex < bank.length - 1) {
       currentIndex++;
@@ -71,16 +126,13 @@ function initUI() {
     }
   };
 
-  // Warning before refresh (no locking, no auto submit)
   window.addEventListener("beforeunload", (e) => {
     if (examStarted) {
       e.preventDefault();
-      e.returnValue =
-        "Refreshing will end your test.";
+      e.returnValue = "Refreshing will end your test.";
     }
   });
 
-  // SOFT tab switch monitor (NO LOCK)
   document.addEventListener("visibilitychange", () => {
 
     if (!examStarted) return;
@@ -102,7 +154,7 @@ function initUI() {
 }
 
 // =============================================
-// RENDER QUESTION (100% highlight working)
+// RENDER QUESTION
 // =============================================
 
 function renderQuestion(i) {
@@ -129,9 +181,6 @@ function renderQuestion(i) {
 
   const wrap = $("qOptions");
   wrap.innerHTML = "";
-  wrap.style.display = "flex";
-  wrap.style.flexDirection = "column";
-  wrap.style.gap = "12px";
 
   q.options.forEach((opt) => {
 
@@ -146,7 +195,6 @@ function renderQuestion(i) {
       </span>
     `;
 
-    // restore previous answer
     if (responses[q.key] === opt.value) {
       btn.classList.add("selected");
     }
@@ -155,7 +203,6 @@ function renderQuestion(i) {
 
       responses[q.key] = opt.value;
 
-      // remove highlight only inside current question
       wrap.querySelectorAll(".option-card")
           .forEach(el => el.classList.remove("selected"));
 
@@ -179,8 +226,8 @@ function startTimer() {
 
   timerHandle = setInterval(() => {
 
-    $("timer").textContent = formatTime(timeLeft);
     timeLeft--;
+    $("timer").textContent = formatTime(timeLeft);
 
     if (timeLeft <= 0) {
       clearInterval(timerHandle);
@@ -248,22 +295,18 @@ function injectTopWarningBanner() {
 
   const banner = document.createElement("div");
 
-  banner.style.position = "fixed";
-  banner.style.top = "0";
-  banner.style.left = "0";
-  banner.style.width = "100%";
   banner.style.background = "#fff8e1";
   banner.style.color = "#8d6e63";
   banner.style.textAlign = "center";
   banner.style.padding = "8px";
   banner.style.fontSize = "13px";
   banner.style.borderBottom = "1px solid #ffe0b2";
-  banner.style.zIndex = "9999";
 
   banner.innerHTML =
-    "⚠️ WARNING: Refreshing, leaving, or opening a new tab will automatically end your test.";
+    "⚠️ WARNING: Refreshing, leaving, or opening a new tab may end your test.";
 
-  document.body.appendChild(banner);
+  const hud = document.querySelector(".hud");
+  hud.parentNode.insertBefore(banner, hud);
 }
 
 // =============================================
