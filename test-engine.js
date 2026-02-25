@@ -20,7 +20,20 @@ const $ = (id) => document.getElementById(id);
 // START TEST
 // =====================================================
 document.addEventListener("DOMContentLoaded", () => {
+    const isTesting = localStorage.getItem("IS_TESTING") === "true";
+    const navEntries = performance.getEntriesByType("navigation");
+    const isReload = navEntries.length > 0 && navEntries[0].type === "reload";
 
+    if (isTesting && isReload) {
+        forceSubmit(localStorage.getItem("TEMP_EMAIL") || "unknown");
+        document.body.innerHTML = `
+            <div style="text-align:center;padding:100px;font-family:sans-serif">
+                <h1 style="color:#d32f2f">TEST TERMINATED</h1>
+                <p>Refresh detected. Submission sent.</p>
+            </div>
+        `;
+    }
+});
   $("btnStart").onclick = () => {
 
     if (typeof questions === "undefined" || !questions.length) {
