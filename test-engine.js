@@ -1,5 +1,5 @@
 // =====================================================
-// WORLD PANEL – STABLE ENGINE (ENHANCED UX + TAB LOCK)
+// WORLD PANEL – STABLE ENGINE (SOFT MONITORING VERSION)
 // =====================================================
 
 // ---------------- CONFIG ----------------
@@ -14,53 +14,26 @@ let responses = {};
 let email = "";
 let timerHandle = null;
 let examStarted = false;
-let TAB_ID = crypto.randomUUID();
+
+// Tab monitoring
+let tabSwitchCount = 0;
+const MAX_TAB_SWITCH = 5;
 
 // Helper
 const $ = (id) => document.getElementById(id);
 
 // =====================================================
-// TAB LOCK (PREVENT DUPLICATE TAB CHEAT)
-// =====================================================
-
-function lockToSingleTab() {
-  const existing = localStorage.getItem("ACTIVE_TAB_ID");
-
-  if (!existing) {
-    localStorage.setItem("ACTIVE_TAB_ID", TAB_ID);
-  } else if (existing !== TAB_ID) {
-    document.body.innerHTML = `
-      <h2 style="color:red;text-align:center;margin-top:40px;">
-        Multiple Tabs Detected
-      </h2>
-      <p style="text-align:center;">
-        This test can only run in one tab. Please close other tabs.
-      </p>
-    `;
-    throw new Error("Duplicate tab blocked");
-  }
-
-  window.addEventListener("storage", (e) => {
-    if (e.key === "ACTIVE_TAB_ID" && e.newValue !== TAB_ID) {
-      location.reload();
-    }
-  });
-}
-
-// =====================================================
-// RELOAD DETECTION
+// INIT
 // =====================================================
 
 document.addEventListener("DOMContentLoaded", () => {
-
-  lockToSingleTab();
 
   const active = localStorage.getItem("TEST_ACTIVE") === "1";
   const navEntries = performance.getEntriesByType("navigation");
   const isReload = navEntries.length && navEntries[0].type === "reload";
 
   if (active && isReload) {
-    handleForcedSubmit();
+    handleForcedSubmit("Page refresh detected");
     return;
   }
 
@@ -120,6 +93,26 @@ function initUI() {
         "Leaving or refreshing will auto-submit your test.";
     }
   });
+
+  // Soft tab monitoring
+  document.addEventListener("visibilitychange", () => {
+
+    if (!examStarted) return;
+
+    if (document.hidden) {
+
+      tabSwitchCount++;
+      updateViolationUI();
+
+      showSoftWarning(
+        `Tab switched (${tabSwitchCount}/${MAX_TAB_SWITCH})`
+      );
+
+      if (tabSwitchCount >= MAX_TAB_SWITCH) {
+        handleForcedSubmit("Too many tab switches");
+      }
+    }
+  });
 }
 
 // =====================================================
@@ -142,36 +135,43 @@ function renderQuestion(i) {
   $("progressBar").style.width = percent + "%";
 
   $("qText").innerHTML = `
-      <div style="margin-bottom:6px; opacity:.6;">
-        Question ${i + 1}
-      </div>
-      <div>${q.text.replace(/\n/g, "<br>")}</div>
+    <div class="question-label">Question ${i + 1}</div>
+    <div class="question-main">${q.text.replace(/\n/g, "<br>")}</div>
   `;
 
   $("qExtra").innerHTML = q.extraHTML || "";
 
   const wrap = $("qOptions");
   wrap.innerHTML = "";
+  wrap.className = "options-grid";
 
   q.options.forEach((opt) => {
 
     const btn = document.createElement("button");
     btn.type = "button";
-    btn.className = "option-btn";
-    btn.innerHTML = opt.label;
+    btn.className = "option-card";
+    btn.dataset.value = opt.value;
+
+    btn.innerHTML = `
+      <div class="option-letter">${opt.value}</div>
+      <div class="option-text">
+        ${opt.label.replace(opt.value + ". ", "")}
+      </div>
+    `;
 
     if (responses[q.key] === opt.value) {
       btn.classList.add("selected");
     }
 
-    btn.onclick = () => {
+    btn.addEventListener("click", () => {
+
       responses[q.key] = opt.value;
 
-      document.querySelectorAll(".option-btn")
-        .forEach(b => b.classList.remove("selected"));
+      wrap.querySelectorAll(".option-card")
+          .forEach(b => b.classList.remove("selected"));
 
       btn.classList.add("selected");
-    };
+    });
 
     wrap.appendChild(btn);
   });
@@ -223,16 +223,20 @@ async function submitNow() {
         action: "submit",
         email: email,
         responses: JSON.stringify(responses),
+        violations: tabSwitchCount
       }),
     });
   } catch (e) {}
 
-  localStorage.clear();
+  localStorage.removeItem("TEST_ACTIVE");
+  localStorage.removeItem("TEMP_EMAIL");
 
   setTimeout(() => {
     document.body.innerHTML = `
       <h2 style="text-align:center;">Submission Successful</h2>
-      <p style="text-align:center;">Thank you. You may now close this tab.</p>
+      <p style="text-align:center;">
+        Thank you. You may now close this tab.
+      </p>
     `;
   }, 800);
 }
@@ -241,7 +245,7 @@ async function submitNow() {
 // FORCED SUBMIT
 // =====================================================
 
-async function handleForcedSubmit() {
+async function handleForcedSubmit(reason = "Violation") {
 
   const email = localStorage.getItem("TEMP_EMAIL") || "unknown";
 
@@ -252,6 +256,8 @@ async function handleForcedSubmit() {
         action: "submit",
         email: email,
         forced: "1",
+        reason: reason,
+        violations: tabSwitchCount
       }),
     });
   } catch (e) {}
@@ -263,16 +269,50 @@ async function handleForcedSubmit() {
       Test Ended
     </h2>
     <p style="text-align:center;">
-      Page refresh detected. Your test has been submitted.
+      ${reason}
     </p>
   `;
 }
 
 // =====================================================
-// SCREEN SWITCH
+// UI HELPERS
 // =====================================================
 
 function showScreen(id) {
   ["screen-start", "screen-question", "screen-end"]
     .forEach(s => $(s).classList.toggle("hidden", s !== id));
+}
+
+function updateViolationUI() {
+  const v = $("violations");
+  if (v) v.textContent = tabSwitchCount;
+}
+
+function showSoftWarning(message) {
+
+  let banner = document.getElementById("softWarning");
+
+  if (!banner) {
+    banner = document.createElement("div");
+    banner.id = "softWarning";
+    banner.style.position = "fixed";
+    banner.style.bottom = "20px";
+    banner.style.left = "50%";
+    banner.style.transform = "translateX(-50%)";
+    banner.style.background = "#ff9800";
+    banner.style.color = "#fff";
+    banner.style.padding = "10px 18px";
+    banner.style.borderRadius = "8px";
+    banner.style.fontSize = "14px";
+    banner.style.boxShadow = "0 4px 12px rgba(0,0,0,.2)";
+    banner.style.zIndex = "9999";
+    document.body.appendChild(banner);
+  }
+
+  banner.textContent = message;
+  banner.style.display = "block";
+
+  setTimeout(() => {
+    banner.style.display = "none";
+  }, 2000);
 }
