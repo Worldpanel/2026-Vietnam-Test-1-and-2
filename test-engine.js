@@ -154,11 +154,7 @@ function injectOptionStyles(){
 #qExtra{
   margin:2px 0 6px 0 !important;
   line-height:1.3 !important;
-}
 
-#qExtra *{
-  margin-top:1px !important;
-  margin-bottom:1px !important;
 }
 
 #qExtra br{
