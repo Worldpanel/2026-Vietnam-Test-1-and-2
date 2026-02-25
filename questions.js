@@ -456,6 +456,22 @@ key: "q1_30",
   {
     key: "q2_1_2",
     text: "The percentage of employees in the competitive class has never fallen below 55%.", // [1](blob:https://www.microsoft365.com/291fdf6d-8e79-465b-9569-16510de3f2ac)
+    extraHTML: `
+      <p><strong>NUMBER OF EMPLOYEES IN CIVIL SERVICE BETWEEN YEARS 1902 AND 1937</strong></p>
+      <table>
+        <tr><th>Year</th><th>Total</th><th>Competitive</th><th>Labour</th><th>Non-Competitive</th></tr>
+        <tr><td>1902</td><td>34</td><td>20</td><td>12</td><td>2</td></tr>
+        <tr><td>1906</td><td>42</td><td>24</td><td>16</td><td>2</td></tr>
+        <tr><td>1910</td><td>54</td><td>30</td><td>18</td><td>6</td></tr>
+        <tr><td>1914</td><td>55</td><td>31</td><td>18</td><td>6</td></tr>
+        <tr><td>1918</td><td>53</td><td>31</td><td>16</td><td>6</td></tr>
+        <tr><td>1922</td><td>60</td><td>35</td><td>17</td><td>8</td></tr>
+        <tr><td>1926</td><td>73</td><td>44</td><td>20</td><td>9</td></tr>
+        <tr><td>1930</td><td>90</td><td>52</td><td>26</td><td>12</td></tr>
+        <tr><td>1933</td><td>90</td><td>50</td><td>25</td><td>15</td></tr>
+        <tr><td>1937</td><td>112</td><td>63</td><td>30</td><td>19</td></tr>
+      </table>
+    `,
     options: [
       { value: "A", label: "A. Correct" },
       { value: "B", label: "B. Incorrect" }
@@ -465,6 +481,22 @@ key: "q1_30",
   {
     key: "q2_1_3",
     text: "Between 1926 and 1937, employees in the labour class have been increased at a faster rate than in the non competitive class.", // [1](blob:https://www.microsoft365.com/291fdf6d-8e79-465b-9569-16510de3f2ac)
+   extraHTML: `
+      <p><strong>NUMBER OF EMPLOYEES IN CIVIL SERVICE BETWEEN YEARS 1902 AND 1937</strong></p>
+      <table>
+        <tr><th>Year</th><th>Total</th><th>Competitive</th><th>Labour</th><th>Non-Competitive</th></tr>
+        <tr><td>1902</td><td>34</td><td>20</td><td>12</td><td>2</td></tr>
+        <tr><td>1906</td><td>42</td><td>24</td><td>16</td><td>2</td></tr>
+        <tr><td>1910</td><td>54</td><td>30</td><td>18</td><td>6</td></tr>
+        <tr><td>1914</td><td>55</td><td>31</td><td>18</td><td>6</td></tr>
+        <tr><td>1918</td><td>53</td><td>31</td><td>16</td><td>6</td></tr>
+        <tr><td>1922</td><td>60</td><td>35</td><td>17</td><td>8</td></tr>
+        <tr><td>1926</td><td>73</td><td>44</td><td>20</td><td>9</td></tr>
+        <tr><td>1930</td><td>90</td><td>52</td><td>26</td><td>12</td></tr>
+        <tr><td>1933</td><td>90</td><td>50</td><td>25</td><td>15</td></tr>
+        <tr><td>1937</td><td>112</td><td>63</td><td>30</td><td>19</td></tr>
+      </table>
+    `,
     options: [
       { value: "A", label: "A. Correct" },
       { value: "B", label: "B. Incorrect" }
@@ -474,6 +506,22 @@ key: "q1_30",
   {
     key: "q2_1_4",
     text: "The average number of employees in the competitive class between the years 1922 and 1937 inclusive was greater than the average number of total employees between 1902 and 1922 inclusive.", // [1](blob:https://www.microsoft365.com/291fdf6d-8e79-465b-9569-16510de3f2ac)
+   extraHTML: `
+      <p><strong>NUMBER OF EMPLOYEES IN CIVIL SERVICE BETWEEN YEARS 1902 AND 1937</strong></p>
+      <table>
+        <tr><th>Year</th><th>Total</th><th>Competitive</th><th>Labour</th><th>Non-Competitive</th></tr>
+        <tr><td>1902</td><td>34</td><td>20</td><td>12</td><td>2</td></tr>
+        <tr><td>1906</td><td>42</td><td>24</td><td>16</td><td>2</td></tr>
+        <tr><td>1910</td><td>54</td><td>30</td><td>18</td><td>6</td></tr>
+        <tr><td>1914</td><td>55</td><td>31</td><td>18</td><td>6</td></tr>
+        <tr><td>1918</td><td>53</td><td>31</td><td>16</td><td>6</td></tr>
+        <tr><td>1922</td><td>60</td><td>35</td><td>17</td><td>8</td></tr>
+        <tr><td>1926</td><td>73</td><td>44</td><td>20</td><td>9</td></tr>
+        <tr><td>1930</td><td>90</td><td>52</td><td>26</td><td>12</td></tr>
+        <tr><td>1933</td><td>90</td><td>50</td><td>25</td><td>15</td></tr>
+        <tr><td>1937</td><td>112</td><td>63</td><td>30</td><td>19</td></tr>
+      </table>
+    `,
     options: [
       { value: "A", label: "A. Correct" },
       { value: "B", label: "B. Incorrect" }
@@ -485,7 +533,7 @@ key: "q1_30",
     text: "What part of all tax revenue comes from income taxes?", // [1](blob:https://www.microsoft365.com/291fdf6d-8e79-465b-9569-16510de3f2ac)
     extraHTML: `
     <div style="text-align:center; margin: 12px 0;">
-    <img src="assets/test2/tax_graph.png" style="max-width:100%; height:auto;" />
+    <img src="assets/test2/tax_graph.png" style="max-width:100%; border:1px solid #ccc;" />
     </div>
   `,
     options: [
@@ -502,7 +550,7 @@ key: "q1_30",
     text: "What percent of the federal government income is derived from individual income taxes?", // [1](blob:https://www.microsoft365.com/291fdf6d-8e79-465b-9569-16510de3f2ac)
     extraHTML: `
     <div style="text-align:center; margin: 12px 0;">
-      assets/test2/tax_graph.png
+    <img src="assets/test2/tax_graph.png" style="max-width:100%; border:1px solid #ccc;" />
     </div>
   `,
     options: [
@@ -519,7 +567,7 @@ key: "q1_30",
     text: "Of every 1,000 VND. received by the government, how much is received from sources other than income taxes ?", // [1](blob:https://www.microsoft365.com/291fdf6d-8e79-465b-9569-16510de3f2ac)
      extraHTML: `
     <div style="text-align:center; margin: 12px 0;">
-      assets/test2/tax_graph.png
+    <img src="assets/test2/tax_graph.png" style="max-width:100%; border:1px solid #ccc;" />
     </div>
   `,
     options: [
