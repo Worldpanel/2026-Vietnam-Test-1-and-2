@@ -1,4 +1,4 @@
-// ===== Test Engine – REFRESH PROTECTION WITH WARNING =====
+// ===== Worldpanel Test Engine - Final Secure Version =====
 
 const CFG = window.TEST_APP_CONFIG || {};
 const SCRIPT_URL = String(CFG.SCRIPT_URL || "");
@@ -11,33 +11,38 @@ const questionBank = Array.isArray(window.QUESTION_BANK) ? window.QUESTION_BANK 
 
 const $ = (id) => document.getElementById(id);
 
-// --- 1. DETECTION ON PAGE LOAD ---
-(function checkIntegrity() {
-    const isTesting = localStorage.getItem("IS_TESTING");
-    if (isTesting === "true") {
+// --- 1. IMMEDIATE LOCKDOWN CHECK ---
+// We check this even before the DOM is fully ready to prevent any "cheating"
+(function preCheck() {
+    if (localStorage.getItem("IS_TESTING") === "true") {
         const savedEmail = localStorage.getItem("TEMP_EMAIL");
         const savedResp = localStorage.getItem("TEMP_RESPONSES");
         
-        document.addEventListener("DOMContentLoaded", () => {
-            document.body.innerHTML = `
-                <div style="text-align:center; padding:50px; font-family:sans-serif;">
-                    <h2 style="color:#c62828;">TEST TERMINATED</h2>
-                    <p>A page refresh was detected. Your progress has been automatically submitted.</p>
-                    <p>You cannot restart this test session.</p>
-                </div>`;
-            forceSubmit(savedEmail, savedResp);
-        });
+        // Block the UI immediately
+        window.stop(); // Stop further loading
+        document.documentElement.innerHTML = `
+            <body style="font-family:sans-serif; text-align:center; padding-top:100px; background:#f4f4f4;">
+                <div style="background:white; display:inline-block; padding:40px; border-radius:10px; shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                    <h1 style="color:#d32f2f;">TEST TERMINATED</h1>
+                    <p style="font-size:18px;">A page refresh or navigation was detected.</p>
+                    <p>Your progress has been submitted and this session is now locked.</p>
+                </div>
+            </body>`;
+        
+        forceSubmit(savedEmail, savedResp);
     }
 })();
 
-// --- 2. BROWSER REFRESH WARNING ---
-// This triggers the "Leave site? Changes you made may not be saved" popup
-window.onbeforeunload = function() {
+// --- 2. BROWSER WARNING (The "Are you sure?" Popup) ---
+window.addEventListener('beforeunload', (event) => {
     if (localStorage.getItem("IS_TESTING") === "true") {
-        return "Warning: Refreshing the page will automatically submit your test and you won't be able to continue!";
+        // Standard way to trigger the browser's built-in warning
+        event.preventDefault();
+        event.returnValue = ''; 
     }
-};
+});
 
+// --- 3. AUTO-SUBMIT ON RELOAD ---
 async function forceSubmit(vEmail, vResp) {
     try {
         await fetch(SCRIPT_URL, {
@@ -45,16 +50,17 @@ async function forceSubmit(vEmail, vResp) {
             mode: 'no-cors', 
             body: new URLSearchParams({
                 action: "submit",
-                email: vEmail || "unknown_refresh",
+                email: vEmail || "refresh_user",
                 responses: vResp || "{}",
                 violations: localStorage.getItem("TEMP_VIOLATIONS") || "0",
                 forced: "1"
             })
         });
     } catch (e) {}
-    localStorage.removeItem("IS_TESTING"); 
+    localStorage.removeItem("IS_TESTING");
 }
 
+// --- 4. DATA SYNC ---
 function sync() {
     if (!email) return;
     localStorage.setItem("TEMP_EMAIL", email);
@@ -62,32 +68,31 @@ function sync() {
     localStorage.setItem("TEMP_VIOLATIONS", String(tabViolations));
 }
 
-// --- 3. START TEST ---
+// --- 5. CORE ENGINE FUNCTIONS ---
 $("btnStart").onclick = () => {
     const mailVal = $("email").value.trim();
-    if (!mailVal || !mailVal.includes("@")) return alert("Please enter a valid email address!");
-    
+    if (!mailVal || !mailVal.includes("@")) return alert("Please enter a valid email!");
+
     email = mailVal;
     localStorage.setItem("IS_TESTING", "true");
     sync();
-    
+
     showScreen("screen-question");
     renderQuestion(0);
     startTimer();
 };
 
-// --- 4. RENDER QUESTION ---
 function renderQuestion(i) {
     currentIndex = i;
     const q = questionBank[i];
     if (!q) return;
 
-    $("qText").innerHTML = `<div style="margin-bottom:8px; opacity:.7;">Question ${i+1}</div><div>${q.text}</div>`;
+    // Fixed Description format (from previous step)
+    $("qText").innerHTML = `<div style="margin-bottom:8px; opacity:.7; font-weight:bold;">Question ${i+1}</div><div>${q.text}</div>`;
     $("qExtra").innerHTML = q.extraHTML || "";
-    
+
     const wrap = $("qOptions"); 
     wrap.innerHTML = "";
-    
     (q.options || []).forEach(opt => {
         const id = `opt_${q.key}_${opt.value}`;
         const lbl = document.createElement("label");
@@ -96,11 +101,11 @@ function renderQuestion(i) {
         
         lbl.onclick = () => {
             responses[q.key] = opt.value;
-            sync(); // Save choice immediately
+            sync(); // Save immediately on click
         };
         wrap.appendChild(lbl);
     });
-    
+
     $("btnNext").textContent = (i === questionBank.length - 1) ? "Submit Test" : "Next";
     updateHUD();
 }
@@ -128,7 +133,7 @@ $("btnNext").onclick = () => {
 };
 
 async function submitNow() {
-    localStorage.removeItem("IS_TESTING"); 
+    localStorage.removeItem("IS_TESTING"); // Normal exit
     showScreen("screen-end");
     
     const payload = new URLSearchParams({
@@ -144,7 +149,7 @@ async function submitNow() {
         alert("Test submitted successfully!");
         location.reload();
     } catch (e) {
-        alert("Connection error. Please try again.");
+        alert("Submission failed. Check your internet.");
         showScreen("screen-question");
     }
 }
@@ -159,7 +164,7 @@ function updateHUD(){
     $("violations").textContent = tabViolations;
 }
 
-// Tab Switching detection
+// Tab/Window Blur detection
 window.onblur = () => {
     if(localStorage.getItem("IS_TESTING") === "true"){
         tabViolations++;
