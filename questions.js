@@ -681,3 +681,4 @@ key: "q1_30",
   }
 
 ]; // END OF QUESTION BANK
+window.QUESTION_BANK = questions;
