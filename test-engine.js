@@ -10,6 +10,29 @@ const ENABLE_GRAPH_PLACEHOLDERS = !!CFG.ENABLE_GRAPH_PLACEHOLDERS;
 let timeLeft = TOTAL_TIME_SECONDS;
 let tabViolations = 0;
 let currentIndex = 0;
+// --- Detect hard reloads and auto-submit if a test is active
+(function detectReloadAndForceSubmit(){
+  try {
+    const isActive = localStorage.getItem("TEST_ACTIVE") === "1";
+    if (!isActive) return;
+
+    // Navigation Timing API v2 (modern)
+    const navEntry = performance.getEntriesByType?.("navigation")?.[0];
+    const isReloadV2 = navEntry && navEntry.type === "reload";
+
+    // Fallback (older browsers)
+    const isReloadV1 = typeof performance.navigation !== "undefined"
+      && performance.navigation.type === 1;
+
+    if (isReloadV2 || isReloadV1) {
+      // Clear any stale pending flag to avoid loops and force submit now
+      localStorage.removeItem("PENDING_FORCED_SUBMIT");
+      submitNow(true); // forced refresh-submit
+    }
+  } catch (_) {
+    // No-op: if anything fails, we prefer not to block the candidate
+  }
+})();
 // Nếu user confirm leaving thì sẽ auto-submit,
 // auto-submit immediately on the next load.
 if (localStorage.getItem("TEST_ACTIVE") === "1" &&
