@@ -1,13 +1,13 @@
 // =====================================================
-// WORLD PANEL – FINAL STABLE TEST ENGINE (ENGLISH)
+// WORLD PANEL – STABLE TEST ENGINE (SAFE VERSION)
 // =====================================================
 
-// --- Config
+// ---------------- CONFIG ----------------
 const CFG = window.TEST_APP_CONFIG || {};
 const TOTAL_TIME_SECONDS = Number(CFG.TOTAL_TIME_SECONDS || 45 * 60);
 const SCRIPT_URL = String(CFG.SCRIPT_URL || "");
 
-// --- State
+// ---------------- STATE ----------------
 let timeLeft = TOTAL_TIME_SECONDS;
 let currentIndex = 0;
 let responses = {};
@@ -15,48 +15,37 @@ let email = "";
 let timerHandle = null;
 let examStarted = false;
 
-// Helpers
+// Helper
 const $ = (id) => document.getElementById(id);
 
 // =====================================================
-// REFRESH PROTECTION
-// =====================================================
-
-// 1) If test was active AND the user refreshed → auto-submit immediately
-(function detectHardReload() {
-  const active = localStorage.getItem("TEST_ACTIVE") === "1";
-  const pending = localStorage.getItem("PENDING_FORCED_SUBMIT") === "1";
-
-  if (active && pending) {
-    // The user confirmed refresh → forced auto-submit
-    localStorage.removeItem("PENDING_FORCED_SUBMIT");
-    forceSubmit(localStorage.getItem("TEMP_EMAIL") || "unknown");
-    document.body.innerHTML = `
-      <h2 style="color:red; text-align:center; margin-top:40px;">
-        VIOLATION DETECTED: PAGE REFRESH
-      </h2>
-      <p style="text-align:center;">Your test is being automatically submitted...</p>
-    `;
-  }
-})();
-
-// 2) Warn before refreshing
-window.addEventListener("beforeunload", (e) => {
-  if (localStorage.getItem("TEST_ACTIVE") === "1") {
-    localStorage.setItem("PENDING_FORCED_SUBMIT", "1");
-    e.preventDefault();
-    e.returnValue =
-      "Warning: The test will auto-submit if you refresh or close this page.";
-    return e.returnValue;
-  }
-});
-
-// =====================================================
-// START TEST
+// SAFE RELOAD DETECTION (NO FALSE TRIGGER)
 // =====================================================
 
 document.addEventListener("DOMContentLoaded", () => {
+
+  const active = localStorage.getItem("TEST_ACTIVE") === "1";
+
+  const navEntries = performance.getEntriesByType("navigation");
+  const isReload =
+    navEntries.length && navEntries[0].type === "reload";
+
+  if (active && isReload) {
+    handleForcedSubmit();
+    return;
+  }
+
+  initUI();
+});
+
+// =====================================================
+// INIT UI
+// =====================================================
+
+function initUI() {
+
   $("btnStart").onclick = () => {
+
     if (!window.QUESTION_BANK || !window.QUESTION_BANK.length) {
       alert("Question bank not loaded.");
       return;
@@ -69,11 +58,9 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     email = val;
-    localStorage.setItem("TEMP_EMAIL", email);
 
-    // Lock the session
     localStorage.setItem("TEST_ACTIVE", "1");
-    localStorage.removeItem("PENDING_FORCED_SUBMIT");
+    localStorage.setItem("TEMP_EMAIL", email);
 
     examStarted = true;
     showScreen("screen-question");
@@ -82,6 +69,7 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   $("btnNext").onclick = () => {
+
     if (!examStarted) return;
 
     const bank = window.QUESTION_BANK;
@@ -100,13 +88,24 @@ document.addEventListener("DOMContentLoaded", () => {
       submitNow();
     }
   };
-});
+
+  // Warning before leaving
+  window.addEventListener("beforeunload", (e) => {
+    if (localStorage.getItem("TEST_ACTIVE") === "1") {
+      e.preventDefault();
+      e.returnValue =
+        "Warning: The test will auto-submit if you refresh or close this page.";
+      return e.returnValue;
+    }
+  });
+}
 
 // =====================================================
 // RENDER QUESTION
 // =====================================================
 
 function renderQuestion(i) {
+
   const bank = window.QUESTION_BANK;
   const q = bank[i];
   if (!q) return;
@@ -120,7 +119,6 @@ function renderQuestion(i) {
   $("qPercent").textContent = percent + "%";
   $("progressBar").style.width = percent + "%";
 
-  // Warning Banner
   const warningBanner = `
     <div style="
       background:#ffe4e4;
@@ -128,9 +126,8 @@ function renderQuestion(i) {
       border-left:6px solid red;
       margin-bottom:10px;
       border-radius:4px;
-      font-weight:600;
-    ">
-      ⚠️ WARNING: Refreshing, leaving this page, or opening a new tab will automatically submit your test.
+      font-weight:600;">
+      ⚠️ Refreshing or leaving this page will auto-submit your test.
     </div>
   `;
 
@@ -147,16 +144,20 @@ function renderQuestion(i) {
   wrap.innerHTML = "";
 
   q.options.forEach((opt) => {
+
     const lbl = document.createElement("label");
     lbl.className = "option";
 
+    lbl.innerHTML = `<span>${opt.label}</span>`;
+
     lbl.onclick = () => {
       responses[q.key] = opt.value;
-    };
 
-    lbl.innerHTML = `
-      <span>${opt.label}</span>
-    `;
+      document.querySelectorAll(".option")
+        .forEach(o => o.classList.remove("selected"));
+
+      lbl.classList.add("selected");
+    };
 
     wrap.appendChild(lbl);
   });
@@ -170,9 +171,11 @@ function renderQuestion(i) {
 // =====================================================
 
 function startTimer() {
+
   $("timer").textContent = formatTime(timeLeft);
 
   timerHandle = setInterval(() => {
+
     $("timer").textContent = formatTime(timeLeft);
     timeLeft--;
 
@@ -180,6 +183,7 @@ function startTimer() {
       clearInterval(timerHandle);
       submitNow();
     }
+
   }, 1000);
 }
 
@@ -190,10 +194,11 @@ function formatTime(s) {
 }
 
 // =====================================================
-// SUBMIT FUNCTIONS
+// SUBMIT
 // =====================================================
 
 async function submitNow() {
+
   clearInterval(timerHandle);
   showScreen("screen-end");
 
@@ -208,18 +213,25 @@ async function submitNow() {
     });
   } catch (e) {}
 
+  localStorage.removeItem("TEST_ACTIVE");
+  localStorage.removeItem("TEMP_EMAIL");
+
   setTimeout(() => {
     document.body.innerHTML = `
       <h2 style="text-align:center;">Submission Successful</h2>
       <p style="text-align:center;">Thank you. You may now close this tab.</p>
     `;
   }, 800);
-
-  localStorage.removeItem("TEST_ACTIVE");
-  localStorage.removeItem("PENDING_FORCED_SUBMIT");
 }
 
-async function forceSubmit(email) {
+// =====================================================
+// FORCED SUBMIT (RELOAD DETECTED)
+// =====================================================
+
+async function handleForcedSubmit() {
+
+  const email = localStorage.getItem("TEMP_EMAIL") || "unknown";
+
   try {
     await fetch(SCRIPT_URL, {
       method: "POST",
@@ -232,7 +244,16 @@ async function forceSubmit(email) {
   } catch (e) {}
 
   localStorage.removeItem("TEST_ACTIVE");
-  localStorage.removeItem("PENDING_FORCED_SUBMIT");
+  localStorage.removeItem("TEMP_EMAIL");
+
+  document.body.innerHTML = `
+    <h2 style="color:red; text-align:center; margin-top:40px;">
+      VIOLATION DETECTED: PAGE REFRESH
+    </h2>
+    <p style="text-align:center;">
+      Your test has been automatically submitted.
+    </p>
+  `;
 }
 
 // =====================================================
@@ -240,7 +261,6 @@ async function forceSubmit(email) {
 // =====================================================
 
 function showScreen(id) {
-  ["screen-start", "screen-question", "screen-end"].forEach((s) => {
-    $(s).classList.toggle("hidden", s !== id);
-  });
+  ["screen-start", "screen-question", "screen-end"]
+    .forEach(s => $(s).classList.toggle("hidden", s !== id));
 }
