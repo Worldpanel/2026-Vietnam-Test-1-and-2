@@ -1,8 +1,7 @@
-// ===== Test Engine – CHẶN REFRESH TUYỆT ĐỐI =====
+// ===== Test Engine – CHẶN REFRESH & LƯU TIẾN TRÌNH TUYỆT ĐỐI =====
 
 const CFG = window.TEST_APP_CONFIG || {};
 const SCRIPT_URL = String(CFG.SCRIPT_URL || "");
-
 let timeLeft = Number(CFG.TOTAL_TIME_SECONDS || 45 * 60);
 let tabViolations = 0;
 let currentIndex = 0;
@@ -12,94 +11,102 @@ const questionBank = Array.isArray(window.QUESTION_BANK) ? window.QUESTION_BANK 
 
 const $ = (id) => document.getElementById(id);
 
-// --- 1. KIỂM TRA NGAY KHI VỪA MỞ TRANG ---
-(function checkIntegrity() {
-    const isActive = localStorage.getItem("IS_TESTING");
-    if (isActive === "true") {
-        // Nếu thấy cờ này, nghĩa là họ vừa refresh. Ép nộp bài ngay!
-        window.addEventListener('load', () => {
-            alert("PHÁT HIỆN REFRESH: Hệ thống sẽ tự động nộp bài thi của bạn ngay bây giờ!");
-            autoSubmitOnViolation();
+// --- 1. CHẶN NGAY TỪ CỬA NGÕ (VỪA LOAD TRANG) ---
+(function checkViolationOnLoad() {
+    const isTesting = localStorage.getItem("IS_TESTING");
+    if (isTesting === "true") {
+        // Nếu refresh, email và đáp án vẫn còn trong LocalStorage
+        const savedEmail = localStorage.getItem("TEMP_EMAIL");
+        const savedResp = localStorage.getItem("TEMP_RESPONSES");
+        
+        // Hiện thông báo và khóa màn hình luôn
+        document.addEventListener("DOMContentLoaded", () => {
+            document.body.innerHTML = `
+                <div style="text-align:center; padding:50px; font-family:sans-serif;">
+                    <h2 style="color:red;">PHÁT HIỆN VI PHẠM: REFRESH TRANG</h2>
+                    <p>Hệ thống đang tự động nộp bài làm của bạn...</p>
+                </div>`;
+            
+            // Ép nộp dữ liệu cũ lên Google Sheets
+            forceSubmit(savedEmail, savedResp);
         });
     }
 })();
 
-// --- 2. HÀM TỰ ĐỘNG NỘP KHI VI PHẠM ---
-async function autoSubmitOnViolation() {
-    // Lấy dữ liệu cuối cùng đã lưu trong máy
-    const savedEmail = localStorage.getItem("TEMP_EMAIL") || "unknown_refresh";
-    const savedResponses = localStorage.getItem("TEMP_RESPONSES") || "{}";
-    const savedViolations = localStorage.getItem("TEMP_VIOLATIONS") || "0";
-
-    showScreen("screen-end");
-    localStorage.removeItem("IS_TESTING"); // Xóa cờ để không bị lặp vô tận
-
+// --- 2. HÀM ÉP NỘP BÀI KHI REFRESH ---
+async function forceSubmit(vEmail, vResp) {
     try {
         await fetch(SCRIPT_URL, {
             method: "POST",
-            mode: 'no-cors', // Dùng no-cors để đảm bảo gửi đi nhanh nhất
+            mode: 'no-cors', // Dùng no-cors để đi xuyên qua mọi lỗi mạng/cors lúc này
             body: new URLSearchParams({
                 action: "submit",
-                email: savedEmail,
-                responses: savedResponses,
-                violations: savedViolations,
+                email: vEmail || "unknown_refresh",
+                responses: vResp || "{}",
+                violations: localStorage.getItem("TEMP_VIOLATIONS") || "0",
                 forced: "1"
             })
         });
-        alert("Đã tự động nộp bài do Refresh trang.");
-    } catch (e) { console.error(e); }
-    
-    // Sau khi nộp xong, xóa sạch và khóa luôn
-    localStorage.clear();
-    document.body.innerHTML = "<h2 style='padding:50px; text-align:center;'>Bài thi đã kết thúc do bạn vi phạm quy định (Refresh trang).</h2>";
+    } catch (e) {}
+    localStorage.clear(); // Xóa sạch để không bị lặp
 }
 
-// --- 3. LƯU DỮ LIỆU LIÊN TỤC (SYNC) ---
-function syncData() {
+// --- 3. ĐỒNG BỘ DỮ LIỆU LIÊN TỤC ---
+function sync() {
     if (!email) return;
     localStorage.setItem("TEMP_EMAIL", email);
     localStorage.setItem("TEMP_RESPONSES", JSON.stringify(responses));
     localStorage.setItem("TEMP_VIOLATIONS", String(tabViolations));
 }
 
-// --- Các hàm logic cũ (giữ lại và thêm syncData) ---
-function renderQuestion(i){
-    const q = questionBank[i];
-    if(!q) return;
-    $("qText").innerHTML = `<div style="margin-bottom:8px; opacity:.7;">Question ${i+1}</div><div>${q.text}</div>`;
-    $("qExtra").innerHTML = q.extraHTML || "";
-    
-    const wrap = $("qOptions"); wrap.innerHTML = "";
-    (q.options || []).forEach(opt => {
-        const lbl = document.createElement("label");
-        lbl.className = "option";
-        lbl.innerHTML = `<input type="radio" name="${q.key}" value="${opt.value}" ${responses[q.key]===opt.value?'checked':''}/> ${opt.label}`;
-        lbl.onclick = () => { 
-            responses[q.key] = opt.value; 
-            syncData(); // Lưu đáp án ngay khi vừa tích
-        };
-        wrap.appendChild(lbl);
-    });
-    updateHUD();
-}
-
+// --- 4. LOGIC START TEST ---
 $("btnStart").onclick = () => {
-    const val = $("email").value.trim();
-    if(!val || !val.includes("@")) return alert("Nhập email đúng định dạng!");
-    email = val;
+    const mailVal = $("email").value.trim();
+    if (!mailVal || !mailVal.includes("@")) return alert("Vui lòng nhập Email chính xác!");
     
-    // BẮT ĐẦU TÍNH LÀ ĐANG LÀM BÀI
-    localStorage.setItem("IS_TESTING", "true");
-    syncData();
+    email = mailVal;
+    localStorage.setItem("IS_TESTING", "true"); // Cắm cờ bắt đầu
+    sync();
     
     showScreen("screen-question");
     renderQuestion(0);
     startTimer();
 };
 
-function startTimer(){
+// --- 5. RENDER CÂU HỎI (CÓ LƯU ĐÁP ÁN NGAY) ---
+function renderQuestion(i) {
+    currentIndex = i;
+    const q = questionBank[i];
+    if (!q) return;
+
+    $("qText").innerHTML = `<div style="margin-bottom:8px; opacity:.7;">Question ${i+1}</div><div>${q.text}</div>`;
+    $("qExtra").innerHTML = q.extraHTML || "";
+    
+    const wrap = $("qOptions"); 
+    wrap.innerHTML = "";
+    
+    (q.options || []).forEach(opt => {
+        const id = `opt_${q.key}_${opt.value}`;
+        const lbl = document.createElement("label");
+        lbl.className = "option";
+        lbl.innerHTML = `<input type="radio" id="${id}" name="${q.key}" value="${opt.value}" ${responses[q.key]===opt.value?'checked':''}/> ${opt.label}`;
+        
+        // Khi chọn đáp án là lưu ngay vào LocalStorage
+        lbl.onclick = () => {
+            responses[q.key] = opt.value;
+            sync();
+        };
+        wrap.appendChild(lbl);
+    });
+    
+    $("btnNext").textContent = (i === questionBank.length - 1) ? "Submit Test" : "Next";
+    updateHUD();
+}
+
+// --- 6. CÁC HÀM CÒN LẠI ---
+function startTimer() {
     setInterval(() => {
-        if(timeLeft > 0) {
+        if (timeLeft > 0) {
             timeLeft--;
             $("timer").textContent = Math.floor(timeLeft/60) + ":" + (timeLeft%60).toString().padStart(2,'0');
         } else {
@@ -108,14 +115,40 @@ function startTimer(){
     }, 1000);
 }
 
-// Submit bình thường (người dùng chủ động)
+$("btnNext").onclick = () => {
+    if (currentIndex < questionBank.length - 1) {
+        currentIndex++;
+        renderQuestion(currentIndex);
+        window.scrollTo(0,0);
+    } else {
+        submitNow();
+    }
+};
+
 async function submitNow() {
-    localStorage.removeItem("IS_TESTING");
+    localStorage.removeItem("IS_TESTING"); // Gỡ cờ vi phạm vì nộp tự nguyện
     showScreen("screen-end");
-    // Code gửi fetch giống như cũ ở đây...
-    localStorage.clear();
-    alert("Nộp bài thành công!");
-    location.reload();
+    
+    const payload = new URLSearchParams({
+        action: "submit",
+        email: email,
+        responses: JSON.stringify(responses),
+        violations: String(tabViolations)
+    });
+
+    try {
+        await fetch(SCRIPT_URL, { method: "POST", body: payload });
+        localStorage.clear();
+        alert("Nộp bài thành công!");
+        location.reload();
+    } catch (e) {
+        alert("Lỗi kết nối, vui lòng thử lại!");
+        showScreen("screen-question");
+    }
+}
+
+function showScreen(id){
+    ["screen-start","screen-question","screen-end"].forEach(s => $(s).classList.toggle("hidden", s !== id));
 }
 
 function updateHUD(){
@@ -124,20 +157,11 @@ function updateHUD(){
     $("violations").textContent = tabViolations;
 }
 
-$("btnNext").onclick = () => {
-    if (currentIndex < questionBank.length - 1) {
-        currentIndex++;
-        renderQuestion(currentIndex);
-    } else {
-        submitNow();
-    }
-};
-
-// Chặn Tab
+// Chặn chuyển tab
 window.onblur = () => {
     if(localStorage.getItem("IS_TESTING") === "true"){
         tabViolations++;
-        syncData();
+        sync();
         updateHUD();
     }
 };
