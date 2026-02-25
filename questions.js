@@ -281,15 +281,7 @@ window.QUESTION_BANK = [
 
   {
     key: "q1_24",
-    text: "36 ÷ (29 - 4/0.2) = ?",
-  // HTML để hiển thị phân số xếp dọc đúng như bản gốc (36 là tử số)
-  extraHTML: `
-    <span class="frac">
-      <span class="top">36</span>
-      <span class="bar"></span>
-      <span class="bottom">(29 - 4/0.2)</span>
-    </span> = ?
-  `,
+    text: "36 / (29 - 4/0.2) = ?",
     options: [
       { value: "A", label: "A. 4/3" },
       { value: "B", label: "B. 2" },
@@ -349,8 +341,9 @@ window.QUESTION_BANK = [
 
   {
   key: "q1_29",
-  text:
-"Directions: The following questions consist of two quantities, one in column A and one in column B. The two quantities are to be compared and you are to choose.\n\nA. if the quantity in column A is greater\nB. if the quantity in column B is greater\nC. if the two quantities are the same\nD. if the comparison cannot be made based on the information given\n\nTick the correct answer.\n\nColumn A: (1/4) / (3/8)\nColumn B: 1 1/2",
+  t
+ext:
+"Directions:\nThe following questions consist of two quantities, one in Column A and one in Column B.\nThe two quantities are to be compared and you are to choose:\n\nA. if the quantity in Column A is greater\nB. if the quantity in Column B is greater\nC. if the two quantities are the same\nD. if the comparison cannot be made based on the information given\n\nTick the correct answer.\n\nColumn A: (1/4) / (3/8)   |   Column B: 1 1/2",
   options: [
     { value: 'A', label: 'A. Column A greater' },
     { value: 'B', label: 'B. Column B greater' },
@@ -361,8 +354,9 @@ window.QUESTION_BANK = [
 
 {
   key: "q1_30",
-  text:
-"Compare the two quantities below and choose:\nA if Column A is greater\nB if Column B is greater\nC if they are the same\nD if the comparison cannot be made\n\nColumn A: 0.25\nColumn B: 1",
+  
+text:
+"Compare the two quantities below and choose:\nA if Column A is greater\nB if Column B is greater\nC if they are the same\nD if the comparison cannot be made\n\nColumn A: 0.25   |   Column B: 1",
   options: [
     { value: 'A', label: 'A. Column A greater' },
     { value: 'B', label: 'B. Column B greater' },
@@ -373,8 +367,9 @@ window.QUESTION_BANK = [
 
 {
   key: "q1_31",
-  text:
-"Compare the two quantities below and choose:\nA if Column A is greater\nB if Column B is greater\nC if they are the same\nD if the comparison cannot be made\n\nColumn A: 3 1/2 %\nColumn B: 35/1000",
+  
+text:
+"Compare the two quantities below and choose:\nA if Column A is greater\nB if Column B is greater\nC if they are the same\nD if the comparison cannot be made\n\nColumn A: 3 1/2 %   |   Column B: 35/1000",
   options: [
     { value: 'A', label: 'A. Column A greater' },
     { value: 'B', label: 'B. Column B greater' },
@@ -386,7 +381,7 @@ window.QUESTION_BANK = [
 {
   key: "q1_32",
   text:
-"Compare the two quantities below and choose:\nA if Column A is greater\nB if Column B is greater\nC if they are the same\nD if the comparison cannot be made\n\nColumn A: The number of posts needed for a fence 144 m. long if the posts are 12 m apart\nColumn B: 12 posts",
+"Compare the two quantities below and choose:\nA if Column A is greater\nB if Column B is greater\nC if they are the same\nD if the comparison cannot be made\n\nColumn A: The number of posts needed for a fence 144 m. long if the posts are 12 m apart   |   Column B: 12 posts",
   options: [
     { value: 'A', label: 'A. Column A greater' },
     { value: 'B', label: 'B. Column B greater' },
