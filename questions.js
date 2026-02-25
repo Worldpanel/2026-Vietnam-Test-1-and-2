@@ -348,47 +348,51 @@ window.QUESTION_BANK = [
   },
 
   {
-    key: "q1_29",
-    text: "Compare: (1/4) / (3/8) vs 1 ½ (Choose A/B/C/D per instructions)", // [1](blob:https://www.microsoft365.com/87fc0e71-eef0-413a-8378-e51bf4484610)
-    options: [
-      { value: "A", label: "A. Column A greater" },
-      { value: "B", label: "B. Column B greater" },
-      { value: "C", label: "C. Equal" },
-      { value: "D", label: "D. Cannot determine" }
-    ]
-  },
+  key: "q1_29",
+  text:
+"Directions: The following questions consist of two quantities, one in column A and one in column B. The two quantities are to be compared and you are to choose.\n\nA. if the quantity in column A is greater\nB. if the quantity in column B is greater\nC. if the two quantities are the same\nD. if the comparison cannot be made based on the information given\n\nTick the correct answer.\n\nColumn A: (1/4) / (3/8)\nColumn B: 1 1/2",
+  options: [
+    { value: 'A', label: 'A. Column A greater' },
+    { value: 'B', label: 'B. Column B greater' },
+    { value: 'C', label: 'C. Equal' },
+    { value: 'D', label: 'D. Cannot determine' }
+  ]
+},
 
-  {
-    key: "q1_30",
-    text: "Compare: 0.25 vs 1 (Choose A/B/C/D per instructions)", // [1](blob:https://www.microsoft365.com/87fc0e71-eef0-413a-8378-e51bf4484610)
-    options: [
-      { value: "A", label: "A. Column A greater" },
-      { value: "B", label: "B. Column B greater" },
-      { value: "C", label: "C. Equal" },
-      { value: "D", label: "D. Cannot determine" }
-    ]
-  },
+{
+  key: "q1_30",
+  text:
+"Compare the two quantities below and choose:\nA if Column A is greater\nB if Column B is greater\nC if they are the same\nD if the comparison cannot be made\n\nColumn A: 0.25\nColumn B: 1",
+  options: [
+    { value: 'A', label: 'A. Column A greater' },
+    { value: 'B', label: 'B. Column B greater' },
+    { value: 'C', label: 'C. Equal' },
+    { value: 'D', label: 'D. Cannot determine' }
+  ]
+},
 
-  {
-    key: "q1_31",
-    text: "Compare: 3 ½ % vs 35/1000 (Choose A/B/C/D per instructions)", // [1](blob:https://www.microsoft365.com/87fc0e71-eef0-413a-8378-e51bf4484610)
-    options: [
-      { value: "A", label: "A. Column A greater" },
-      { value: "B", label: "B. Column B greater" },
-      { value: "C", label: "C. Equal" },
-      { value: "D", label: "D. Cannot determine" }
-    ]
-  },
+{
+  key: "q1_31",
+  text:
+"Compare the two quantities below and choose:\nA if Column A is greater\nB if Column B is greater\nC if they are the same\nD if the comparison cannot be made\n\nColumn A: 3 1/2 %\nColumn B: 35/1000",
+  options: [
+    { value: 'A', label: 'A. Column A greater' },
+    { value: 'B', label: 'B. Column B greater' },
+    { value: 'C', label: 'C. Equal' },
+    { value: 'D', label: 'D. Cannot determine' }
+  ]
+},
 
-  {
-    key: "q1_32",
-    text: "The number of posts needed for a fence 144 m. long if the posts are 12 m apart vs 12 posts (Choose A/B/C/D)", // [1](blob:https://www.microsoft365.com/87fc0e71-eef0-413a-8378-e51bf4484610)
-    options: [
-      { value: "A", label: "A. Column A greater" },
-      { value: "B", label: "B. Column B greater" },
-      { value: "C", label: "C. Equal" },
-      { value: "D", label: "D. Cannot determine" }
-    ]
+{
+  key: "q1_32",
+  text:
+"Compare the two quantities below and choose:\nA if Column A is greater\nB if Column B is greater\nC if they are the same\nD if the comparison cannot be made\n\nColumn A: The number of posts needed for a fence 144 m. long if the posts are 12 m apart\nColumn B: 12 posts",
+  options: [
+    { value: 'A', label: 'A. Column A greater' },
+    { value: 'B', label: 'B. Column B greater' },
+    { value: 'C', label: 'C. Equal' },
+    { value: 'D', label: 'D. Cannot determine' }
+  ]
   },
   // ================================
   // TEST 2 – DATA INTERPRETATION
