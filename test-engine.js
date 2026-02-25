@@ -1,65 +1,167 @@
-// ===== Test Engine (Worldpanel – English Version) =====
+// =====================================================
+// WORLD PANEL – SECURE TEST ENGINE (PRODUCTION READY)
+// =====================================================
 
-// --- Config
+// ---------------- CONFIG ----------------
 const CFG = window.TEST_APP_CONFIG || {};
-const TOTAL_TIME_SECONDS = Number(CFG.TOTAL_TIME_SECONDS || 45 * 60);
 const SCRIPT_URL = String(CFG.SCRIPT_URL || "");
+const TOTAL_TIME_SECONDS = Number(CFG.TOTAL_TIME_SECONDS || 45 * 60);
 
-// --- Refresh Lock: If test is active and the page reloads, auto-submit immediately.
-(function autoSubmitOnReload() {
-  const active = localStorage.getItem("TEST_ACTIVE") === "1";
-  const pending = localStorage.getItem("PENDING_FORCED_SUBMIT") === "1";
-
-  if (active && pending) {
-    localStorage.removeItem("PENDING_FORCED_SUBMIT");
-    submitNow(true); // forced submit due to refresh
-  }
-})();
-
-// --- State
+// ---------------- STATE ----------------
 let timeLeft = TOTAL_TIME_SECONDS;
 let tabViolations = 0;
 let currentIndex = 0;
-const responses = {};
+let responses = {};
 let email = "";
+let timerHandle = null;
 
 const questionBank = Array.isArray(window.QUESTION_BANK)
   ? window.QUESTION_BANK
   : [];
 
-// --- Helpers
 const $ = (id) => document.getElementById(id);
 
-function fmtTime(seconds) {
-  const m = Math.floor(seconds / 60);
-  const s = seconds % 60;
-  return `${m}:${s < 10 ? "0" : ""}${s}`;
+// ---------------- SESSION KEYS ----------------
+const LS_KEYS = {
+  ACTIVE: "TEST_ACTIVE",
+  EMAIL: "SAVED_EMAIL",
+  RESPONSES: "SAVED_RESPONSES",
+  VIOLATIONS: "SAVED_VIOLATIONS",
+  START_TIME: "SESSION_START"
+};
+
+// =====================================================
+// 1️⃣ RELOAD DETECTION – AUTO SUBMIT
+// =====================================================
+(function detectReloadAndAutoSubmit() {
+  const isActive = localStorage.getItem(LS_KEYS.ACTIVE) === "1";
+  if (!isActive) return;
+
+  const nav = performance.getEntriesByType("navigation")[0];
+  if (nav && nav.type === "reload") {
+    const savedEmail = localStorage.getItem(LS_KEYS.EMAIL);
+    const savedResponses = localStorage.getItem(LS_KEYS.RESPONSES);
+    const savedViolations = localStorage.getItem(LS_KEYS.VIOLATIONS);
+
+    document.addEventListener("DOMContentLoaded", async () => {
+      document.body.innerHTML = `
+        <div style="text-align:center;padding:80px;font-family:sans-serif">
+          <h2 style="color:#d32f2f">Test Auto-Submitted</h2>
+          <p>A page refresh was detected.</p>
+          <p>Your test has been submitted automatically.</p>
+        </div>
+      `;
+
+      try {
+        await fetch(SCRIPT_URL, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded"
+          },
+          body: new URLSearchParams({
+            action: "submit",
+            email: savedEmail || "refresh_user",
+            responses: savedResponses || "{}",
+            violations: savedViolations || "0",
+            forced: "1"
+          }).toString()
+        });
+      } catch (e) {}
+
+      localStorage.clear();
+    });
+  }
+})();
+
+// =====================================================
+// 2️⃣ BEFORE UNLOAD WARNING
+// =====================================================
+window.addEventListener("beforeunload", function (e) {
+  if (localStorage.getItem(LS_KEYS.ACTIVE) === "1") {
+    e.preventDefault();
+    e.returnValue =
+      "Refreshing or leaving this page will auto-submit your test.";
+  }
+});
+
+// =====================================================
+// 3️⃣ SESSION PERSIST
+// =====================================================
+function persistSession() {
+  if (!email) return;
+
+  localStorage.setItem(LS_KEYS.ACTIVE, "1");
+  localStorage.setItem(LS_KEYS.EMAIL, email);
+  localStorage.setItem(LS_KEYS.RESPONSES, JSON.stringify(responses));
+  localStorage.setItem(LS_KEYS.VIOLATIONS, String(tabViolations));
 }
 
-function showScreen(idToShow) {
-  ["screen-start", "screen-question", "screen-end"].forEach((id) => {
-    $(id).classList.toggle("hidden", id !== idToShow);
-  });
+// Backup every 5 seconds
+setInterval(() => {
+  if (localStorage.getItem(LS_KEYS.ACTIVE) === "1") {
+    persistSession();
+  }
+}, 5000);
+
+// =====================================================
+// 4️⃣ UI HELPERS
+// =====================================================
+function showScreen(id) {
+  ["screen-start", "screen-question", "screen-end"].forEach((s) =>
+    $(s).classList.toggle("hidden", s !== id)
+  );
 }
 
 function updateHUD() {
-  const total = questionBank.length;
-  const humanIndex = Math.min(currentIndex + 1, total);
-  const pct = Math.round(((humanIndex - 1) / total) * 100);
-
-  $("qIndex").textContent = humanIndex;
-  $("qTotal").textContent = total;
-  $("qPercent").textContent = `${pct}%`;
-  $("progressBar").style.width = `${pct}%`;
+  $("qIndex").textContent = currentIndex + 1;
+  $("qTotal").textContent = questionBank.length;
   $("violations").textContent = tabViolations;
 }
 
+function fmtTime(s) {
+  const m = Math.floor(s / 60);
+  const sec = s % 60;
+  return `${m}:${sec < 10 ? "0" : ""}${sec}`;
+}
+
+// =====================================================
+// 5️⃣ START TEST
+// =====================================================
+$("btnStart").addEventListener("click", () => {
+  const val = $("email").value.trim();
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  if (!emailRegex.test(val)) {
+    alert("Please enter a valid email.");
+    return;
+  }
+
+  if (!SCRIPT_URL) {
+    alert("SCRIPT_URL missing in config.");
+    return;
+  }
+
+  email = val;
+  timeLeft = TOTAL_TIME_SECONDS;
+
+  persistSession();
+
+  showScreen("screen-question");
+  renderQuestion(0);
+  startTimer();
+});
+
+// =====================================================
+// 6️⃣ RENDER QUESTION
+// =====================================================
 function renderQuestion(i) {
+  currentIndex = i;
   const q = questionBank[i];
+  if (!q) return;
 
   $("qText").innerHTML = `
-    <div style="margin-bottom:6px; opacity:.7;">Question ${i + 1}</div>
-    <div>${q.text.replace(/\n/g, "<br>")}</div>
+    <div style="opacity:.7;margin-bottom:6px">Question ${i + 1}</div>
+    <div>${q.text}</div>
   `;
 
   $("qExtra").innerHTML = q.extraHTML || "";
@@ -76,6 +178,10 @@ function renderQuestion(i) {
         ${responses[q.key] === opt.value ? "checked" : ""}>
       ${opt.label}
     `;
+    lbl.onclick = () => {
+      responses[q.key] = opt.value;
+      persistSession();
+    };
     wrap.appendChild(lbl);
   });
 
@@ -85,162 +191,100 @@ function renderQuestion(i) {
   updateHUD();
 }
 
-// --- Timer
-let timerHandle = null;
-
+// =====================================================
+// 7️⃣ TIMER
+// =====================================================
 function startTimer() {
   $("timer").textContent = fmtTime(timeLeft);
 
   timerHandle = setInterval(() => {
+    timeLeft--;
     $("timer").textContent = fmtTime(timeLeft);
 
     if (timeLeft <= 0) {
       clearInterval(timerHandle);
-      autoSubmit();
+      submitNow(false);
     }
-
-    timeLeft--;
   }, 1000);
 }
 
-// --- Anti-cheat
-["copy", "paste", "cut", "contextmenu", "selectstart"].forEach((evt) =>
-  document.addEventListener(evt, (e) => e.preventDefault())
-);
-
-document.addEventListener("visibilitychange", () => {
-  if (document.hidden) {
-    tabViolations++;
-    alert(
-      "⚠️ Warning: Switching away from the test tab has been recorded. Violations: " +
-        tabViolations
-    );
-    $("violations").textContent = tabViolations;
-  }
-});
-
-history.pushState(null, "", location.href);
-window.onpopstate = () => history.go(1);
-
-// Print / Screenshot guard
-window.addEventListener("beforeprint", (e) => {
-  $("print-blocker").classList.remove("hidden");
-  alert("Printing is disabled.");
-  e.preventDefault?.();
-});
-
-document.addEventListener("keydown", (e) => {
-  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "p") {
-    e.preventDefault();
-    alert("Printing is disabled.");
-  }
-  if (e.key === "PrintScreen") {
-    e.preventDefault?.();
-    navigator.clipboard?.writeText &&
-      navigator.clipboard.writeText("Screenshots are disabled.");
-    alert("Screenshot attempts are not allowed.");
-  }
-});
-
-// --- Refresh Warning (must run BEFORE refresh detection)
-window.addEventListener("beforeunload", (e) => {
-  if (localStorage.getItem("TEST_ACTIVE") === "1") {
-    localStorage.setItem("PENDING_FORCED_SUBMIT", "1");
-    e.preventDefault();
-    e.returnValue =
-      "If you refresh this page, the test will be automatically submitted.";
-    return e.returnValue;
-  }
-});
-
-// --- Start Test
-$("btnStart").addEventListener("click", () => {
-  const val = $("email").value.trim();
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-  if (!emailRegex.test(val)) {
-    $("startMsg").innerHTML = `Please enter a valid email address.`;
-    return;
-  }
-
-  if (!SCRIPT_URL || !/^https?:\/\/script\.google\.com\//.test(SCRIPT_URL)) {
-    $("startMsg").innerHTML = `SCRIPT_URL is not configured correctly.`;
-    return;
-  }
-
-  email = val;
-
-  // Lock the session
-  localStorage.setItem("TEST_ACTIVE", "1");
-  localStorage.removeItem("PENDING_FORCED_SUBMIT");
-
-  timeLeft = TOTAL_TIME_SECONDS;
-  startTimer();
-  showScreen("screen-question");
-  renderQuestion(currentIndex);
-});
-
-// --- Next / Submit
+// =====================================================
+// 8️⃣ NEXT BUTTON
+// =====================================================
 $("btnNext").addEventListener("click", () => {
-  const q = questionBank[currentIndex];
-  const chosen = document.querySelector(
-    `input[name="${q.key}"]:checked`
-  );
-
-  if (chosen) responses[q.key] = chosen.value;
-
   if (currentIndex < questionBank.length - 1) {
     currentIndex++;
     renderQuestion(currentIndex);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    window.scrollTo(0, 0);
   } else {
     submitNow(false);
   }
 });
 
-// --- Submit
-async function submitNow(forceSubmit = false) {
+// =====================================================
+// 9️⃣ TAB SWITCH DETECTION
+// =====================================================
+document.addEventListener("visibilitychange", () => {
+  if (document.hidden &&
+      localStorage.getItem(LS_KEYS.ACTIVE) === "1") {
+    tabViolations++;
+    persistSession();
+    updateHUD();
+    alert(
+      "Warning: Leaving the test tab is recorded.\nViolation count: " +
+        tabViolations
+    );
+  }
+});
+
+// =====================================================
+// 🔟 SUBMIT FUNCTION
+// =====================================================
+async function submitNow(forced = false) {
+  clearInterval(timerHandle);
   showScreen("screen-end");
 
   try {
     const payload = new URLSearchParams({
       action: "submit",
       email,
-      violations: String(tabViolations),
-      timeRemainingSec: String(Math.max(0, timeLeft)),
       responses: JSON.stringify(responses),
-      forced: forceSubmit ? "1" : "0",
+      violations: String(tabViolations),
+      forced: forced ? "1" : "0"
     });
 
-    await fetch(SCRIPT_URL, {
+    const res = await fetch(SCRIPT_URL, {
       method: "POST",
       headers: {
-        "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8",
+        "Content-Type": "application/x-www-form-urlencoded"
       },
-      body: payload.toString(),
+      body: payload.toString()
     });
 
-    if (forceSubmit) {
-      document.body.innerHTML = `
-        <h2 style="color:red; text-align:center;">VIOLATION DETECTED: PAGE REFRESH</h2>
-        <p style="text-align:center;">Your test is being automatically submitted...</p>
-      `;
-    } else {
-      document.body.innerHTML = `
-        <h2 style="text-align:center;">Submitted</h2>
-        <p style="text-align:center;">You may now close this tab.</p>
-      `;
+    const data = await res.json().catch(() => null);
+
+    if (!data || data.ok !== true) {
+      alert("Submission error. Please contact administrator.");
+      showScreen("screen-question");
+      return;
     }
+
+    document.body.innerHTML = `
+      <div style="text-align:center;padding:80px;font-family:sans-serif">
+        <h2>Submission Successful</h2>
+        <p>This session has ended.</p>
+      </div>
+    `;
+  } catch (e) {
+    alert("Network error during submission.");
+    showScreen("screen-question");
   } finally {
-    localStorage.removeItem("TEST_ACTIVE");
-    localStorage.removeItem("PENDING_FORCED_SUBMIT");
+    localStorage.clear();
   }
 }
 
-function autoSubmit() {
-  submitNow(false);
-}
-
-// --- Init
+// =====================================================
+// INIT HUD
+// =====================================================
 $("qTotal").textContent = questionBank.length || 0;
 updateHUD();
