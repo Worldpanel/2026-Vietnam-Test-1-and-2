@@ -40,14 +40,22 @@ function injectOptionStyles(){
   const style = document.createElement("style");
 
   style.innerHTML = `
+    .options{
+      display:flex !important;
+      flex-direction:column;
+      gap:12px;
+    }
+
     .option-card{
+      all: unset;
+      box-sizing: border-box;
       display:flex;
       align-items:center;
       gap:14px;
       padding:14px 16px;
-      border:2px solid #e3eaf2;
+      border:2px solid #d6e0ea;
       border-radius:10px;
-      background:#fff;
+      background:#ffffff;
       cursor:pointer;
       transition:all .2s ease;
       font-size:15px;
@@ -69,7 +77,7 @@ function injectOptionStyles(){
     .option-letter{
       font-weight:700;
       color:#005EB8;
-      min-width:24px;
+      min-width:28px;
     }
 
     .option-text{
