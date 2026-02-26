@@ -48,15 +48,19 @@ function detectRefreshAutoSubmit() {
 
       const savedEmail = localStorage.getItem("exam_email") || "unknown";
 
-      navigator.sendBeacon(
-        SCRIPT_URL,
-        new URLSearchParams({
-          email: savedEmail,
-          responses: localStorage.getItem("exam_responses") || "{}",
-          violations: tabSwitchCount,
-          reason: "Page refreshed"
-        })
-      );
+      const payload = new URLSearchParams({
+        email: savedEmail,
+        responses: localStorage.getItem("exam_responses") || "{}",
+        violations: localStorage.getItem("exam_violations") || 0,
+        timeRemainingSec: localStorage.getItem("exam_timeLeft") || 0,
+        submittedAt: new Date().toISOString(),
+        reason: "Page refreshed"
+      });
+
+      const ok = navigator.sendBeacon(SCRIPT_URL, payload);
+      console.log("Beacon sent:", ok);
+
+      localStorage.removeItem("exam_active");
 
       document.body.innerHTML = `
         <h2 style="color:#d32f2f;text-align:center;margin-top:40px;">
